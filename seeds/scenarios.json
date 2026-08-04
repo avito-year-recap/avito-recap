@@ -1,0 +1,314 @@
+[
+  {
+    "profileCode": "active-buyer",
+    "year": 2025,
+    "randomSeed": 1101,
+    "activity": {
+      "searches": 45,
+      "listingViews": 180,
+      "uniqueListings": 120,
+      "favoritesAdded": 28,
+      "chatsStarted": 3,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "buyerDeals": 1,
+      "sellerDeals": 0
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "weight": 60
+      },
+      {
+        "code": "auto",
+        "weight": 15
+      },
+      {
+        "code": "furniture",
+        "weight": 15
+      },
+      {
+        "code": "clothing",
+        "weight": 10
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 15
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 9,
+        "weight": 25
+      },
+      {
+        "month": 10,
+        "weight": 40
+      }
+    ]
+  },
+  {
+    "profileCode": "active-seller",
+    "year": 2025,
+    "randomSeed": 2202,
+    "activity": {
+      "searches": 5,
+      "listingViews": 35,
+      "uniqueListings": 30,
+      "favoritesAdded": 3,
+      "chatsStarted": 26,
+      "listingsCreated": 11,
+      "listingsPublished": 9,
+      "buyerDeals": 0,
+      "sellerDeals": 6
+    },
+    "categories": [
+      {
+        "code": "clothing",
+        "weight": 45
+      },
+      {
+        "code": "furniture",
+        "weight": 35
+      },
+      {
+        "code": "hobby",
+        "weight": 20
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 20
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ]
+  },
+  {
+    "profileCode": "researcher",
+    "year": 2025,
+    "randomSeed": 3303,
+    "activity": {
+      "searches": 80,
+      "listingViews": 260,
+      "uniqueListings": 235,
+      "favoritesAdded": 5,
+      "chatsStarted": 1,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "buyerDeals": 0,
+      "sellerDeals": 0
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "weight": 22
+      },
+      {
+        "code": "auto",
+        "weight": 18
+      },
+      {
+        "code": "real_estate",
+        "weight": 17
+      },
+      {
+        "code": "furniture",
+        "weight": 14
+      },
+      {
+        "code": "clothing",
+        "weight": 10
+      },
+      {
+        "code": "hobby",
+        "weight": 10
+      },
+      {
+        "code": "services",
+        "weight": 9
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 10
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 7,
+        "weight": 30
+      },
+      {
+        "month": 12,
+        "weight": 40
+      }
+    ]
+  },
+  {
+    "profileCode": "universal-user",
+    "year": 2025,
+    "randomSeed": 4404,
+    "activity": {
+      "searches": 25,
+      "listingViews": 95,
+      "uniqueListings": 86,
+      "favoritesAdded": 12,
+      "chatsStarted": 9,
+      "listingsCreated": 5,
+      "listingsPublished": 4,
+      "buyerDeals": 1,
+      "sellerDeals": 2
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "weight": 35
+      },
+      {
+        "code": "electronics",
+        "weight": 30
+      },
+      {
+        "code": "clothing",
+        "weight": 20
+      },
+      {
+        "code": "hobby",
+        "weight": 15
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 20
+      },
+      {
+        "month": 6,
+        "weight": 20
+      },
+      {
+        "month": 9,
+        "weight": 35
+      },
+      {
+        "month": 12,
+        "weight": 25
+      }
+    ]
+  },
+  {
+    "profileCode": "draft-seller",
+    "year": 2025,
+    "randomSeed": 5505,
+    "activity": {
+      "searches": 8,
+      "listingViews": 40,
+      "uniqueListings": 35,
+      "favoritesAdded": 4,
+      "chatsStarted": 6,
+      "listingsCreated": 7,
+      "listingsPublished": 2,
+      "buyerDeals": 0,
+      "sellerDeals": 0
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "weight": 50
+      },
+      {
+        "code": "electronics",
+        "weight": 30
+      },
+      {
+        "code": "clothing",
+        "weight": 20
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 35
+      },
+      {
+        "month": 10,
+        "weight": 25
+      }
+    ]
+  },
+  {
+    "profileCode": "decisive-buyer",
+    "year": 2025,
+    "randomSeed": 6606,
+    "activity": {
+      "searches": 12,
+      "listingViews": 70,
+      "uniqueListings": 58,
+      "favoritesAdded": 14,
+      "chatsStarted": 15,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "buyerDeals": 4,
+      "sellerDeals": 0
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "weight": 55
+      },
+      {
+        "code": "electronics",
+        "weight": 25
+      },
+      {
+        "code": "hobby",
+        "weight": 20
+      }
+    ],
+    "months": [
+      {
+        "month": 4,
+        "weight": 15
+      },
+      {
+        "month": 6,
+        "weight": 25
+      },
+      {
+        "month": 9,
+        "weight": 20
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ]
+  }
+]

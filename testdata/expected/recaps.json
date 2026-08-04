@@ -1,0 +1,126 @@
+[
+  {
+    "profileCode": "active-buyer",
+    "expectedBehavior": "FIND_HUNTER",
+    "expectedAchievements": [
+      "ATTENTIVE_RESEARCHER",
+      "MASTER_OF_FAVORITES"
+    ],
+    "expectedNextAction": "OPEN_FAVORITES",
+    "expectedTopCategory": "electronics",
+    "expectedActiveMonth": 10,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  },
+  {
+    "profileCode": "active-seller",
+    "expectedBehavior": "ACTIVE_SELLER",
+    "expectedAchievements": [
+      "SUCCESSFUL_SELLER",
+      "CONSISTENT_PUBLISHER"
+    ],
+    "expectedNextAction": "CREATE_LISTING",
+    "expectedTopCategory": "clothing",
+    "expectedActiveMonth": 11,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  },
+  {
+    "profileCode": "researcher",
+    "expectedBehavior": "RESEARCHER",
+    "expectedAchievements": [
+      "BROAD_INTERESTS",
+      "ATTENTIVE_RESEARCHER"
+    ],
+    "expectedNextAction": "SAVE_SEARCH",
+    "expectedTopCategory": "electronics",
+    "expectedActiveMonth": 12,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "MISSED_OPPORTUNITY",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  },
+  {
+    "profileCode": "universal-user",
+    "expectedBehavior": "UNIVERSAL_USER",
+    "expectedAchievements": [
+      "ALL_ROUNDER"
+    ],
+    "expectedNextAction": "CONTINUE_DIALOGS",
+    "expectedTopCategory": "furniture",
+    "expectedActiveMonth": 9,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  },
+  {
+    "profileCode": "draft-seller",
+    "expectedBehavior": "STARTING_SELLER",
+    "expectedAchievements": [
+      "FIRST_SELLING_STEPS"
+    ],
+    "expectedNextAction": "FINISH_DRAFT",
+    "expectedTopCategory": "furniture",
+    "expectedActiveMonth": 8,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "MISSED_OPPORTUNITY",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  },
+  {
+    "profileCode": "decisive-buyer",
+    "expectedBehavior": "DECISIVE_BUYER",
+    "expectedAchievements": [
+      "DEAL_CLOSER",
+      "QUICK_DECISION"
+    ],
+    "expectedNextAction": "VIEW_SIMILAR_LISTINGS",
+    "expectedTopCategory": "furniture",
+    "expectedActiveMonth": 11,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SUMMARY"
+    ]
+  }
+]
