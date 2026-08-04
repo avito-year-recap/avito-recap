@@ -1,0 +1,54 @@
+{
+  "profile": {
+    "code": "draft-seller",
+    "displayName": "Сергей"
+  },
+  "year": 2025,
+  "rulesVersion": "1.0.0",
+  "behavior": {
+    "code": "STARTING_SELLER"
+  },
+  "achievements": [
+    {
+      "code": "FIRST_SELLING_STEPS",
+      "shareable": true
+    }
+  ],
+  "nextAction": {
+    "type": "FINISH_DRAFT"
+  },
+  "cards": [
+    {
+      "type": "INTRO",
+      "position": 1
+    },
+    {
+      "type": "YEAR_ACTIVITY",
+      "position": 2
+    },
+    {
+      "type": "TOP_CATEGORY",
+      "position": 3
+    },
+    {
+      "type": "ACTIVE_MONTH",
+      "position": 4
+    },
+    {
+      "type": "BEHAVIOR",
+      "position": 5
+    },
+    {
+      "type": "MISSED_OPPORTUNITY",
+      "position": 6
+    },
+    {
+      "type": "NEXT_ACTION",
+      "position": 7
+    },
+    {
+      "type": "SUMMARY",
+      "position": 8
+    }
+  ]
+}

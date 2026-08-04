@@ -1,0 +1,54 @@
+{
+  "profile": {
+    "code": "universal-user",
+    "displayName": "Анна"
+  },
+  "year": 2025,
+  "rulesVersion": "1.0.0",
+  "behavior": {
+    "code": "UNIVERSAL_USER"
+  },
+  "achievements": [
+    {
+      "code": "ALL_ROUNDER",
+      "shareable": true
+    }
+  ],
+  "nextAction": {
+    "type": "CONTINUE_DIALOGS"
+  },
+  "cards": [
+    {
+      "type": "INTRO",
+      "position": 1
+    },
+    {
+      "type": "YEAR_ACTIVITY",
+      "position": 2
+    },
+    {
+      "type": "TOP_CATEGORY",
+      "position": 3
+    },
+    {
+      "type": "ACTIVE_MONTH",
+      "position": 4
+    },
+    {
+      "type": "BEHAVIOR",
+      "position": 5
+    },
+    {
+      "type": "ACHIEVEMENT",
+      "position": 6
+    },
+    {
+      "type": "NEXT_ACTION",
+      "position": 7
+    },
+    {
+      "type": "SUMMARY",
+      "position": 8
+    }
+  ]
+}

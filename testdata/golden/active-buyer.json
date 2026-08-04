@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "code": "active-buyer",
+    "displayName": "Алексей"
+  },
+  "year": 2025,
+  "rulesVersion": "1.0.0",
+  "behavior": {
+    "code": "FIND_HUNTER"
+  },
+  "achievements": [
+    {
+      "code": "ATTENTIVE_RESEARCHER",
+      "shareable": true
+    },
+    {
+      "code": "MASTER_OF_FAVORITES",
+      "shareable": true
+    }
+  ],
+  "nextAction": {
+    "type": "OPEN_FAVORITES"
+  },
+  "cards": [
+    {
+      "type": "INTRO",
+      "position": 1
+    },
+    {
+      "type": "YEAR_ACTIVITY",
+      "position": 2
+    },
+    {
+      "type": "TOP_CATEGORY",
+      "position": 3
+    },
+    {
+      "type": "ACTIVE_MONTH",
+      "position": 4
+    },
+    {
+      "type": "BEHAVIOR",
+      "position": 5
+    },
+    {
+      "type": "ACHIEVEMENT",
+      "position": 6
+    },
+    {
+      "type": "NEXT_ACTION",
+      "position": 7
+    },
+    {
+      "type": "SUMMARY",
+      "position": 8
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "code": "researcher",
+    "displayName": "Илья"
+  },
+  "year": 2025,
+  "rulesVersion": "1.0.0",
+  "behavior": {
+    "code": "RESEARCHER"
+  },
+  "achievements": [
+    {
+      "code": "BROAD_INTERESTS",
+      "shareable": true
+    },
+    {
+      "code": "ATTENTIVE_RESEARCHER",
+      "shareable": true
+    }
+  ],
+  "nextAction": {
+    "type": "SAVE_SEARCH"
+  },
+  "cards": [
+    {
+      "type": "INTRO",
+      "position": 1
+    },
+    {
+      "type": "YEAR_ACTIVITY",
+      "position": 2
+    },
+    {
+      "type": "TOP_CATEGORY",
+      "position": 3
+    },
+    {
+      "type": "ACTIVE_MONTH",
+      "position": 4
+    },
+    {
+      "type": "BEHAVIOR",
+      "position": 5
+    },
+    {
+      "type": "MISSED_OPPORTUNITY",
+      "position": 6
+    },
+    {
+      "type": "NEXT_ACTION",
+      "position": 7
+    },
+    {
+      "type": "SUMMARY",
+      "position": 8
+    }
+  ]
+}
