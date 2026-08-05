@@ -11,7 +11,6 @@ func TestDetectBehavior(t *testing.T) {
 		{
 			name: "active seller at boundary",
 			metrics: Metrics{
-				ListingsCreated:   activeSellerMinListings,
 				ListingsPublished: activeSellerMinListings,
 				SalesCompleted:    activeSellerMinDeals,
 			},
@@ -25,6 +24,7 @@ func TestDetectBehavior(t *testing.T) {
 				RepeatedViews:      100,
 				FavoritesAdded:     50,
 				ChatsStarted:       20,
+				ChatsWithPurchase:  4,
 				PurchasesCompleted: 4,
 				ListingsCreated:    5,
 				ListingsPublished:  5,
@@ -37,19 +37,26 @@ func TestDetectBehavior(t *testing.T) {
 			name: "starting seller at boundary",
 			metrics: Metrics{
 				ListingsCreated:   startingSellerMinCreated,
-				ListingsPublished: 1,
+				ListingsPublished: startingSellerMaxPublished,
 			},
 			expected: BehaviorStartingSeller,
 		},
 		{
-			name: "decisive buyer at boundary",
+			name: "decisive buyer uses linked chats",
 			metrics: Metrics{
-				TotalViews:         20,
-				UniqueListings:     20,
 				ChatsStarted:       decisiveBuyerMinChats,
+				ChatsWithPurchase:  decisiveBuyerMinLinkedChats,
 				PurchasesCompleted: decisiveBuyerMinPurchases,
 			},
 			expected: BehaviorDecisiveBuyer,
+		},
+		{
+			name: "purchases without linked chats are not decisive buyer",
+			metrics: Metrics{
+				ChatsStarted:       decisiveBuyerMinChats,
+				PurchasesCompleted: decisiveBuyerMinPurchases,
+			},
+			expected: BehaviorUniversal,
 		},
 		{
 			name: "find hunter at boundary",
@@ -57,26 +64,45 @@ func TestDetectBehavior(t *testing.T) {
 				TotalViews:     findHunterMinViews,
 				UniqueListings: 16,
 				RepeatedViews:  4,
-
+				FavoritesAdded: findHunterMinFavorites,
 			},
 			expected: BehaviorFindHunter,
+		},
+		{
+			name: "find hunter does not divide favorites by annual views",
+			metrics: Metrics{
+				TotalViews:     200,
+				UniqueListings: 160,
+				RepeatedViews:  40,
+				FavoritesAdded: findHunterMinFavorites,
+			},
+			expected: BehaviorFindHunter,
+		},
+		{
+			name: "favorite from another period is not treated as a view conversion",
+			metrics: Metrics{
+				TotalViews:     1,
+				UniqueListings: 1,
+				FavoritesAdded: 10,
+			},
+			expected: BehaviorUniversal,
 		},
 		{
 			name: "researcher at lower boundaries",
 			metrics: Metrics{
 				TotalViews:      researcherMinViews,
 				UniqueListings:  researcherMinViews,
-				ChatsStarted:    4,
+				ChatsStarted:    researcherMaxChats,
 				CategoriesCount: researcherMinCategories,
 			},
 			expected: BehaviorResearcher,
 		},
 		{
-			name: "researcher upper chat boundary is exclusive",
+			name: "researcher chat boundary is absolute",
 			metrics: Metrics{
-				TotalViews:      researcherMinViews,
-				UniqueListings:  researcherMinViews,
-				ChatsStarted:    5,
+				TotalViews:      1000,
+				UniqueListings:  1000,
+				ChatsStarted:    researcherMaxChats + 1,
 				CategoriesCount: researcherMinCategories,
 			},
 			expected: BehaviorUniversal,
@@ -91,6 +117,14 @@ func TestDetectBehavior(t *testing.T) {
 				CategoriesCount: 6,
 			},
 			expected: BehaviorFindHunter,
+		},
+		{
+			name: "publications from an earlier creation cohort do not imply drafts",
+			metrics: Metrics{
+				ListingsCreated:   1,
+				ListingsPublished: 5,
+			},
+			expected: BehaviorUniversal,
 		},
 		{name: "fallback", metrics: Metrics{}, expected: BehaviorUniversal},
 	}

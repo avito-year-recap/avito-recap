@@ -15,13 +15,16 @@ func BuildNextAction(metrics Metrics) NextAction {
 
 	switch behavior.Code {
 	case BehaviorStartingSeller:
-		drafts := metrics.ListingsCreated - metrics.ListingsPublished
 		return NextAction{
 			Code:        ActionFinishDraft,
-			Title:       "Заверши начатое объявление",
-			Description: fmt.Sprintf("Черновиков, которые можно довести до публикации: %d.", drafts),
-			ButtonText:  "Продолжить публикацию",
-			Reason:      "Низкая доля публикаций показывает, что основной незавершённый шаг — работа с черновиками.",
+			Title:       "Проверь начатые объявления",
+			Description: "Открой созданные объявления и заверши те, которые ещё не опубликованы.",
+			ButtonText:  "Проверить объявления",
+			Reason: fmt.Sprintf(
+				"В выбранном году создано %d объявлений, опубликовано %d; это повод проверить незавершённые публикации, но не точное число черновиков.",
+				metrics.ListingsCreated,
+				metrics.ListingsPublished,
+			),
 		}
 
 	case BehaviorActiveSeller:
@@ -30,7 +33,7 @@ func BuildNextAction(metrics Metrics) NextAction {
 			Title:       "Продолжи успешный сценарий",
 			Description: "Создай новое объявление, пока опыт публикаций и продаж остаётся актуальным.",
 			ButtonText:  "Создать объявление",
-			Reason:      "Регулярные публикации уже приводили к завершённым продажам.",
+			Reason:      "В течение года было много публикаций и несколько завершённых продаж.",
 		}
 
 	case BehaviorDecisiveBuyer:
@@ -39,7 +42,7 @@ func BuildNextAction(metrics Metrics) NextAction {
 			Title:       "Посмотри похожие варианты",
 			Description: "Подборка по главному интересу поможет быстро перейти к следующему выбору.",
 			ButtonText:  "Смотреть похожее",
-			Reason:      "Высокая доля завершённых покупок показывает готовность переходить от общения к действию.",
+			Reason:      "Несколько диалогов в выбранном периоде были связаны с завершёнными покупками.",
 		}
 
 	case BehaviorResearcher:
@@ -48,7 +51,7 @@ func BuildNextAction(metrics Metrics) NextAction {
 			Title:       "Сохрани поиск",
 			Description: "Новые объявления по выбранным параметрам будут легче отслеживать без повторного поиска.",
 			ButtonText:  "Сохранить поиск",
-			Reason:      "Просмотров и категорий много, а переходов к диалогу мало — автоматическое обновление поиска сокращает повторную работу.",
+			Reason:      "Просмотров и категорий много, а начатых диалогов мало — автоматическое обновление поиска сокращает повторную работу.",
 		}
 
 	case BehaviorFindHunter:
@@ -57,7 +60,7 @@ func BuildNextAction(metrics Metrics) NextAction {
 			Title:       "Вернись к своим находкам",
 			Description: "В избранном уже есть варианты, которые можно ещё раз сравнить и обсудить.",
 			ButtonText:  "Открыть избранное",
-			Reason:      "Высокая доля сохранений и повторных просмотров указывает на сформированную подборку.",
+			Reason:      "В течение года было несколько добавлений в избранное и много повторных просмотров.",
 		}
 	}
 

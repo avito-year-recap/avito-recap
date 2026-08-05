@@ -2,7 +2,7 @@ package recap
 
 import "time"
 
-const CurrentRulesVersion = "2.0.0"
+const CurrentRulesVersion = "2.1.0"
 
 type ActivityType string
 
@@ -39,7 +39,7 @@ type Metrics struct {
 	SalesCompleted     uint64 `json:"salesCompleted"`
 	ActiveDays         uint64 `json:"activeDays"`
 	CategoriesCount    uint64 `json:"categoriesCount"`
-    ChatsWithPurchase uint64 `json:"chatsWithPurchase"`
+	ChatsWithPurchase  uint64 `json:"chatsWithPurchase"`
 
 	TopCategoryCode      string `json:"topCategoryCode,omitempty"`
 	TopCategory          string `json:"topCategory,omitempty"`
