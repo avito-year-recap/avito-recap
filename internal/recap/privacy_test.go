@@ -12,13 +12,14 @@ func TestBuildShareCardUsesOnlyExplicitlyPublicData(t *testing.T) {
 			DisplayName: "Private name",
 		},
 		Metrics: Metrics{
+			TopCategoryCode:      "electronics",
 			TopCategory:          "Электроника",
 			TopCategoryShareable: true,
 		},
 		Behavior: Behavior{Title: "Исследователь"},
 		Achievements: []Achievement{
-			{Title: "Private achievement", Shareable: false},
-			{Title: "Public achievement", Shareable: true},
+			{Code: AchievementAttentiveResearcher, Title: "Private achievement", Shareable: false},
+			{Code: AchievementBroadInterests, Title: "Public achievement", Shareable: true},
 		},
 	}
 

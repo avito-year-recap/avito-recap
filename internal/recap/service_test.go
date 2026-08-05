@@ -99,7 +99,7 @@ func TestServiceGenerateIsIdempotentByProfileYearAndRulesVersion(t *testing.T) {
 	if analytics.calls != 1 || states.calls != 1 || recaps.createCalls != 1 || idCalls != 2 {
 		t.Fatalf("analytics=%d states=%d create=%d ids=%d", analytics.calls, states.calls, recaps.createCalls, idCalls)
 	}
-	expected := RecapKey{ProfileID: testProfileID, Year: 2025, RulesVersion: CurrentRulesVersion}
+	expected := RecapKey{ProfileID: testProfileID, Year: 2025, RulesVersion: CurrentRulesVersion, RulesDigest: DefaultRuleset().Digest()}
 	if recaps.gotKey != expected {
 		t.Fatalf("key=%+v want %+v", recaps.gotKey, expected)
 	}
@@ -149,8 +149,13 @@ func TestServiceGenerateConcurrentCallsReturnOneStoredRecap(t *testing.T) {
 
 func TestServiceGenerateUsesConfiguredRulesetVersionInKey(t *testing.T) {
 	rules := DefaultRuleset()
-	rules.Version = "3.1.0-test"
-	recaps := &recapStorageStub{byKey: func() Recap { v := validRecap(); v.RulesVersion = rules.Version; return v }()}
+	rules.Version = "3.3.0-test"
+	recaps := &recapStorageStub{byKey: func() Recap {
+		v := validRecap()
+		v.RulesVersion = rules.Version
+		v.RulesDigest = rules.Digest()
+		return v
+	}()}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps, WithRuleset(rules), WithClock(func() time.Time { return fixedClock() }))
 	value, err := service.Generate(context.Background(), testProfileID, 2025)
 	if err != nil {

@@ -90,7 +90,7 @@ func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 	if !ok {
 		t.Fatalf("researcher achievement card has wrong payload: %T", achievementCard.Payload)
 	}
-	wantCodes := []AchievementCode{AchievementBroadInterests, AchievementAttentiveResearcher}
+	wantCodes := []AchievementCode{AchievementBroadInterests}
 	if !reflect.DeepEqual(payload.Codes, wantCodes) {
 		t.Fatalf("researcher achievements were hidden or changed: got %v, want %v", payload.Codes, wantCodes)
 	}

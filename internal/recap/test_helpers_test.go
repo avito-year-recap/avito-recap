@@ -83,7 +83,11 @@ func (s *actionStateStorageStub) GetActionableState(_ context.Context, id uuid.U
 	if s.err != nil {
 		return ActionableState{}, s.err
 	}
-	return s.state, nil
+	state := s.state
+	if state.CapturedAt.IsZero() {
+		state.CapturedAt = asOf
+	}
+	return state, nil
 }
 
 type recapStorageStub struct {
@@ -185,7 +189,7 @@ func validRecap() Recap {
 	behavior := ruleset.DetectBehavior(metrics)
 	achievements := ruleset.BuildAchievements(metrics)
 	action := ruleset.BuildNextAction(metrics, state, behavior)
-	return Recap{ID: testRecapID, ShareID: testShareID, Profile: profile, Year: 2025, Period: validPeriod(), RulesVersion: ruleset.Version, Metrics: metrics, ActionableState: state, Behavior: behavior, Achievements: achievements, Cards: BuildCards(profile, 2025, testShareID, metrics, behavior, achievements, action), NextAction: action, GeneratedAt: fixedClock()}
+	return Recap{ID: testRecapID, ShareID: testShareID, Profile: profile, Year: 2025, Period: validPeriod(), RulesVersion: ruleset.Version, RulesDigest: ruleset.Digest(), Metrics: metrics, ActionableState: state, Behavior: behavior, Achievements: achievements, Cards: BuildCardsWithRuleset(ruleset, profile, 2025, testShareID, metrics, behavior, achievements, action), NextAction: action, GeneratedAt: fixedClock()}
 }
 
 func mustService(t *testing.T, profiles ProfileStorage, analytics AnalyticsStorage, recaps RecapStorage, options ...Option) *Service {

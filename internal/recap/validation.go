@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var categoryCodePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{0,63}$`)
 
 var (
 	ErrInvalidProfile         = errors.New("invalid profile")
@@ -68,8 +71,11 @@ func validateMetrics(metrics Metrics) error {
 	if metrics.CategoriesCount > metrics.TotalEvents {
 		return fmt.Errorf("%w: category count exceeds total events", ErrInvalidMetrics)
 	}
-	if metrics.ActiveDays > metrics.TotalEvents && metrics.TotalEvents > 0 {
+	if metrics.ActiveDays > metrics.TotalEvents {
 		return fmt.Errorf("%w: active days exceed total events", ErrInvalidMetrics)
+	}
+	if metrics.TopCategoryCode != "" && !isSafeCategoryCode(metrics.TopCategoryCode) {
+		return fmt.Errorf("%w: top category code is unsafe", ErrInvalidMetrics)
 	}
 	if metrics.MostActiveMonth > 12 {
 		return fmt.Errorf("%w: active month must be in range 0..12", ErrInvalidMetrics)
@@ -85,6 +91,9 @@ func validateMetricsForPeriod(metrics Metrics, period RecapPeriod) error {
 	if maxDays == 0 || metrics.ActiveDays > maxDays {
 		return fmt.Errorf("%w: active days %d exceed period length %d", ErrInvalidMetrics, metrics.ActiveDays, maxDays)
 	}
+	if metrics.TotalEvents > 0 && (metrics.MostActiveMonth < 1 || metrics.MostActiveMonth > 12) {
+		return fmt.Errorf("%w: active month is required for a non-empty annual period", ErrInvalidMetrics)
+	}
 	return nil
 }
 
@@ -92,14 +101,14 @@ func validateActionableState(state ActionableState) error {
 	if state.CapturedAt.IsZero() {
 		return fmt.Errorf("%w: captured time is required", ErrInvalidActionableState)
 	}
-	if state.DraftListingID != uuid.Nil && state.CurrentDrafts == 0 {
-		return fmt.Errorf("%w: draft id requires a positive draft count", ErrInvalidActionableState)
+	if (state.DraftListingID == uuid.Nil) != (state.CurrentDrafts == 0) {
+		return fmt.Errorf("%w: draft count and addressable draft id must be present together", ErrInvalidActionableState)
 	}
-	if state.OpenDialogID != uuid.Nil && state.OpenDialogs == 0 {
-		return fmt.Errorf("%w: dialog id requires a positive open-dialog count", ErrInvalidActionableState)
+	if (state.OpenDialogID == uuid.Nil) != (state.OpenDialogs == 0) {
+		return fmt.Errorf("%w: open-dialog count and addressable dialog id must be present together", ErrInvalidActionableState)
 	}
-	if state.ActiveListingID != uuid.Nil && state.ActiveListings == 0 {
-		return fmt.Errorf("%w: active listing id requires a positive active-listing count", ErrInvalidActionableState)
+	if (state.ActiveListingID == uuid.Nil) != (state.ActiveListings == 0) {
+		return fmt.Errorf("%w: active-listing count and addressable listing id must be present together", ErrInvalidActionableState)
 	}
 	return nil
 }
@@ -123,8 +132,11 @@ func validateRecap(value Recap) error {
 	if err := validatePeriod(value.Period); err != nil {
 		return fmt.Errorf("%w: period: %v", ErrInvalidRecap, err)
 	}
-	if strings.TrimSpace(value.RulesVersion) == "" {
-		return fmt.Errorf("%w: rules version is required", ErrInvalidRecap)
+	if !semanticVersionPattern.MatchString(strings.TrimSpace(value.RulesVersion)) {
+		return fmt.Errorf("%w: semantic rules version is required", ErrInvalidRecap)
+	}
+	if !isSHA256Hex(value.RulesDigest) {
+		return fmt.Errorf("%w: rules digest is required", ErrInvalidRecap)
 	}
 	if err := validateMetricsForPeriod(value.Metrics, value.Period); err != nil {
 		return fmt.Errorf("%w: metrics: %v", ErrInvalidRecap, err)
@@ -193,15 +205,15 @@ func validateBehavior(value Behavior) error {
 	if value.Score == 0 || len(value.Evidence) == 0 {
 		return errors.New("scored behavior requires evidence")
 	}
-	var score uint32
+	var score uint64
 	for index, item := range value.Evidence {
 		if item.Metric == "" || item.Detail == "" || math.IsNaN(item.Actual) || math.IsInf(item.Actual, 0) ||
 			math.IsNaN(item.Threshold) || math.IsInf(item.Threshold, 0) {
 			return fmt.Errorf("evidence %d is invalid", index)
 		}
-		score += item.Points
+		score += uint64(item.Points)
 	}
-	if score != value.Score {
+	if score != uint64(value.Score) {
 		return fmt.Errorf("evidence score %d differs from behavior score %d", score, value.Score)
 	}
 	return nil
@@ -209,20 +221,28 @@ func validateBehavior(value Behavior) error {
 
 func validateAchievements(values []Achievement) error {
 	if len(values) > maxAchievements {
-		return errors.New("too many achievements")
+		return fmt.Errorf("too many achievements: got %d, maximum is %d", len(values), maxAchievements)
 	}
-	seen := make(map[AchievementCode]struct{}, len(values))
+	seenCodes := make(map[AchievementCode]struct{}, len(values))
+	seenCategories := make(map[AchievementCategory]struct{}, len(values))
 	for index, value := range values {
 		if !isKnownAchievementCode(value.Code) {
 			return fmt.Errorf("achievement %d has unknown code %q", index, value.Code)
 		}
+		if !isKnownAchievementCategory(value.Category) {
+			return fmt.Errorf("achievement %d has unknown category %q", index, value.Category)
+		}
 		if value.Title == "" || value.Description == "" || value.Reason == "" {
 			return fmt.Errorf("achievement %d text is incomplete", index)
 		}
-		if _, ok := seen[value.Code]; ok {
+		if _, ok := seenCodes[value.Code]; ok {
 			return fmt.Errorf("duplicate achievement code %q", value.Code)
 		}
-		seen[value.Code] = struct{}{}
+		seenCodes[value.Code] = struct{}{}
+		if _, ok := seenCategories[value.Category]; ok {
+			return fmt.Errorf("duplicate achievement category %q", value.Category)
+		}
+		seenCategories[value.Category] = struct{}{}
 	}
 	return nil
 }
@@ -244,14 +264,14 @@ func validateActionTarget(target ActionTarget) error {
 	count := 0
 	if target.Route != nil {
 		count++
-		if target.Route.Route == "" || target.Route.Route[0] != '/' {
-			return errors.New("route target must contain an absolute application route")
+		if !isSafeApplicationRoute(target.Route.Route) {
+			return errors.New("route target must contain a known safe application route")
 		}
 	}
 	if target.Category != nil {
 		count++
-		if target.Category.CategoryCode == "" {
-			return errors.New("category target code is required")
+		if !isSafeCategoryCode(target.Category.CategoryCode) {
+			return errors.New("safe category target code is required")
 		}
 	}
 	if target.Listing != nil {
@@ -268,8 +288,8 @@ func validateActionTarget(target ActionTarget) error {
 	}
 	if target.Search != nil {
 		count++
-		if target.Search.CategoryCode == "" {
-			return errors.New("search target category is required")
+		if !isSafeCategoryCode(target.Search.CategoryCode) {
+			return errors.New("safe search target category is required")
 		}
 	}
 	if count != 1 {
@@ -296,9 +316,17 @@ func validateTargetForAction(code ActionCode, target ActionTarget) error {
 		if target.Search == nil {
 			return fmt.Errorf("action %s requires a search target", code)
 		}
-	case ActionOpenFavorites, ActionCreateFirstListing, ActionCreateListing, ActionExploreRecommendations:
-		if target.Route == nil {
-			return fmt.Errorf("action %s requires a route target", code)
+	case ActionOpenFavorites:
+		if target.Route == nil || target.Route.Route != "/favorites" {
+			return fmt.Errorf("action %s requires /favorites route", code)
+		}
+	case ActionCreateFirstListing, ActionCreateListing:
+		if target.Route == nil || target.Route.Route != "/listings/new" {
+			return fmt.Errorf("action %s requires /listings/new route", code)
+		}
+	case ActionExploreRecommendations:
+		if target.Route == nil || target.Route.Route != "/recommendations" {
+			return fmt.Errorf("action %s requires /recommendations route", code)
 		}
 	}
 	return nil
@@ -380,13 +408,18 @@ func validateCardPayload(cardType CardType, payload CardPayload) error {
 		}
 	case CardAchievement:
 		value, ok := payload.(AchievementPayload)
-		if !ok || len(value.Codes) == 0 {
-			return errors.New("requires achievement payload")
+		if !ok || len(value.Codes) == 0 || len(value.Codes) > maxAchievements {
+			return errors.New("requires one to three achievement codes")
 		}
+		seen := make(map[AchievementCode]struct{}, len(value.Codes))
 		for _, code := range value.Codes {
 			if !isKnownAchievementCode(code) {
 				return errors.New("achievement payload has unknown code")
 			}
+			if _, exists := seen[code]; exists {
+				return errors.New("achievement payload has duplicate code")
+			}
+			seen[code] = struct{}{}
 		}
 	case CardMissedOpportunity, CardNextAction:
 		value, ok := payload.(ActionPayload)
@@ -410,6 +443,9 @@ func validateShareCard(value ShareCard) error {
 	if value.Year == 0 {
 		return errors.New("share year is required")
 	}
+	if strings.TrimSpace(value.PrivacyVersion) == "" {
+		return errors.New("privacy version is required")
+	}
 	if strings.TrimSpace(value.BehaviorTitle) == "" {
 		return errors.New("behavior title is required")
 	}
@@ -425,9 +461,8 @@ func validateShareCardConsistency(value Recap) error {
 	if last.Type != CardShare || !ok {
 		return errors.New("final card must contain a share-card payload")
 	}
-	expected := BuildShareCard(value)
-	if payload != expected {
-		return fmt.Errorf("stored payload %+v differs from public payload %+v", payload, expected)
+	if payload.ShareID != value.ShareID || payload.Year != value.Year {
+		return errors.New("share payload is not bound to recap share id and year")
 	}
 	return nil
 }
@@ -449,9 +484,43 @@ func validateStoredRates(metrics Metrics) error {
 	return nil
 }
 
+func isSafeCategoryCode(code string) bool {
+	return categoryCodePattern.MatchString(strings.TrimSpace(code))
+}
+
+func isSafeApplicationRoute(route string) bool {
+	switch route {
+	case "/favorites", "/listings/new", "/recommendations":
+		return true
+	default:
+		return false
+	}
+}
+
+func isSHA256Hex(value string) bool {
+	if len(value) != 64 {
+		return false
+	}
+	for _, r := range value {
+		if !((r >= '0' && r <= '9') || (r >= 'a' && r <= 'f')) {
+			return false
+		}
+	}
+	return true
+}
+
 func isKnownBehaviorCode(code BehaviorCode) bool {
 	switch code {
 	case BehaviorActiveSeller, BehaviorStartingSeller, BehaviorDecisiveBuyer, BehaviorFindHunter, BehaviorResearcher, BehaviorUniversal:
+		return true
+	default:
+		return false
+	}
+}
+func isKnownAchievementCategory(category AchievementCategory) bool {
+	switch category {
+	case AchievementCategorySelling, AchievementCategoryBuying, AchievementCategoryDiscovery,
+		AchievementCategoryCollection, AchievementCategoryVersatility:
 		return true
 	default:
 		return false

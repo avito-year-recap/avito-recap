@@ -16,9 +16,22 @@ func BuildCards(
 	achievements []Achievement,
 	nextAction NextAction,
 ) []Card {
+	return BuildCardsWithRuleset(DefaultRuleset(), profile, year, shareID, metrics, behavior, achievements, nextAction)
+}
+
+func BuildCardsWithRuleset(
+	ruleset Ruleset,
+	profile Profile,
+	year uint32,
+	shareID uuid.UUID,
+	metrics Metrics,
+	behavior Behavior,
+	achievements []Achievement,
+	nextAction NextAction,
+) []Card {
 	profile = normalizeProfile(profile)
 	metrics = normalizeMetrics(metrics)
-	shareCard := buildShareCard(shareID, year, metrics, behavior, achievements)
+	shareCard := buildShareCard(ruleset.SharePolicy, shareID, year, metrics, behavior, achievements)
 	cards := make([]Card, 0, 9)
 
 	appendCard := func(card Card) {
