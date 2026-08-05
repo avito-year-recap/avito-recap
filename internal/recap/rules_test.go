@@ -3,6 +3,7 @@ package recap
 import "testing"
 
 func TestDetectBehavior(t *testing.T) {
+	thresholds := DefaultRuleset().Thresholds
 	tests := []struct {
 		name     string
 		metrics  Metrics
@@ -11,8 +12,8 @@ func TestDetectBehavior(t *testing.T) {
 		{
 			name: "active seller at boundary",
 			metrics: Metrics{
-				ListingsPublished: activeSellerMinListings,
-				SalesCompleted:    activeSellerMinDeals,
+				ListingsPublished: thresholds.ActiveSellerMinListings,
+				SalesCompleted:    thresholds.ActiveSellerMinDeals,
 			},
 			expected: BehaviorActiveSeller,
 		},
@@ -36,35 +37,35 @@ func TestDetectBehavior(t *testing.T) {
 		{
 			name: "starting seller at boundary",
 			metrics: Metrics{
-				ListingsCreated:   startingSellerMinCreated,
-				ListingsPublished: startingSellerMaxPublished,
+				ListingsCreated:   thresholds.StartingSellerMinCreated,
+				ListingsPublished: thresholds.StartingSellerMaxPublished,
 			},
 			expected: BehaviorStartingSeller,
 		},
 		{
 			name: "decisive buyer uses linked chats",
 			metrics: Metrics{
-				ChatsStarted:       decisiveBuyerMinChats,
-				ChatsWithPurchase:  decisiveBuyerMinLinkedChats,
-				PurchasesCompleted: decisiveBuyerMinPurchases,
+				ChatsStarted:       thresholds.DecisiveBuyerMinChats,
+				ChatsWithPurchase:  thresholds.DecisiveBuyerMinLinkedChats,
+				PurchasesCompleted: thresholds.DecisiveBuyerMinPurchases,
 			},
 			expected: BehaviorDecisiveBuyer,
 		},
 		{
 			name: "purchases without linked chats are not decisive buyer",
 			metrics: Metrics{
-				ChatsStarted:       decisiveBuyerMinChats,
-				PurchasesCompleted: decisiveBuyerMinPurchases,
+				ChatsStarted:       thresholds.DecisiveBuyerMinChats,
+				PurchasesCompleted: thresholds.DecisiveBuyerMinPurchases,
 			},
 			expected: BehaviorUniversal,
 		},
 		{
 			name: "find hunter at boundary",
 			metrics: Metrics{
-				TotalViews:     findHunterMinViews,
+				TotalViews:     thresholds.FindHunterMinViews,
 				UniqueListings: 16,
 				RepeatedViews:  4,
-				FavoritesAdded: findHunterMinFavorites,
+				FavoritesAdded: thresholds.FindHunterMinFavorites,
 			},
 			expected: BehaviorFindHunter,
 		},
@@ -74,7 +75,7 @@ func TestDetectBehavior(t *testing.T) {
 				TotalViews:     200,
 				UniqueListings: 160,
 				RepeatedViews:  40,
-				FavoritesAdded: findHunterMinFavorites,
+				FavoritesAdded: thresholds.FindHunterMinFavorites,
 			},
 			expected: BehaviorFindHunter,
 		},
@@ -90,10 +91,10 @@ func TestDetectBehavior(t *testing.T) {
 		{
 			name: "researcher at lower boundaries",
 			metrics: Metrics{
-				TotalViews:      researcherMinViews,
-				UniqueListings:  researcherMinViews,
-				ChatsStarted:    researcherMaxChats,
-				CategoriesCount: researcherMinCategories,
+				TotalViews:      thresholds.ResearcherMinViews,
+				UniqueListings:  thresholds.ResearcherMinViews,
+				ChatsStarted:    thresholds.ResearcherMaxChats,
+				CategoriesCount: thresholds.ResearcherMinCategories,
 			},
 			expected: BehaviorResearcher,
 		},
@@ -102,8 +103,8 @@ func TestDetectBehavior(t *testing.T) {
 			metrics: Metrics{
 				TotalViews:      1000,
 				UniqueListings:  1000,
-				ChatsStarted:    researcherMaxChats + 1,
-				CategoriesCount: researcherMinCategories,
+				ChatsStarted:    thresholds.ResearcherMaxChats + 1,
+				CategoriesCount: thresholds.ResearcherMinCategories,
 			},
 			expected: BehaviorUniversal,
 		},
@@ -139,5 +140,29 @@ func TestDetectBehavior(t *testing.T) {
 				t.Fatalf("behavior contains empty user-facing text: %+v", actual)
 			}
 		})
+	}
+}
+
+func TestBehaviorSelectionUsesScoreNotSliceOrder(t *testing.T) {
+	low := behaviorCandidate{behavior: Behavior{Code: BehaviorResearcher, Score: 80}, eligible: true, tieBreak: 10}
+	high := behaviorCandidate{behavior: Behavior{Code: BehaviorActiveSeller, Score: 120}, eligible: true, tieBreak: 50}
+	first := selectBehaviorCandidate([]behaviorCandidate{low, high})
+	second := selectBehaviorCandidate([]behaviorCandidate{high, low})
+	if first.Code != BehaviorActiveSeller || second.Code != BehaviorActiveSeller {
+		t.Fatalf("selection depends on order: %s / %s", first.Code, second.Code)
+	}
+}
+
+func TestDetectedBehaviorContainsAuditableEvidence(t *testing.T) {
+	behavior := DetectBehavior(Metrics{ListingsPublished: 5, SalesCompleted: 3})
+	if behavior.Score == 0 || len(behavior.Evidence) == 0 {
+		t.Fatalf("missing score/evidence: %+v", behavior)
+	}
+	var sum uint32
+	for _, evidence := range behavior.Evidence {
+		sum += evidence.Points
+	}
+	if sum != behavior.Score {
+		t.Fatalf("evidence sum %d != score %d", sum, behavior.Score)
 	}
 }

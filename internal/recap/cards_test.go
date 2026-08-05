@@ -1,6 +1,7 @@
 package recap
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -10,9 +11,9 @@ func TestBuildCardsFullAchievementScenario(t *testing.T) {
 	metrics := EnrichMetrics(validMetrics())
 	behavior := DetectBehavior(metrics)
 	achievements := BuildAchievements(metrics)
-	nextAction := BuildNextAction(metrics)
+	nextAction := BuildNextAction(metrics, validActionableState())
 
-	cards := BuildCards(profile, 2025, metrics, behavior, achievements, nextAction)
+	cards := BuildCards(profile, 2025, testShareID, metrics, behavior, achievements, nextAction)
 
 	if len(cards) != 8 {
 		t.Fatalf("expected 8 story cards, got %d: %+v", len(cards), cards)
@@ -25,25 +26,38 @@ func TestBuildCardsFullAchievementScenario(t *testing.T) {
 		CardBehavior,
 		CardAchievement,
 		CardNextAction,
-		CardSummary,
+		CardShare,
 	})
 
 	achievementCard := findCard(t, cards, CardAchievement)
-	if len(achievementCard.Payload.AchievementCodes) != len(achievements) {
+	achievementPayload, ok := achievementCard.Payload.(AchievementPayload)
+	if !ok || len(achievementPayload.Codes) != len(achievements) {
 		t.Fatalf("achievement payload = %+v, want %d codes", achievementCard.Payload, len(achievements))
 	}
-	if !achievementCard.Shareable {
-		t.Fatal("card with only public achievements must be shareable")
+	if achievementCard.Shareable {
+		t.Fatal("personal achievement card must not be directly shareable")
 	}
 
 	categoryCard := findCard(t, cards, CardTopCategory)
-	if !categoryCard.Shareable {
-		t.Fatal("safe top category card must be shareable")
+	if categoryCard.Shareable {
+		t.Fatal("personal category card must not be directly shareable")
 	}
-	if categoryCard.Payload.CategoryCode != metrics.TopCategoryCode ||
-		categoryCard.Payload.Category != metrics.TopCategory ||
-		categoryCard.Payload.CategoryViews != metrics.TopCategoryViews {
+	categoryPayload, ok := categoryCard.Payload.(TopCategoryPayload)
+	if !ok || categoryPayload.CategoryCode != metrics.TopCategoryCode ||
+		categoryPayload.Category != metrics.TopCategory ||
+		categoryPayload.CategoryViews != metrics.TopCategoryViews {
 		t.Fatalf("unexpected category payload: %+v", categoryCard.Payload)
+	}
+
+	share := findCard(t, cards, CardShare)
+	sharePayload, ok := share.Payload.(ShareCard)
+	if !ok {
+		t.Fatalf("share card has wrong payload: %T", share.Payload)
+	}
+	if !share.Shareable || sharePayload.ShareID != testShareID || sharePayload.Year != 2025 ||
+		sharePayload.BehaviorTitle != behavior.Title || sharePayload.AchievementTitle == "" ||
+		sharePayload.TopCategory != metrics.TopCategory {
+		t.Fatalf("unexpected final share card: %+v", share)
 	}
 }
 
@@ -63,14 +77,23 @@ func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 	cards := BuildCards(
 		validProfile(),
 		2025,
+		testShareID,
 		metrics,
 		DetectBehavior(metrics),
 		BuildAchievements(metrics),
-		BuildNextAction(metrics),
+		BuildNextAction(metrics, ActionableState{}),
 	)
 
-	findCard(t, cards, CardAchievement)
+	achievementCard := findCard(t, cards, CardAchievement)
 	findCard(t, cards, CardMissedOpportunity)
+	payload, ok := achievementCard.Payload.(AchievementPayload)
+	if !ok {
+		t.Fatalf("researcher achievement card has wrong payload: %T", achievementCard.Payload)
+	}
+	wantCodes := []AchievementCode{AchievementBroadInterests, AchievementAttentiveResearcher}
+	if !reflect.DeepEqual(payload.Codes, wantCodes) {
+		t.Fatalf("researcher achievements were hidden or changed: got %v, want %v", payload.Codes, wantCodes)
+	}
 	if len(cards) != 9 {
 		t.Fatalf("expected achievement and missed-opportunity cards to coexist, got %d cards", len(cards))
 	}
@@ -80,10 +103,11 @@ func TestBuildCardsOmitsUnavailableOptionalCards(t *testing.T) {
 	cards := BuildCards(
 		validProfile(),
 		2025,
+		testShareID,
 		Metrics{TotalEvents: 5},
 		DetectBehavior(Metrics{}),
 		nil,
-		BuildNextAction(Metrics{}),
+		BuildNextAction(Metrics{}, ActionableState{HasEverPublishedListing: true}),
 	)
 
 	for _, card := range cards {
@@ -94,6 +118,9 @@ func TestBuildCardsOmitsUnavailableOptionalCards(t *testing.T) {
 	}
 	if len(cards) != 5 {
 		t.Fatalf("expected 5 base cards, got %d", len(cards))
+	}
+	if cards[len(cards)-1].Type != CardShare || !cards[len(cards)-1].Shareable {
+		t.Fatalf("final card must be the share card: %+v", cards[len(cards)-1])
 	}
 }
 
@@ -109,14 +136,19 @@ func TestBuildCardsDoesNotShareSensitiveCategory(t *testing.T) {
 	cards := BuildCards(
 		validProfile(),
 		2025,
+		testShareID,
 		metrics,
 		DetectBehavior(metrics),
 		nil,
-		BuildNextAction(metrics),
+		BuildNextAction(metrics, ActionableState{}),
 	)
 
-	if findCard(t, cards, CardTopCategory).Shareable {
-		t.Fatal("category without explicit safety flag must not be shareable")
+	sharePayload, ok := findCard(t, cards, CardShare).Payload.(ShareCard)
+	if !ok {
+		t.Fatal("share card payload is missing")
+	}
+	if sharePayload.TopCategory != "" {
+		t.Fatalf("sensitive category leaked into share card: %+v", sharePayload)
 	}
 }
 
@@ -163,27 +195,21 @@ func findCard(t *testing.T, cards []Card, cardType CardType) Card {
 	return Card{}
 }
 
-func TestBuildCardsDoesNotInventDraftCount(t *testing.T) {
-	metrics := Metrics{
-		TotalEvents:       10,
-		ListingsCreated:   3,
-		ListingsPublished: 2,
-	}
+func TestBuildCardsUsesCurrentDraftStateInsteadOfAnnualDifference(t *testing.T) {
+	draftID := testDraftListingID
+	metrics := Metrics{TotalEvents: 10, ListingsCreated: 3, ListingsPublished: 2}
 	metrics = EnrichMetrics(metrics)
-	cards := BuildCards(
-		validProfile(),
-		2025,
-		metrics,
-		DetectBehavior(metrics),
-		BuildAchievements(metrics),
-		BuildNextAction(metrics),
-	)
-
+	action := BuildNextAction(metrics, ActionableState{CurrentDrafts: 1, DraftListingID: draftID})
+	cards := BuildCards(validProfile(), 2025, testShareID, metrics, DetectBehavior(metrics), BuildAchievements(metrics), action)
 	card := findCard(t, cards, CardMissedOpportunity)
 	if strings.Contains(strings.ToLower(card.Explanation), "черновиков осталось") {
-		t.Fatalf("card must not present annual counter difference as exact draft count: %+v", card)
+		t.Fatalf("card must not derive exact draft count from annual counters: %+v", card)
 	}
-	if !strings.Contains(card.Explanation, "не показывают точное число") {
-		t.Fatalf("card must explain the limitation of annual counters: %q", card.Explanation)
+	if !strings.Contains(card.Explanation, "актуальное состояние") {
+		t.Fatalf("card must name current-state source: %q", card.Explanation)
+	}
+	payload, ok := card.Payload.(ActionPayload)
+	if !ok || payload.Target.Listing == nil || payload.Target.Listing.ListingID != draftID {
+		t.Fatalf("missed-opportunity target is not typed: %+v", card.Payload)
 	}
 }

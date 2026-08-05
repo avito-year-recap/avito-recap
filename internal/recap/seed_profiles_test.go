@@ -1,6 +1,7 @@
 package recap
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
@@ -21,34 +22,6 @@ type expectedRecap struct {
 	ExpectedTopCategoryTitle string            `json:"expectedTopCategoryTitle"`
 	ExpectedActiveMonth      uint32            `json:"expectedActiveMonth"`
 	RequiredCards            []CardType        `json:"requiredCards"`
-}
-
-type goldenRecap struct {
-	Profile struct {
-		Code        string `json:"code"`
-		DisplayName string `json:"displayName"`
-	} `json:"profile"`
-	Year         uint32 `json:"year"`
-	RulesVersion string `json:"rulesVersion"`
-	Metrics      struct {
-		TopCategoryCode string `json:"topCategoryCode"`
-		TopCategory     string `json:"topCategory"`
-		MostActiveMonth uint32 `json:"mostActiveMonth"`
-	} `json:"metrics"`
-	Behavior struct {
-		Code BehaviorCode `json:"code"`
-	} `json:"behavior"`
-	Achievements []struct {
-		Code      AchievementCode `json:"code"`
-		Shareable bool            `json:"shareable"`
-	} `json:"achievements"`
-	NextAction struct {
-		Code ActionCode `json:"code"`
-	} `json:"nextAction"`
-	Cards []struct {
-		Type     CardType `json:"type"`
-		Position uint32   `json:"position"`
-	} `json:"cards"`
 }
 
 type behaviorCase struct {
@@ -105,17 +78,23 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 				t.Fatalf("build metrics: %v", err)
 			}
 			storage := &recapStorageStub{}
-			service := mustService(
+			service := mustServiceWithState(
 				t,
 				&profileStorageStub{profile: profile},
 				&analyticsStorageStub{metrics: metrics},
+				&actionStateStorageStub{state: scenario.ActionableState},
 				storage,
 				WithClock(fixedClock),
-				WithIDGenerator(func() (uuid.UUID, error) {
-					recapID := profile.ID
-					recapID[0] ^= 0xff
-					return recapID, nil
-				}),
+				WithIDGenerator(func() func() (uuid.UUID, error) {
+					call := byte(0)
+					return func() (uuid.UUID, error) {
+						value := profile.ID
+						value[0] ^= 0xff
+						value[1] ^= call
+						call++
+						return value, nil
+					}
+				}()),
 			)
 
 			actual, err := service.Generate(context.Background(), profile.ID, scenario.Year)
@@ -165,38 +144,24 @@ func TestBehaviorCasesJSONMatchesRules(t *testing.T) {
 
 func assertGoldenRecap(t *testing.T, actual Recap, path string) {
 	t.Helper()
-	var golden goldenRecap
-	readJSONFile(t, path, &golden)
+	data, err := json.MarshalIndent(actual, "", "  ")
+	if err != nil {
+		t.Fatalf("marshal full golden recap: %v", err)
+	}
+	data = append(data, '\n')
 
-	if golden.Profile.Code != actual.Profile.Code || golden.Profile.DisplayName != actual.Profile.DisplayName {
-		t.Fatalf("golden profile mismatch: %+v vs %+v", golden.Profile, actual.Profile)
-	}
-	if golden.Year != actual.Year || golden.RulesVersion != actual.RulesVersion {
-		t.Fatalf("golden metadata mismatch: year=%d version=%q", golden.Year, golden.RulesVersion)
-	}
-	if golden.Metrics.TopCategoryCode != actual.Metrics.TopCategoryCode ||
-		golden.Metrics.TopCategory != actual.Metrics.TopCategory ||
-		golden.Metrics.MostActiveMonth != actual.Metrics.MostActiveMonth {
-		t.Fatalf("golden metrics mismatch: %+v vs %+v", golden.Metrics, actual.Metrics)
-	}
-	if golden.Behavior.Code != actual.Behavior.Code || golden.NextAction.Code != actual.NextAction.Code {
-		t.Fatalf("golden behavior/action mismatch: %s/%s vs %s/%s", golden.Behavior.Code, golden.NextAction.Code, actual.Behavior.Code, actual.NextAction.Code)
-	}
-	if len(golden.Achievements) != len(actual.Achievements) {
-		t.Fatalf("golden achievement count = %d, actual = %d", len(golden.Achievements), len(actual.Achievements))
-	}
-	for index, achievement := range golden.Achievements {
-		if achievement.Code != actual.Achievements[index].Code || achievement.Shareable != actual.Achievements[index].Shareable {
-			t.Fatalf("golden achievement %d mismatch: %+v vs %+v", index, achievement, actual.Achievements[index])
+	if os.Getenv("UPDATE_GOLDEN") == "1" {
+		if err := os.WriteFile(path, data, 0o644); err != nil {
+			t.Fatalf("update %s: %v", path, err)
 		}
 	}
-	if len(golden.Cards) != len(actual.Cards) {
-		t.Fatalf("golden card count = %d, actual = %d", len(golden.Cards), len(actual.Cards))
+
+	expected, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
 	}
-	for index, card := range golden.Cards {
-		if card.Type != actual.Cards[index].Type || card.Position != actual.Cards[index].Position {
-			t.Fatalf("golden card %d mismatch: %+v vs %+v", index, card, actual.Cards[index])
-		}
+	if !bytes.Equal(expected, data) {
+		t.Fatalf("full golden recap mismatch for %s\n--- expected ---\n%s\n--- actual ---\n%s\nRun UPDATE_GOLDEN=1 go test ./internal/recap -run TestSeedProfilesGenerateExpectedRecaps after reviewing intentional changes.", path, expected, data)
 	}
 }
 
