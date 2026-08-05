@@ -1,12 +1,21 @@
 package recap
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
+	"sort"
 	"strings"
 )
 
 var ErrInvalidRuleset = errors.New("invalid ruleset")
+
+const currentRulesAlgorithm = "recap-v3.3-category-awards-v2"
+
+var semanticVersionPattern = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$`)
 
 type BehaviorThresholds struct {
 	ActiveSellerMinListings      uint64
@@ -25,14 +34,60 @@ type BehaviorThresholds struct {
 	ResearcherMaxChats           uint64
 }
 
+// RecommendationPriorities makes product ordering explicit and fingerprinted.
+// A larger number wins; equal priorities are resolved by action code.
+type RecommendationPriorities struct {
+	FinishDraft       int
+	ContinueDialog    int
+	ImproveListing    int
+	SimilarToPurchase int
+	SaveSearch        int
+	OpenFavorites     int
+	CreateForStarter  int
+	CreateForSeller   int
+	OpenTopCategory   int
+	NeutralFallback   int
+}
+
+// AchievementRuleConfig binds each catalogue item to a product category and
+// priority. The executable match/text logic is keyed by Code; this configuration
+// is digest-bound so category, grade ordering, and the global limit cannot drift
+// under an unchanged rules identity.
+type AchievementRuleConfig struct {
+	Code     AchievementCode     `json:"code"`
+	Category AchievementCategory `json:"category"`
+	Priority int                 `json:"priority"`
+}
+
+type AchievementPolicy struct {
+	MaxAwarded int                     `json:"maxAwarded"`
+	Rules      []AchievementRuleConfig `json:"rules"`
+}
+
+// SharePolicy is an allow-list policy for the public DTO. Upstream data flags
+// are necessary but never sufficient: generated text and category identifiers
+// must also satisfy this policy.
+type SharePolicy struct {
+	Version                  string
+	AllowTopCategory         bool
+	RequireCategoryShareFlag bool
+	MaxPublicTextRunes       int
+	AllowedAchievementCodes  []AchievementCode
+}
+
 type Ruleset struct {
-	Version    string
-	Thresholds BehaviorThresholds
+	Version                  string
+	Algorithm                string
+	Thresholds               BehaviorThresholds
+	AchievementPolicy        AchievementPolicy
+	RecommendationPriorities RecommendationPriorities
+	SharePolicy              SharePolicy
 }
 
 func DefaultRuleset() Ruleset {
 	return Ruleset{
-		Version: CurrentRulesVersion,
+		Version:   CurrentRulesVersion,
+		Algorithm: currentRulesAlgorithm,
 		Thresholds: BehaviorThresholds{
 			ActiveSellerMinListings:      5,
 			ActiveSellerMinDeals:         3,
@@ -49,12 +104,50 @@ func DefaultRuleset() Ruleset {
 			ResearcherMinCategories:      5,
 			ResearcherMaxChats:           4,
 		},
+		AchievementPolicy: AchievementPolicy{
+			MaxAwarded: maxAchievements,
+			Rules: []AchievementRuleConfig{
+				{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Priority: 110},
+				{Code: AchievementDealCloser, Category: AchievementCategoryBuying, Priority: 105},
+				{Code: AchievementConsistentPublisher, Category: AchievementCategorySelling, Priority: 100},
+				{Code: AchievementBroadInterests, Category: AchievementCategoryDiscovery, Priority: 98},
+				{Code: AchievementAllRounder, Category: AchievementCategoryVersatility, Priority: 97},
+				{Code: AchievementFirstSellingSteps, Category: AchievementCategorySelling, Priority: 96},
+				{Code: AchievementQuickDecision, Category: AchievementCategoryBuying, Priority: 95},
+				{Code: AchievementAttentiveResearcher, Category: AchievementCategoryDiscovery, Priority: 90},
+				{Code: AchievementMasterOfFavorites, Category: AchievementCategoryCollection, Priority: 80},
+			},
+		},
+		RecommendationPriorities: RecommendationPriorities{
+			FinishDraft: 1000, ContinueDialog: 900, ImproveListing: 800,
+			SimilarToPurchase: 750, SaveSearch: 700, OpenFavorites: 650,
+			CreateForStarter: 520, CreateForSeller: 500, OpenTopCategory: 400,
+			NeutralFallback: 0,
+		},
+		SharePolicy: SharePolicy{
+			Version:                  "privacy-v2",
+			AllowTopCategory:         true,
+			RequireCategoryShareFlag: true,
+			MaxPublicTextRunes:       80,
+			AllowedAchievementCodes: []AchievementCode{
+				AchievementSuccessfulSeller, AchievementConsistentPublisher,
+				AchievementAttentiveResearcher, AchievementMasterOfFavorites,
+				AchievementBroadInterests, AchievementAllRounder,
+				AchievementFirstSellingSteps, AchievementDealCloser,
+				AchievementQuickDecision,
+			},
+		},
 	}
 }
 
 func (r Ruleset) Validate() error {
-	if strings.TrimSpace(r.Version) == "" {
-		return fmt.Errorf("%w: version is required", ErrInvalidRuleset)
+	r.Version = strings.TrimSpace(r.Version)
+	r.Algorithm = strings.TrimSpace(r.Algorithm)
+	if !semanticVersionPattern.MatchString(r.Version) {
+		return fmt.Errorf("%w: version %q must be semantic", ErrInvalidRuleset, r.Version)
+	}
+	if r.Algorithm != currentRulesAlgorithm {
+		return fmt.Errorf("%w: unsupported algorithm %q", ErrInvalidRuleset, r.Algorithm)
 	}
 	t := r.Thresholds
 	if t.ActiveSellerMinListings == 0 || t.ActiveSellerMinDeals == 0 ||
@@ -64,9 +157,109 @@ func (r Ruleset) Validate() error {
 		t.ResearcherMinViews == 0 || t.ResearcherMinCategories == 0 {
 		return fmt.Errorf("%w: count thresholds must be positive", ErrInvalidRuleset)
 	}
+	if t.StartingSellerMaxPublished >= t.StartingSellerMinCreated {
+		return fmt.Errorf("%w: starting-seller publication maximum must be below creation minimum", ErrInvalidRuleset)
+	}
+	if t.DecisiveBuyerMinLinkedChats > t.DecisiveBuyerMinChats {
+		return fmt.Errorf("%w: linked-chat minimum exceeds total-chat minimum", ErrInvalidRuleset)
+	}
 	if t.DecisiveBuyerMinPurchaseRate <= 0 || t.DecisiveBuyerMinPurchaseRate > 1 ||
 		t.FindHunterMinRepeatRate <= 0 || t.FindHunterMinRepeatRate > 1 {
 		return fmt.Errorf("%w: rate thresholds must be in (0,1]", ErrInvalidRuleset)
 	}
+	policy := r.AchievementPolicy
+	if policy.MaxAwarded < 1 || policy.MaxAwarded > maxAchievements {
+		return fmt.Errorf("%w: achievement award limit must be in [1,%d]", ErrInvalidRuleset, maxAchievements)
+	}
+	definitions := achievementDefinitions()
+	if len(policy.Rules) != len(definitions) {
+		return fmt.Errorf("%w: achievement policy must configure every catalogue item exactly once", ErrInvalidRuleset)
+	}
+	seenAchievementCodes := make(map[AchievementCode]struct{}, len(policy.Rules))
+	for index, rule := range policy.Rules {
+		if _, ok := definitions[rule.Code]; !ok {
+			return fmt.Errorf("%w: achievement rule %d has unknown code %q", ErrInvalidRuleset, index, rule.Code)
+		}
+		if !isKnownAchievementCategory(rule.Category) {
+			return fmt.Errorf("%w: achievement %q has unknown category %q", ErrInvalidRuleset, rule.Code, rule.Category)
+		}
+		if rule.Priority <= 0 {
+			return fmt.Errorf("%w: achievement %q priority must be positive", ErrInvalidRuleset, rule.Code)
+		}
+		if _, exists := seenAchievementCodes[rule.Code]; exists {
+			return fmt.Errorf("%w: duplicate achievement configuration %q", ErrInvalidRuleset, rule.Code)
+		}
+		seenAchievementCodes[rule.Code] = struct{}{}
+	}
+
+	priorities := []int{
+		r.RecommendationPriorities.FinishDraft, r.RecommendationPriorities.ContinueDialog,
+		r.RecommendationPriorities.ImproveListing, r.RecommendationPriorities.SimilarToPurchase,
+		r.RecommendationPriorities.SaveSearch, r.RecommendationPriorities.OpenFavorites,
+		r.RecommendationPriorities.CreateForStarter, r.RecommendationPriorities.CreateForSeller,
+		r.RecommendationPriorities.OpenTopCategory,
+	}
+	for _, priority := range priorities {
+		if priority <= r.RecommendationPriorities.NeutralFallback {
+			return fmt.Errorf("%w: actionable recommendation priorities must exceed fallback", ErrInvalidRuleset)
+		}
+	}
+	if !(r.RecommendationPriorities.FinishDraft > r.RecommendationPriorities.ContinueDialog &&
+		r.RecommendationPriorities.ContinueDialog > r.RecommendationPriorities.ImproveListing &&
+		r.RecommendationPriorities.ImproveListing > r.RecommendationPriorities.SimilarToPurchase &&
+		r.RecommendationPriorities.SimilarToPurchase > r.RecommendationPriorities.SaveSearch &&
+		r.RecommendationPriorities.SaveSearch > r.RecommendationPriorities.OpenFavorites &&
+		r.RecommendationPriorities.OpenFavorites > r.RecommendationPriorities.CreateForStarter &&
+		r.RecommendationPriorities.CreateForStarter > r.RecommendationPriorities.CreateForSeller &&
+		r.RecommendationPriorities.CreateForSeller > r.RecommendationPriorities.OpenTopCategory &&
+		r.RecommendationPriorities.OpenTopCategory > r.RecommendationPriorities.NeutralFallback) {
+		return fmt.Errorf("%w: recommendation priorities violate the executable-work-first policy", ErrInvalidRuleset)
+	}
+	p := r.SharePolicy
+	if strings.TrimSpace(p.Version) == "" || p.MaxPublicTextRunes < 16 || len(p.AllowedAchievementCodes) == 0 {
+		return fmt.Errorf("%w: invalid share policy", ErrInvalidRuleset)
+	}
+	seen := make(map[AchievementCode]struct{}, len(p.AllowedAchievementCodes))
+	for _, code := range p.AllowedAchievementCodes {
+		if !isKnownAchievementCode(code) {
+			return fmt.Errorf("%w: share policy contains unknown achievement %q", ErrInvalidRuleset, code)
+		}
+		if _, ok := seen[code]; ok {
+			return fmt.Errorf("%w: duplicate shareable achievement %q", ErrInvalidRuleset, code)
+		}
+		seen[code] = struct{}{}
+	}
 	return nil
+}
+
+// Digest binds the stored result to the complete configurable rules contract,
+// not merely to a human-readable version label.
+func (r Ruleset) Digest() string {
+	copyRules := r
+	copyRules.Version = strings.TrimSpace(copyRules.Version)
+	copyRules.Algorithm = strings.TrimSpace(copyRules.Algorithm)
+	copyRules.SharePolicy.Version = strings.TrimSpace(copyRules.SharePolicy.Version)
+	copyRules.AchievementPolicy.Rules = append([]AchievementRuleConfig(nil), copyRules.AchievementPolicy.Rules...)
+	sort.Slice(copyRules.AchievementPolicy.Rules, func(i, j int) bool {
+		return copyRules.AchievementPolicy.Rules[i].Code < copyRules.AchievementPolicy.Rules[j].Code
+	})
+	copyRules.SharePolicy.AllowedAchievementCodes = append([]AchievementCode(nil), copyRules.SharePolicy.AllowedAchievementCodes...)
+	sort.Slice(copyRules.SharePolicy.AllowedAchievementCodes, func(i, j int) bool {
+		return copyRules.SharePolicy.AllowedAchievementCodes[i] < copyRules.SharePolicy.AllowedAchievementCodes[j]
+	})
+	data, err := json.Marshal(copyRules)
+	if err != nil {
+		panic(fmt.Sprintf("marshal validated ruleset: %v", err))
+	}
+	sum := sha256.Sum256(data)
+	return hex.EncodeToString(sum[:])
+}
+
+func (p SharePolicy) achievementAllowed(code AchievementCode) bool {
+	for _, allowed := range p.AllowedAchievementCodes {
+		if code == allowed {
+			return true
+		}
+	}
+	return false
 }

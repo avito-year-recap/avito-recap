@@ -53,6 +53,7 @@ func normalizeRecap(value Recap) Recap {
 	value.Cards = append([]Card(nil), value.Cards...)
 	value.Profile = normalizeProfile(value.Profile)
 	value.RulesVersion = normalizeString(value.RulesVersion)
+	value.RulesDigest = normalizeString(value.RulesDigest)
 	value.Metrics = normalizeMetrics(value.Metrics)
 	value.ActionableState = normalizeActionableState(value.ActionableState)
 	value.Behavior.Title = normalizeString(value.Behavior.Title)

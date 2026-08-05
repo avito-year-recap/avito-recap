@@ -199,3 +199,44 @@ func TestCardPayloadIsATypeSafeUnion(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateRecapRejectsMoreThanThreeAchievements(t *testing.T) {
+	value := validRecap()
+	value.Achievements = []Achievement{
+		{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Title: "1", Description: "D", Reason: "R"},
+		{Code: AchievementDealCloser, Category: AchievementCategoryBuying, Title: "2", Description: "D", Reason: "R"},
+		{Code: AchievementBroadInterests, Category: AchievementCategoryDiscovery, Title: "3", Description: "D", Reason: "R"},
+		{Code: AchievementMasterOfFavorites, Category: AchievementCategoryCollection, Title: "4", Description: "D", Reason: "R"},
+	}
+	if err := validateRecap(value); !errors.Is(err, ErrInvalidRecap) {
+		t.Fatalf("four achievements accepted: %v", err)
+	}
+}
+
+func TestValidateRecapRejectsDuplicateAchievementCategories(t *testing.T) {
+	value := validRecap()
+	value.Achievements = []Achievement{
+		{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Title: "1", Description: "D", Reason: "R"},
+		{Code: AchievementConsistentPublisher, Category: AchievementCategorySelling, Title: "2", Description: "D", Reason: "R"},
+	}
+	if err := validateRecap(value); !errors.Is(err, ErrInvalidRecap) {
+		t.Fatalf("duplicate category accepted: %v", err)
+	}
+}
+
+func TestValidateAchievementSelectionRejectsWrongPolicyCategoryAndOrder(t *testing.T) {
+	ruleset := DefaultRuleset()
+	values := ruleset.BuildAchievements(allAchievementMetrics())
+
+	wrongCategory := append([]Achievement(nil), values...)
+	wrongCategory[0].Category = AchievementCategoryCollection
+	if err := validateAchievementSelection(wrongCategory, ruleset.AchievementPolicy); err == nil {
+		t.Fatal("policy category mismatch accepted")
+	}
+
+	wrongOrder := append([]Achievement(nil), values...)
+	wrongOrder[0], wrongOrder[1] = wrongOrder[1], wrongOrder[0]
+	if err := validateAchievementSelection(wrongOrder, ruleset.AchievementPolicy); err == nil {
+		t.Fatal("non-deterministic order accepted")
+	}
+}
