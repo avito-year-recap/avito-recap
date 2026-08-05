@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 type expectedRecap struct {
@@ -109,7 +111,11 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 				&analyticsStorageStub{metrics: metrics},
 				storage,
 				WithClock(fixedClock),
-				WithIDGenerator(func() (string, error) { return profile.ID, nil }),
+				WithIDGenerator(func() (uuid.UUID, error) {
+					recapID := profile.ID
+					recapID[0] ^= 0xff
+					return recapID, nil
+				}),
 			)
 
 			actual, err := service.Generate(context.Background(), profile.ID, scenario.Year)

@@ -1,10 +1,11 @@
 package recap
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 )
 
 func validateProfile(profile Profile) error {
-	if strings.TrimSpace(profile.ID) == "" {
+	if profile.ID == uuid.Nil {
 		return fmt.Errorf("%w: id is required", ErrInvalidProfile)
 	}
 	if strings.TrimSpace(profile.Code) == "" {
@@ -24,26 +25,6 @@ func validateProfile(profile Profile) error {
 	}
 
 	return nil
-}
-
-func isUUID(value string) bool {
-	if len(value) != 36 || value[8] != '-' || value[13] != '-' || value[18] != '-' || value[23] != '-' {
-		return false
-	}
-
-	compact := value[:8] + value[9:13] + value[14:18] + value[19:23] + value[24:]
-	decoded, err := hex.DecodeString(compact)
-	if err != nil || len(decoded) != 16 {
-		return false
-	}
-
-	for _, value := range decoded {
-		if value != 0 {
-			return true
-		}
-	}
-
-	return false
 }
 
 func validateMetrics(metrics Metrics) error {
@@ -83,7 +64,7 @@ func validateMetrics(metrics Metrics) error {
 	if metrics.RepeatedViews > metrics.TotalViews {
 		return fmt.Errorf("%w: repeated views exceed total views", ErrInvalidMetrics)
 	}
-//// Counters for different action types are not a closed annual funnel
+	//// Counters for different action types are not a closed annual funnel
 	if metrics.ChatsWithPurchase > metrics.ChatsStarted {
 		return fmt.Errorf("%w: chats with purchase exceed started chats", ErrInvalidMetrics)
 	}
