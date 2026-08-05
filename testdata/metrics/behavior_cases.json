@@ -2,33 +2,38 @@
   {
     "name": "active seller exact threshold",
     "metrics": {
+      "listingsCreated": 5,
       "listingsPublished": 5,
-      "sellerDeals": 3
+      "salesCompleted": 3
     },
     "expectedBehavior": "ACTIVE_SELLER"
   },
   {
     "name": "not active seller below deal threshold",
     "metrics": {
+      "listingsCreated": 5,
       "listingsPublished": 5,
-      "sellerDeals": 2
+      "salesCompleted": 2
     },
     "expectedBehavior": "UNIVERSAL_USER"
   },
   {
     "name": "researcher exact threshold",
     "metrics": {
-      "totalViews": 150,
-      "categoriesCount": 5,
-      "chatRate": 0.04
+      "totalViews": 100,
+      "uniqueListings": 100,
+      "chatsStarted": 4,
+      "categoriesCount": 5
     },
     "expectedBehavior": "RESEARCHER"
   },
   {
     "name": "find hunter exact threshold",
     "metrics": {
-      "favoriteRate": 0.1,
-      "repeatRate": 0.2
+      "totalViews": 20,
+      "uniqueListings": 16,
+      "repeatedViews": 4,
+      "favoritesAdded": 3
     },
     "expectedBehavior": "FIND_HUNTER"
   },
@@ -44,9 +49,10 @@
     "name": "decisive buyer with high conversion",
     "metrics": {
       "totalViews": 60,
+      "uniqueListings": 50,
       "chatsStarted": 12,
-      "chatRate": 0.2,
-      "buyerDeals": 3
+      "purchasesCompleted": 3,
+      "chatsWithPurchase": 3
     },
     "expectedBehavior": "DECISIVE_BUYER"
   }

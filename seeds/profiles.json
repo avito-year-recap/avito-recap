@@ -1,44 +1,79 @@
 [
   {
-    "id": "11111111-1111-4111-8111-111111111111",
+    "id": "26a3f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
     "code": "active-buyer",
     "displayName": "Алексей",
     "description": "Часто ищет технику, сохраняет интересные варианты и возвращается к ним",
-    "avatarUrl": "/avatars/alexey.svg"
+    "avatarUrl": "/avatars/active-buyer.png"
   },
   {
-    "id": "22222222-2222-4222-8222-222222222222",
+    "id": "8f6ec9ae-b217-529d-9292-a592ce97cc09",
     "code": "active-seller",
     "displayName": "Мария",
     "description": "Регулярно публикует объявления и общается с покупателями",
-    "avatarUrl": "/avatars/maria.svg"
+    "avatarUrl": "/avatars/active-seller.png"
   },
   {
-    "id": "33333333-3333-4333-8333-333333333333",
+    "id": "b3638f27-6f21-5b64-b41e-8dbae31a901e",
     "code": "researcher",
     "displayName": "Илья",
     "description": "Сравнивает множество вариантов и изучает разные категории",
-    "avatarUrl": "/avatars/ilya.svg"
+    "avatarUrl": "/avatars/researcher.png"
   },
   {
-    "id": "44444444-4444-4444-8444-444444444444",
+    "id": "9c96ed33-c53a-5d73-aa80-06a2026f5043",
     "code": "universal-user",
     "displayName": "Анна",
     "description": "Покупает, продаёт и использует разные возможности площадки",
-    "avatarUrl": "/avatars/anna.svg"
+    "avatarUrl": "/avatars/universal-user.png"
   },
   {
-    "id": "55555555-5555-4555-8555-555555555555",
+    "id": "5d5228e4-d868-504f-90fa-aed5678c38f4",
     "code": "draft-seller",
     "displayName": "Сергей",
     "description": "Начинает создавать объявления, но не всегда завершает публикацию",
-    "avatarUrl": "/avatars/sergey.svg"
+    "avatarUrl": "/avatars/draft-seller.png"
   },
   {
-    "id": "66666666-6666-4666-8666-666666666666",
+    "id": "245a697c-53fe-5972-95c4-9505df0909bf",
     "code": "decisive-buyer",
     "displayName": "Ольга",
     "description": "Быстро переходит от просмотра объявлений к общению и покупке",
-    "avatarUrl": "/avatars/olga.svg"
+    "avatarUrl": "/avatars/decisive-buyer.png"
+  },
+  {
+    "id": "135f8ec8-95a5-522a-b26e-71c20c79d338",
+    "code": "seller-buyer-hybrid",
+    "displayName": "Дмитрий",
+    "description": "Одновременно активно продаёт и уверенно завершает покупки",
+    "avatarUrl": "/avatars/seller-buyer-hybrid.png"
+  },
+  {
+    "id": "9e4c8047-21cb-5faa-8abd-04d2a049e1a6",
+    "code": "returning-publisher",
+    "displayName": "Елена",
+    "description": "Регулярно публиковала объявления и готова начать новый цикл продаж",
+    "avatarUrl": "/avatars/returning-publisher.png"
+  },
+  {
+    "id": "1eda1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+    "code": "category-browser",
+    "displayName": "Павел",
+    "description": "Просматривает предложения в нескольких категориях без доминирующего сценария",
+    "avatarUrl": "/avatars/category-browser.png"
+  },
+  {
+    "id": "2bde02e7-fdee-5c87-b42c-7fc2cc0d0158",
+    "code": "recommendation-newcomer",
+    "displayName": "Никита",
+    "description": "Только начинает пользоваться площадкой и ещё не сформировал устойчивый интерес",
+    "avatarUrl": "/avatars/recommendation-newcomer.png"
+  },
+  {
+    "id": "c53d6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+    "code": "steady-buyer",
+    "displayName": "Ксения",
+    "description": "Совершает покупки, но принимает решение после длительного общения",
+    "avatarUrl": "/avatars/steady-buyer.png"
   }
 ]
