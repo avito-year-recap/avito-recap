@@ -13,7 +13,9 @@ func BuildCards(
 	achievements []Achievement,
 	nextAction NextAction,
 ) []Card {
-	cards := make([]Card, 0, 8)
+	profile = normalizeProfile(profile)
+	metrics = normalizeMetrics(metrics)
+	cards := make([]Card, 0, 9)
 
 	appendCard := func(card Card) {
 		card.Position = uint32(len(cards) + 1)
@@ -86,10 +88,12 @@ func BuildCards(
 		},
 	})
 
+	if achievementCard := buildAchievementCard(achievements); achievementCard != nil {
+		appendCard(*achievementCard)
+	}
+
 	if missed := buildMissedOpportunityCard(metrics, nextAction); missed != nil {
 		appendCard(*missed)
-	} else if achievementCard := buildAchievementCard(achievements); achievementCard != nil {
-		appendCard(*achievementCard)
 	}
 
 	appendCard(Card{
@@ -161,14 +165,17 @@ func buildMissedOpportunityCard(metrics Metrics, nextAction NextAction) *Card {
 		}
 
 	case ActionFinishDraft:
-		drafts := metrics.ListingsCreated - metrics.ListingsPublished
 		return &Card{
 			ID:          "missed-opportunity",
 			Type:        CardMissedOpportunity,
 			Title:       "Шанс довести начатое до публикации",
-			Description: "Незавершённые объявления ещё могут привести к просмотрам и сообщениям.",
-			Explanation: fmt.Sprintf("Черновиков осталось: %d.", drafts),
-			Payload:     CardPayload{ActionCode: nextAction.Code},
+			Description: "Проверь созданные объявления: среди них могут быть незавершённые публикации.",
+			Explanation: fmt.Sprintf(
+				"В выбранном году создано %d объявлений, опубликовано %d. Эти годовые счётчики не показывают точное число текущих черновиков.",
+				metrics.ListingsCreated,
+				metrics.ListingsPublished,
+			),
+			Payload: CardPayload{ActionCode: nextAction.Code},
 		}
 	}
 

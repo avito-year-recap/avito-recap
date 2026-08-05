@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -124,5 +125,79 @@ func TestProfileUUIDJSONRoundTrip(t *testing.T) {
 	}
 	if decoded.ID != original.ID {
 		t.Fatalf("profile ID changed after JSON round trip: got %s, want %s", decoded.ID, original.ID)
+	}
+}
+
+func TestValidateRecap(t *testing.T) {
+	if err := validateRecap(validRecap()); err != nil {
+		t.Fatalf("valid recap rejected: %v", err)
+	}
+
+	tests := []struct {
+		name   string
+		mutate func(*Recap)
+	}{
+		{name: "missing id", mutate: func(r *Recap) { r.ID = uuid.Nil }},
+		{name: "invalid profile", mutate: func(r *Recap) { r.Profile.Code = "" }},
+		{name: "missing year", mutate: func(r *Recap) { r.Year = 0 }},
+		{name: "missing rules version", mutate: func(r *Recap) { r.RulesVersion = "" }},
+		{name: "invalid metrics", mutate: func(r *Recap) { r.Metrics.UniqueListings = r.Metrics.TotalViews + 1 }},
+		{name: "too little activity", mutate: func(r *Recap) {
+			r.Metrics = EnrichMetrics(Metrics{TotalEvents: minEventsForRecap - 1})
+		}},
+		{name: "stale repeat rate", mutate: func(r *Recap) { r.Metrics.RepeatRate = 0.99 }},
+		{name: "stale purchase rate", mutate: func(r *Recap) { r.Metrics.PurchaseRate = 0.99 }},
+		{name: "unknown behavior", mutate: func(r *Recap) { r.Behavior.Code = "UNKNOWN" }},
+		{name: "incomplete behavior", mutate: func(r *Recap) { r.Behavior.Title = "" }},
+		{name: "too many achievements", mutate: func(r *Recap) {
+			for len(r.Achievements) <= maxAchievements {
+				r.Achievements = append(r.Achievements, Achievement{
+					Code:        AchievementDealCloser,
+					Title:       "Title",
+					Description: "Description",
+					Reason:      "Reason",
+				})
+			}
+		}},
+		{name: "unknown achievement", mutate: func(r *Recap) { r.Achievements[0].Code = "UNKNOWN" }},
+		{name: "incomplete achievement", mutate: func(r *Recap) { r.Achievements[0].Reason = "" }},
+		{name: "duplicate achievement", mutate: func(r *Recap) {
+			r.Achievements = append(r.Achievements, r.Achievements[0])
+		}},
+		{name: "unknown action", mutate: func(r *Recap) { r.NextAction.Code = "UNKNOWN" }},
+		{name: "incomplete action", mutate: func(r *Recap) { r.NextAction.ButtonText = "" }},
+		{name: "missing cards", mutate: func(r *Recap) { r.Cards = nil }},
+		{name: "unknown card type", mutate: func(r *Recap) { r.Cards[0].Type = "UNKNOWN" }},
+		{name: "incomplete card", mutate: func(r *Recap) { r.Cards[0].Title = "" }},
+		{name: "wrong card position", mutate: func(r *Recap) { r.Cards[0].Position = 99 }},
+		{name: "duplicate card id", mutate: func(r *Recap) { r.Cards[1].ID = r.Cards[0].ID }},
+		{name: "unknown card behavior", mutate: func(r *Recap) { r.Cards[0].Payload.BehaviorCode = "UNKNOWN" }},
+		{name: "unknown primary card achievement", mutate: func(r *Recap) { r.Cards[0].Payload.AchievementCode = "UNKNOWN" }},
+		{name: "unknown card achievement list", mutate: func(r *Recap) { r.Cards[0].Payload.AchievementCodes = []AchievementCode{"UNKNOWN"} }},
+		{name: "unknown card action", mutate: func(r *Recap) { r.Cards[0].Payload.ActionCode = "UNKNOWN" }},
+		{name: "missing generated time", mutate: func(r *Recap) { r.GeneratedAt = time.Time{} }},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			value := validRecap()
+			test.mutate(&value)
+			if err := validateRecap(value); !errors.Is(err, ErrInvalidRecap) {
+				t.Fatalf("expected ErrInvalidRecap, got %v", err)
+			}
+		})
+	}
+}
+
+func TestValidateRecapAllowsLegacyCreateFirstListingAction(t *testing.T) {
+	value := validRecap()
+	value.NextAction.Code = ActionCreateFirstListing
+	for index := range value.Cards {
+		if value.Cards[index].Type == CardNextAction {
+			value.Cards[index].Payload.ActionCode = ActionCreateFirstListing
+		}
+	}
+	if err := validateRecap(value); err != nil {
+		t.Fatalf("legacy stored action must remain readable: %v", err)
 	}
 }
