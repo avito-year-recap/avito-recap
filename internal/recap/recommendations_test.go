@@ -48,7 +48,7 @@ func TestBuildNextActionAllBranches(t *testing.T) {
 			metrics:  Metrics{TopCategoryCode: "electronics", TopCategory: "Электроника"},
 			expected: ActionOpenTopCategory,
 		},
-		{name: "create first listing fallback", metrics: Metrics{}, expected: ActionCreateFirstListing},
+		{name: "neutral explore fallback", metrics: Metrics{}, expected: ActionExploreRecommendations},
 	}
 
 	for _, test := range tests {
@@ -79,5 +79,18 @@ func TestBuildNextActionUsesBehaviorBeforeGenericFallbacks(t *testing.T) {
 
 	if actual := BuildNextAction(metrics); actual.Code != ActionViewSimilarListings {
 		t.Fatalf("decisive buyer action must win over favorites, chats and category, got %s", actual.Code)
+	}
+}
+
+func TestBuildNextActionNormalizesTopCategory(t *testing.T) {
+	action := BuildNextAction(Metrics{
+		TopCategoryCode: "  electronics ",
+		TopCategory:     "  Электроника\n",
+	})
+	if action.Code != ActionOpenTopCategory {
+		t.Fatalf("expected top-category action, got %s", action.Code)
+	}
+	if action.Description != "Вернись в категорию «Электроника» и проверь новые варианты." {
+		t.Fatalf("category was not normalized in action text: %q", action.Description)
 	}
 }

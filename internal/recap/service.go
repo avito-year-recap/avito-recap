@@ -92,9 +92,11 @@ func (s *Service) ListProfiles(ctx context.Context) ([]Profile, error) {
 	}
 
 	for index, profile := range profiles {
+		profile = normalizeProfile(profile)
 		if err := validateProfile(profile); err != nil {
 			return nil, fmt.Errorf("validate profile at index %d: %w", index, err)
 		}
+		profiles[index] = profile
 	}
 
 	return profiles, nil
@@ -118,6 +120,7 @@ func (s *Service) Generate(
 	if err != nil {
 		return Recap{}, fmt.Errorf("get profile: %w", err)
 	}
+	profile = normalizeProfile(profile)
 	if err := validateProfile(profile); err != nil {
 		return Recap{}, err
 	}
@@ -129,6 +132,7 @@ func (s *Service) Generate(
 	if err != nil {
 		return Recap{}, fmt.Errorf("calculate metrics: %w", err)
 	}
+	metrics = normalizeMetrics(metrics)
 	if err := validateMetrics(metrics); err != nil {
 		return Recap{}, err
 	}
@@ -163,6 +167,10 @@ func (s *Service) Generate(
 		GeneratedAt:  now,
 	}
 
+	if err := validateRecap(value); err != nil {
+		return Recap{}, fmt.Errorf("validate generated recap: %w", err)
+	}
+
 	if err := s.recaps.SaveRecap(ctx, value); err != nil {
 		return Recap{}, fmt.Errorf("save recap: %w", err)
 	}
@@ -181,6 +189,11 @@ func (s *Service) Get(ctx context.Context, recapID uuid.UUID) (Recap, error) {
 	}
 	if value.ID != recapID {
 		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrRecapIDMismatch, recapID, value.ID)
+	}
+
+	value = normalizeRecap(value)
+	if err := validateRecap(value); err != nil {
+		return Recap{}, fmt.Errorf("validate stored recap: %w", err)
 	}
 
 	return value, nil

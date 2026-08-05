@@ -94,11 +94,11 @@ func BuildNextAction(metrics Metrics) NextAction {
 
 	default:
 		return NextAction{
-			Code:        ActionCreateFirstListing,
-			Title:       "Попробуй новый сценарий",
-			Description: "Создай первое объявление и узнай, насколько быстро найдётся покупатель.",
-			ButtonText:  "Создать объявление",
-			Reason:      "Не найден более приоритетный незавершённый сценарий.",
+			Code:        ActionExploreRecommendations,
+			Title:       "Посмотри персональные рекомендации",
+			Description: "Открой подборку новых вариантов и выбери сценарий, который сейчас актуальнее всего.",
+			ButtonText:  "Открыть рекомендации",
+			Reason:      "По годовой активности нельзя надёжно определить один конкретный незавершённый сценарий.",
 		}
 	}
 }
