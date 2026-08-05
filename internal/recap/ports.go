@@ -16,12 +16,15 @@ type AnalyticsStorage interface {
 	CalculateMetrics(ctx context.Context, profileID uuid.UUID, period RecapPeriod) (Metrics, error)
 }
 
+// ActionStateStorage must return an addressable snapshot captured exactly at asOf.
+// Positive draft/dialog/listing counts require a representative non-nil ID.
 type ActionStateStorage interface {
 	GetActionableState(ctx context.Context, profileID uuid.UUID, asOf time.Time) (ActionableState, error)
 }
 
 // RecapStorage must enforce a unique constraint on
-// (profile_id, year, rules_version) and atomically implement CreateRecapIfAbsent.
+// (profile_id, year, rules_version, rules_digest), unique internal/share IDs,
+// and atomically implement CreateRecapIfAbsent.
 type RecapStorage interface {
 	GetRecapByKey(ctx context.Context, key RecapKey) (Recap, error)
 	CreateRecapIfAbsent(ctx context.Context, key RecapKey, value Recap) (Recap, error)

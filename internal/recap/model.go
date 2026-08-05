@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CurrentRulesVersion = "3.1.0"
+const CurrentRulesVersion = "3.3.0"
 
 type ActivityType string
 
@@ -113,6 +113,16 @@ type Behavior struct {
 	Evidence    []BehaviorEvidence `json:"evidence,omitempty"`
 }
 
+type AchievementCategory string
+
+const (
+	AchievementCategorySelling     AchievementCategory = "SELLING"
+	AchievementCategoryBuying      AchievementCategory = "BUYING"
+	AchievementCategoryDiscovery   AchievementCategory = "DISCOVERY"
+	AchievementCategoryCollection  AchievementCategory = "COLLECTION"
+	AchievementCategoryVersatility AchievementCategory = "VERSATILITY"
+)
+
 type AchievementCode string
 
 const (
@@ -134,12 +144,13 @@ const (
 )
 
 type Achievement struct {
-	Code        AchievementCode `json:"code"`
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Reason      string          `json:"reason"`
-	Priority    int             `json:"-"`
-	Shareable   bool            `json:"shareable"`
+	Code        AchievementCode     `json:"code"`
+	Category    AchievementCategory `json:"category"`
+	Title       string              `json:"title"`
+	Description string              `json:"description"`
+	Reason      string              `json:"reason"`
+	Priority    int                 `json:"-"`
+	Shareable   bool                `json:"shareable"`
 }
 
 type ActionCode string
@@ -279,6 +290,7 @@ type RecapKey struct {
 	ProfileID    uuid.UUID `json:"profileId"`
 	Year         uint32    `json:"year"`
 	RulesVersion string    `json:"rulesVersion"`
+	RulesDigest  string    `json:"rulesDigest"`
 }
 
 type Recap struct {
@@ -288,6 +300,7 @@ type Recap struct {
 	Year            uint32          `json:"year"`
 	Period          RecapPeriod     `json:"period"`
 	RulesVersion    string          `json:"rulesVersion"`
+	RulesDigest     string          `json:"rulesDigest"`
 	Metrics         Metrics         `json:"metrics"`
 	ActionableState ActionableState `json:"actionableState"`
 	Behavior        Behavior        `json:"behavior"`
@@ -298,12 +311,13 @@ type Recap struct {
 }
 
 func (r Recap) Key() RecapKey {
-	return RecapKey{ProfileID: r.Profile.ID, Year: r.Year, RulesVersion: r.RulesVersion}
+	return RecapKey{ProfileID: r.Profile.ID, Year: r.Year, RulesVersion: r.RulesVersion, RulesDigest: r.RulesDigest}
 }
 
 type ShareCard struct {
 	ShareID          uuid.UUID `json:"shareId"`
 	Year             uint32    `json:"year"`
+	PrivacyVersion   string    `json:"privacyVersion"`
 	BehaviorTitle    string    `json:"behaviorTitle"`
 	AchievementTitle string    `json:"achievementTitle,omitempty"`
 	TopCategory      string    `json:"topCategory,omitempty"`

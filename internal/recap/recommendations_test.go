@@ -26,7 +26,7 @@ func TestBuildNextActionAllBranches(t *testing.T) {
 		{name: "open favorites for find hunter", metrics: Metrics{TotalViews: 20, UniqueListings: 16, RepeatedViews: 4, FavoritesAdded: 3}, state: ActionableState{FavoritesCount: 2}, expected: ActionOpenFavorites},
 		{name: "improve active listing", metrics: Metrics{ListingsPublished: 3}, state: ActionableState{ActiveListings: 3, ActiveListingID: listingID, HasEverPublishedListing: true}, expected: ActionImproveListings},
 		{name: "open top category", metrics: Metrics{TopCategoryCode: "electronics", TopCategory: "Электроника"}, state: ActionableState{HasEverPublishedListing: true}, expected: ActionOpenTopCategory},
-		{name: "create listing only when current state confirms no publications", metrics: Metrics{}, state: ActionableState{}, expected: ActionCreateListing},
+		{name: "no seller evidence uses neutral fallback", metrics: Metrics{}, state: ActionableState{}, expected: ActionExploreRecommendations},
 		{name: "neutral explore fallback", metrics: Metrics{}, state: ActionableState{HasEverPublishedListing: true}, expected: ActionExploreRecommendations},
 	}
 
@@ -105,7 +105,7 @@ func TestEveryActionBranchCarriesItsRequiredTarget(t *testing.T) {
 		{name: "open favorites", metrics: Metrics{TotalViews: 20, UniqueListings: 16, RepeatedViews: 4, FavoritesAdded: 3}, state: ActionableState{FavoritesCount: 2}, wantCode: ActionOpenFavorites, wantTarget: "route", wantValue: "/favorites"},
 		{name: "improve listing", metrics: Metrics{ListingsPublished: 3}, state: ActionableState{ActiveListings: 3, ActiveListingID: listingID, HasEverPublishedListing: true}, wantCode: ActionImproveListings, wantTarget: "listing", wantValue: listingID.String()},
 		{name: "open category", metrics: Metrics{TopCategoryCode: "electronics", TopCategory: "Электроника"}, state: ActionableState{HasEverPublishedListing: true}, wantCode: ActionOpenTopCategory, wantTarget: "category", wantValue: "electronics"},
-		{name: "create listing", state: ActionableState{}, wantCode: ActionCreateListing, wantTarget: "route", wantValue: "/listings/new"},
+		{name: "neutral without seller evidence", state: ActionableState{}, wantCode: ActionExploreRecommendations, wantTarget: "route", wantValue: "/recommendations"},
 		{name: "explore fallback", state: ActionableState{HasEverPublishedListing: true}, wantCode: ActionExploreRecommendations, wantTarget: "route", wantValue: "/recommendations"},
 	}
 

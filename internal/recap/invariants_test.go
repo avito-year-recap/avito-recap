@@ -73,6 +73,7 @@ func TestGeneratedUserFacingTextHasNoBoundaryWhitespace(t *testing.T) {
 		Year:            2025,
 		Period:          validPeriod(),
 		RulesVersion:    "  " + ruleset.Version + "\n",
+		RulesDigest:     "  " + ruleset.Digest() + "\n",
 		Metrics:         metrics,
 		ActionableState: state,
 		Behavior:        behavior,
@@ -100,6 +101,19 @@ func assertPipelineInvariants(t testing.TB, metrics Metrics, state ActionableSta
 	ruleset := DefaultRuleset()
 	behavior := ruleset.DetectBehavior(metrics)
 	achievements := ruleset.BuildAchievements(metrics)
+	if len(achievements) > maxAchievements {
+		t.Fatalf("awarded %d achievements, maximum is %d", len(achievements), maxAchievements)
+	}
+	seenAchievementCategories := make(map[AchievementCategory]struct{}, len(achievements))
+	for index, achievement := range achievements {
+		if _, exists := seenAchievementCategories[achievement.Category]; exists {
+			t.Fatalf("achievement category %s awarded twice: %+v", achievement.Category, achievements)
+		}
+		seenAchievementCategories[achievement.Category] = struct{}{}
+		if index > 0 && !achievementLess(achievements[index-1], achievement) {
+			t.Fatalf("achievement order is not deterministic: %+v", achievements)
+		}
+	}
 	action := ruleset.BuildNextAction(metrics, state, behavior)
 	if err := validateNextAction(action); err != nil {
 		t.Fatalf("action does not contain a valid required target: %+v: %v", action, err)
@@ -116,6 +130,7 @@ func assertPipelineInvariants(t testing.TB, metrics Metrics, state ActionableSta
 		Year:            2025,
 		Period:          validPeriod(),
 		RulesVersion:    ruleset.Version,
+		RulesDigest:     ruleset.Digest(),
 		Metrics:         metrics,
 		ActionableState: state,
 		Behavior:        behavior,
@@ -244,7 +259,7 @@ func randomValidMetrics(random *rand.Rand) Metrics {
 		SalesCompleted:     sales,
 		ActiveDays:         activeDays,
 		ChatsWithPurchase:  chatsWithPurchase,
-		MostActiveMonth:    uint32(random.Intn(13)),
+		MostActiveMonth:    uint32(1 + random.Intn(12)),
 	}
 	if views > 0 && random.Intn(2) == 1 {
 		metrics.CategoriesCount = 1 + uint64(random.Intn(int(minUint64(total, 10))))

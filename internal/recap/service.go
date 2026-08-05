@@ -93,6 +93,8 @@ func NewService(
 		}
 	}
 	service.ruleset.Version = normalizeString(service.ruleset.Version)
+	service.ruleset.Algorithm = normalizeString(service.ruleset.Algorithm)
+	service.ruleset.SharePolicy.Version = normalizeString(service.ruleset.SharePolicy.Version)
 	if err := service.ruleset.Validate(); err != nil {
 		return nil, err
 	}
@@ -123,7 +125,7 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return Recap{}, err
 	}
-	key := RecapKey{ProfileID: profileID, Year: year, RulesVersion: s.ruleset.Version}
+	key := RecapKey{ProfileID: profileID, Year: year, RulesVersion: s.ruleset.Version, RulesDigest: s.ruleset.Digest()}
 
 	if existing, err := s.recaps.GetRecapByKey(ctx, key); err == nil {
 		return s.validateStoredByKey(existing, key)
@@ -161,9 +163,11 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 		return Recap{}, fmt.Errorf("get actionable state: %w", err)
 	}
 	state = normalizeActionableState(state)
-	state.CapturedAt = now
 	if err := validateActionableState(state); err != nil {
 		return Recap{}, err
+	}
+	if !state.CapturedAt.Equal(now) {
+		return Recap{}, fmt.Errorf("%w: snapshot captured at %s, requested %s", ErrInvalidActionableState, state.CapturedAt, now)
 	}
 
 	behavior := s.ruleset.DetectBehavior(metrics)
@@ -181,15 +185,15 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	if recapID == shareID {
 		return Recap{}, fmt.Errorf("%w: internal and public ids must differ", ErrGenerateID)
 	}
-	cards := BuildCards(profile, year, shareID, metrics, behavior, achievements, nextAction)
+	cards := BuildCardsWithRuleset(s.ruleset, profile, year, shareID, metrics, behavior, achievements, nextAction)
 
 	candidate := Recap{
 		ID: recapID, ShareID: shareID, Profile: profile, Year: year, Period: period,
-		RulesVersion: s.ruleset.Version, Metrics: metrics, ActionableState: state,
+		RulesVersion: s.ruleset.Version, RulesDigest: s.ruleset.Digest(), Metrics: metrics, ActionableState: state,
 		Behavior: behavior, Achievements: achievements, Cards: cards, NextAction: nextAction,
 		GeneratedAt: now,
 	}
-	if err := validateRecap(candidate); err != nil {
+	if err := validateRecapAgainstRuleset(candidate, s.ruleset, now); err != nil {
 		return Recap{}, fmt.Errorf("validate generated recap: %w", err)
 	}
 
@@ -214,7 +218,7 @@ func (s *Service) Get(ctx context.Context, recapID uuid.UUID) (Recap, error) {
 		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrRecapIDMismatch, recapID, value.ID)
 	}
 	value = normalizeRecap(value)
-	if err := validateRecap(value); err != nil {
+	if err := validateRecapAgainstRuleset(value, s.ruleset, s.now().UTC()); err != nil {
 		return Recap{}, fmt.Errorf("validate stored recap: %w", err)
 	}
 	return value, nil
@@ -232,10 +236,10 @@ func (s *Service) GetShareCard(ctx context.Context, shareID uuid.UUID) (ShareCar
 		return ShareCard{}, fmt.Errorf("%w: requested %s, got %s", ErrShareIDMismatch, shareID, value.ShareID)
 	}
 	value = normalizeRecap(value)
-	if err := validateRecap(value); err != nil {
+	if err := validateRecapAgainstRuleset(value, s.ruleset, s.now().UTC()); err != nil {
 		return ShareCard{}, fmt.Errorf("validate shared recap: %w", err)
 	}
-	return BuildShareCard(value), nil
+	return BuildShareCardWithRuleset(s.ruleset, value), nil
 }
 
 func (s *Service) validateStoredByKey(value Recap, key RecapKey) (Recap, error) {
@@ -243,7 +247,7 @@ func (s *Service) validateStoredByKey(value Recap, key RecapKey) (Recap, error) 
 	if value.Key() != key {
 		return Recap{}, fmt.Errorf("%w: requested %+v, got %+v", ErrRecapKeyMismatch, key, value.Key())
 	}
-	if err := validateRecap(value); err != nil {
+	if err := validateRecapAgainstRuleset(value, s.ruleset, s.now().UTC()); err != nil {
 		return Recap{}, fmt.Errorf("validate stored recap: %w", err)
 	}
 	return value, nil

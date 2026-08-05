@@ -2,7 +2,6 @@ package recap
 
 import (
 	"fmt"
-	"math"
 	"sort"
 	"strings"
 )
@@ -79,7 +78,6 @@ func evaluateActiveSeller(m Metrics, t BehaviorThresholds) behaviorCandidate {
 		return behaviorCandidate{}
 	}
 	evidence := []BehaviorEvidence{
-		ruleWeightEvidence(120),
 		evidenceCount("listings_published", m.ListingsPublished, t.ActiveSellerMinListings, 45,
 			fmt.Sprintf("Опубликовано объявлений: %d (порог %d).", m.ListingsPublished, t.ActiveSellerMinListings)),
 		evidenceCount("sales_completed", m.SalesCompleted, t.ActiveSellerMinDeals, 55,
@@ -100,7 +98,6 @@ func evaluateStartingSeller(m Metrics, t BehaviorThresholds) behaviorCandidate {
 	}
 	gap := m.ListingsCreated - m.ListingsPublished
 	evidence := []BehaviorEvidence{
-		ruleWeightEvidence(80),
 		evidenceCount("listings_created", m.ListingsCreated, t.StartingSellerMinCreated, 40,
 			fmt.Sprintf("Создано объявлений: %d (порог %d).", m.ListingsCreated, t.StartingSellerMinCreated)),
 		evidenceCount("creation_publication_gap", gap, 1, 40,
@@ -122,7 +119,6 @@ func evaluateDecisiveBuyer(m Metrics, t BehaviorThresholds) behaviorCandidate {
 		return behaviorCandidate{}
 	}
 	evidence := []BehaviorEvidence{
-		ruleWeightEvidence(100),
 		evidenceCount("purchases_completed", m.PurchasesCompleted, t.DecisiveBuyerMinPurchases, 25,
 			fmt.Sprintf("Завершено покупок: %d (порог %d).", m.PurchasesCompleted, t.DecisiveBuyerMinPurchases)),
 		evidenceCount("chats_started", m.ChatsStarted, t.DecisiveBuyerMinChats, 15,
@@ -130,7 +126,7 @@ func evaluateDecisiveBuyer(m Metrics, t BehaviorThresholds) behaviorCandidate {
 		evidenceCount("chats_with_purchase", m.ChatsWithPurchase, t.DecisiveBuyerMinLinkedChats, 30,
 			fmt.Sprintf("Диалогов, связанных с покупкой: %d (порог %d).", m.ChatsWithPurchase, t.DecisiveBuyerMinLinkedChats)),
 		evidenceRate("purchase_rate", m.PurchaseRate, t.DecisiveBuyerMinPurchaseRate, 30,
-			fmt.Sprintf("Покупкой завершилось %.0f%% связанных диалогов (порог %.0f%%).", m.PurchaseRate*100, t.DecisiveBuyerMinPurchaseRate*100)),
+			fmt.Sprintf("Покупкой завершилось %.0f%% начатых диалогов (порог %.0f%%).", m.PurchaseRate*100, t.DecisiveBuyerMinPurchaseRate*100)),
 	}
 	return behaviorCandidate{eligible: true, behavior: Behavior{
 		Code: BehaviorDecisiveBuyer, Title: "Решительный покупатель",
@@ -145,7 +141,6 @@ func evaluateFindHunter(m Metrics, t BehaviorThresholds) behaviorCandidate {
 		return behaviorCandidate{}
 	}
 	evidence := []BehaviorEvidence{
-		ruleWeightEvidence(40),
 		evidenceCount("total_views", m.TotalViews, t.FindHunterMinViews, 25,
 			fmt.Sprintf("Просмотров: %d (порог %d).", m.TotalViews, t.FindHunterMinViews)),
 		evidenceCount("favorites_added", m.FavoritesAdded, t.FindHunterMinFavorites, 30,
@@ -166,7 +161,6 @@ func evaluateResearcher(m Metrics, t BehaviorThresholds) behaviorCandidate {
 		return behaviorCandidate{}
 	}
 	evidence := []BehaviorEvidence{
-		ruleWeightEvidence(20),
 		evidenceCount("total_views", m.TotalViews, t.ResearcherMinViews, 40,
 			fmt.Sprintf("Просмотров: %d (порог %d).", m.TotalViews, t.ResearcherMinViews)),
 		evidenceCount("categories_count", m.CategoriesCount, t.ResearcherMinCategories, 40,
@@ -181,10 +175,6 @@ func evaluateResearcher(m Metrics, t BehaviorThresholds) behaviorCandidate {
 	}}
 }
 
-func ruleWeightEvidence(points uint32) BehaviorEvidence {
-	return BehaviorEvidence{Metric: "ruleset_weight", Actual: 1, Threshold: 1, Points: points, Detail: "Применён явный вес сценария из версии правил."}
-}
-
 func evidenceCount(metric string, actual, threshold uint64, maxPoints uint32, detail string) BehaviorEvidence {
 	return BehaviorEvidence{Metric: metric, Actual: float64(actual), Threshold: float64(threshold), Points: scaledPoints(float64(actual), float64(threshold), maxPoints), Detail: detail}
 }
@@ -194,23 +184,21 @@ func evidenceRate(metric string, actual, threshold float64, maxPoints uint32, de
 }
 
 func evidenceInverseCount(metric string, actual, maximum uint64, maxPoints uint32, detail string) BehaviorEvidence {
-	points := maxPoints
-	if maximum > 0 && actual > 0 {
-		ratio := float64(actual) / float64(maximum)
-		points = uint32(math.Round(float64(maxPoints) * math.Max(0, 1-ratio/2)))
+	points := uint32(0)
+	if actual <= maximum {
+		points = maxPoints
 	}
 	return BehaviorEvidence{Metric: metric, Actual: float64(actual), Threshold: float64(maximum), Points: points, Detail: detail}
 }
 
+// Thresholds are eligibility boundaries, not conversion coefficients. Once a
+// required condition is met it contributes its full declared weight; activity
+// above the threshold does not distort comparisons between different cohorts.
 func scaledPoints(actual, threshold float64, maxPoints uint32) uint32 {
-	if threshold <= 0 || actual <= 0 {
-		return 0
+	if threshold > 0 && actual >= threshold {
+		return maxPoints
 	}
-	value := (actual / threshold) * (float64(maxPoints) / 2)
-	if value > float64(maxPoints) {
-		value = float64(maxPoints)
-	}
-	return uint32(math.Round(value))
+	return 0
 }
 
 func evidenceScore(evidence []BehaviorEvidence) uint32 {
