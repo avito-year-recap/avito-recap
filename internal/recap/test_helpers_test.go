@@ -114,6 +114,27 @@ func validMetrics() Metrics {
 	}
 }
 
+func validRecap() Recap {
+	profile := validProfile()
+	metrics := EnrichMetrics(validMetrics())
+	behavior := DetectBehavior(metrics)
+	achievements := BuildAchievements(metrics)
+	nextAction := BuildNextAction(metrics)
+
+	return Recap{
+		ID:           testRecapID,
+		Profile:      profile,
+		Year:         2025,
+		RulesVersion: CurrentRulesVersion,
+		Metrics:      metrics,
+		Behavior:     behavior,
+		Achievements: achievements,
+		Cards:        BuildCards(profile, 2025, metrics, behavior, achievements, nextAction),
+		NextAction:   nextAction,
+		GeneratedAt:  fixedClock(),
+	}
+}
+
 func mustService(
 	t *testing.T,
 	profiles ProfileStorage,

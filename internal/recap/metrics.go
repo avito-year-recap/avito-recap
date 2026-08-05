@@ -1,13 +1,11 @@
 package recap
 
-// EnrichMetrics calculates derived ratios from validated base counters.
-// The ratios are always recomputed so rule evaluation cannot depend on stale input.
+// EnrichMetrics normalizes strings and calculates only ratios whose numerator is
+// an explicitly linked subset of the denominator. The ratios are always
+// recomputed so rule evaluation cannot depend on stale input.
 func EnrichMetrics(metrics Metrics) Metrics {
-	metrics.FavoriteRate = safeRate(metrics.FavoritesAdded, metrics.TotalViews)
-	metrics.ChatRate = safeRate(metrics.ChatsStarted, metrics.TotalViews)
+	metrics = normalizeMetrics(metrics)
 	metrics.RepeatRate = safeRate(metrics.RepeatedViews, metrics.TotalViews)
-	metrics.PublicationRate = safeRate(metrics.ListingsPublished, metrics.ListingsCreated)
-	metrics.SaleRate = safeRate(metrics.SalesCompleted, metrics.ListingsPublished)
 	metrics.PurchaseRate = safeRate(metrics.ChatsWithPurchase, metrics.ChatsStarted)
 
 	return metrics

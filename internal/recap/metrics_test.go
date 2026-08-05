@@ -7,24 +7,15 @@ import (
 
 func TestEnrichMetrics(t *testing.T) {
 	input := Metrics{
-		TotalViews:         200,
-		RepeatedViews:      50,
-		FavoritesAdded:     30,
-		ChatsStarted:       10,
-		ChatsWithPurchase:  2,
-		ListingsCreated:    8,
-		ListingsPublished:  6,
-		PurchasesCompleted: 2,
-		SalesCompleted:     3,
+		TotalViews:        200,
+		RepeatedViews:     50,
+		ChatsStarted:      10,
+		ChatsWithPurchase: 2,
 	}
 
 	actual := EnrichMetrics(input)
 
-	assertFloat(t, "FavoriteRate", actual.FavoriteRate, 0.15)
-	assertFloat(t, "ChatRate", actual.ChatRate, 0.05)
 	assertFloat(t, "RepeatRate", actual.RepeatRate, 0.25)
-	assertFloat(t, "PublicationRate", actual.PublicationRate, 0.75)
-	assertFloat(t, "SaleRate", actual.SaleRate, 0.5)
 	assertFloat(t, "PurchaseRate", actual.PurchaseRate, 0.2)
 
 	if actual.TotalViews != input.TotalViews {
@@ -34,25 +25,32 @@ func TestEnrichMetrics(t *testing.T) {
 
 func TestEnrichMetricsReplacesStaleRates(t *testing.T) {
 	actual := EnrichMetrics(Metrics{
-		TotalViews:     10,
-		FavoritesAdded: 1,
-		FavoriteRate:   0.99,
+		TotalViews:        10,
+		RepeatedViews:     1,
+		ChatsStarted:      4,
+		ChatsWithPurchase: 1,
+		RepeatRate:        0.99,
+		PurchaseRate:      0.99,
 	})
-	assertFloat(t, "FavoriteRate", actual.FavoriteRate, 0.1)
+	assertFloat(t, "RepeatRate", actual.RepeatRate, 0.1)
+	assertFloat(t, "PurchaseRate", actual.PurchaseRate, 0.25)
 }
 
 func TestEnrichMetricsZeroDenominators(t *testing.T) {
-	actual := EnrichMetrics(Metrics{
-		FavoritesAdded:     3,
-		ChatsStarted:       0,
-		RepeatedViews:      1,
-		PurchasesCompleted: 1,
-		SalesCompleted:     1,
-	})
+	actual := EnrichMetrics(Metrics{})
 
-	if actual.FavoriteRate != 0 || actual.ChatRate != 0 || actual.RepeatRate != 0 ||
-		actual.PublicationRate != 0 || actual.SaleRate != 0 || actual.PurchaseRate != 0 {
+	if actual.RepeatRate != 0 || actual.PurchaseRate != 0 {
 		t.Fatalf("expected all rates to be zero, got %+v", actual)
+	}
+}
+
+func TestEnrichMetricsNormalizesCategory(t *testing.T) {
+	actual := EnrichMetrics(Metrics{
+		TopCategoryCode: "  electronics\t",
+		TopCategory:     "  Электроника\n",
+	})
+	if actual.TopCategoryCode != "electronics" || actual.TopCategory != "Электроника" {
+		t.Fatalf("category was not normalized: %+v", actual)
 	}
 }
 

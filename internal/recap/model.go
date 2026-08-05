@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CurrentRulesVersion = "2.1.0"
+const CurrentRulesVersion = "2.2.0"
 
 type ActivityType string
 
@@ -51,12 +51,8 @@ type Metrics struct {
 	TopCategoryShareable bool   `json:"topCategoryShareable"`
 	MostActiveMonth      uint32 `json:"mostActiveMonth"`
 
-	FavoriteRate    float64 `json:"favoriteRate"`
-	ChatRate        float64 `json:"chatRate"`
-	RepeatRate      float64 `json:"repeatRate"`
-	PublicationRate float64 `json:"publicationRate"`
-	SaleRate        float64 `json:"saleRate"`
-	PurchaseRate    float64 `json:"purchaseRate"`
+	RepeatRate   float64 `json:"repeatRate"`
+	PurchaseRate float64 `json:"purchaseRate"`
 }
 
 type BehaviorCode string
@@ -110,15 +106,17 @@ type Achievement struct {
 type ActionCode string
 
 const (
-	ActionFinishDraft         ActionCode = "FINISH_DRAFT"
-	ActionOpenFavorites       ActionCode = "OPEN_FAVORITES"
-	ActionImproveListings     ActionCode = "IMPROVE_LISTINGS"
-	ActionContinueDialogs     ActionCode = "CONTINUE_DIALOGS"
-	ActionOpenTopCategory     ActionCode = "OPEN_TOP_CATEGORY"
-	ActionCreateFirstListing  ActionCode = "CREATE_FIRST_LISTING"
-	ActionCreateListing       ActionCode = "CREATE_LISTING"
-	ActionSaveSearch          ActionCode = "SAVE_SEARCH"
-	ActionViewSimilarListings ActionCode = "VIEW_SIMILAR_LISTINGS"
+	ActionFinishDraft     ActionCode = "FINISH_DRAFT"
+	ActionOpenFavorites   ActionCode = "OPEN_FAVORITES"
+	ActionImproveListings ActionCode = "IMPROVE_LISTINGS"
+	ActionContinueDialogs ActionCode = "CONTINUE_DIALOGS"
+	ActionOpenTopCategory ActionCode = "OPEN_TOP_CATEGORY"
+	
+	ActionCreateFirstListing     ActionCode = "CREATE_FIRST_LISTING"
+	ActionCreateListing          ActionCode = "CREATE_LISTING"
+	ActionSaveSearch             ActionCode = "SAVE_SEARCH"
+	ActionViewSimilarListings    ActionCode = "VIEW_SIMILAR_LISTINGS"
+	ActionExploreRecommendations ActionCode = "EXPLORE_RECOMMENDATIONS"
 )
 
 const ActionContinueChats = ActionContinueDialogs

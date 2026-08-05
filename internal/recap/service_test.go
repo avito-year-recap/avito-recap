@@ -115,7 +115,7 @@ func TestServiceGenerate(t *testing.T) {
 	if result.RulesVersion != CurrentRulesVersion {
 		t.Fatalf("rules version = %q, want %q", result.RulesVersion, CurrentRulesVersion)
 	}
-	if result.Metrics.FavoriteRate == 0 || result.Behavior.Code == "" || len(result.Cards) == 0 {
+	if result.Metrics.RepeatRate == 0 || result.Behavior.Code == "" || len(result.Cards) == 0 {
 		t.Fatalf("recap was not fully generated: %+v", result)
 	}
 	if recaps.saveCalls != 1 || recaps.saved == nil || recaps.saved.ID != result.ID {
@@ -261,7 +261,7 @@ func TestServiceGenerateIDErrors(t *testing.T) {
 }
 
 func TestServiceGet(t *testing.T) {
-	stored := Recap{ID: testRecapID}
+	stored := validRecap()
 	recaps := &recapStorageStub{value: stored}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
 
@@ -303,11 +303,9 @@ func TestServiceGetErrors(t *testing.T) {
 }
 
 func TestServiceGetShareCard(t *testing.T) {
-	recaps := &recapStorageStub{value: Recap{
-		ID:       testRecapID,
-		Year:     2025,
-		Behavior: Behavior{Title: "Исследователь"},
-	}}
+	stored := validRecap()
+	stored.Behavior.Title = "Исследователь"
+	recaps := &recapStorageStub{value: stored}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
 
 	actual, err := service.GetShareCard(context.Background(), testRecapID)
@@ -373,5 +371,71 @@ func TestServiceGetShareCardPropagatesGetError(t *testing.T) {
 	_, err := service.GetShareCard(context.Background(), testRecapID)
 	if !errors.Is(err, storageErr) {
 		t.Fatalf("expected storage error, got %v", err)
+	}
+}
+
+func TestServiceGenerateNormalizesStoredStrings(t *testing.T) {
+	profile := validProfile()
+	profile.Code = "  active-buyer\t"
+	profile.DisplayName = "  Алексей  "
+	profile.Description = "  Тестовый профиль\n"
+	metrics := validMetrics()
+	metrics.TopCategoryCode = "  electronics "
+	metrics.TopCategory = "\nЭлектроника\t"
+
+	service := mustService(
+		t,
+		&profileStorageStub{profile: profile},
+		&analyticsStorageStub{metrics: metrics},
+		&recapStorageStub{},
+		WithClock(func() time.Time { return fixedClock() }),
+		WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
+	)
+
+	actual, err := service.Generate(context.Background(), testProfileID, 2025)
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+	if actual.Profile.Code != "active-buyer" || actual.Profile.DisplayName != "Алексей" ||
+		actual.Metrics.TopCategoryCode != "electronics" || actual.Metrics.TopCategory != "Электроника" {
+		t.Fatalf("generated recap contains unnormalized strings: %+v", actual)
+	}
+}
+
+func TestServiceGetRejectsInvalidStoredRecap(t *testing.T) {
+	stored := validRecap()
+	stored.Cards[0].Position = 99
+	service := mustService(
+		t,
+		&profileStorageStub{},
+		&analyticsStorageStub{},
+		&recapStorageStub{value: stored},
+	)
+
+	_, err := service.Get(context.Background(), testRecapID)
+	if !errors.Is(err, ErrInvalidRecap) || !strings.Contains(err.Error(), "validate stored recap") {
+		t.Fatalf("expected invalid stored recap error, got %v", err)
+	}
+}
+
+func TestServiceGetNormalizesStoredRecap(t *testing.T) {
+	stored := validRecap()
+	stored.Profile.DisplayName = "  Алексей  "
+	stored.Metrics.TopCategory = "  Электроника\n"
+	stored.Cards[0].Title = "  Заголовок  "
+	service := mustService(
+		t,
+		&profileStorageStub{},
+		&analyticsStorageStub{},
+		&recapStorageStub{value: stored},
+	)
+
+	actual, err := service.Get(context.Background(), testRecapID)
+	if err != nil {
+		t.Fatalf("Get() error = %v", err)
+	}
+	if actual.Profile.DisplayName != "Алексей" || actual.Metrics.TopCategory != "Электроника" ||
+		actual.Cards[0].Title != "Заголовок" {
+		t.Fatalf("stored recap was not normalized: %+v", actual)
 	}
 }

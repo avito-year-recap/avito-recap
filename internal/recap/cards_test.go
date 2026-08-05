@@ -1,6 +1,9 @@
 package recap
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestBuildCardsFullAchievementScenario(t *testing.T) {
 	profile := validProfile()
@@ -44,7 +47,7 @@ func TestBuildCardsFullAchievementScenario(t *testing.T) {
 	}
 }
 
-func TestBuildCardsUsesMissedOpportunityForResearcher(t *testing.T) {
+func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 	metrics := Metrics{
 		TotalEvents:      200,
 		TotalViews:       150,
@@ -66,11 +69,10 @@ func TestBuildCardsUsesMissedOpportunityForResearcher(t *testing.T) {
 		BuildNextAction(metrics),
 	)
 
+	findCard(t, cards, CardAchievement)
 	findCard(t, cards, CardMissedOpportunity)
-	for _, card := range cards {
-		if card.Type == CardAchievement {
-			t.Fatal("researcher story must use one missed-opportunity card instead of a second insight card")
-		}
+	if len(cards) != 9 {
+		t.Fatalf("expected achievement and missed-opportunity cards to coexist, got %d cards", len(cards))
 	}
 }
 
@@ -159,4 +161,29 @@ func findCard(t *testing.T, cards []Card, cardType CardType) Card {
 	}
 	t.Fatalf("card %s not found", cardType)
 	return Card{}
+}
+
+func TestBuildCardsDoesNotInventDraftCount(t *testing.T) {
+	metrics := Metrics{
+		TotalEvents:       10,
+		ListingsCreated:   3,
+		ListingsPublished: 2,
+	}
+	metrics = EnrichMetrics(metrics)
+	cards := BuildCards(
+		validProfile(),
+		2025,
+		metrics,
+		DetectBehavior(metrics),
+		BuildAchievements(metrics),
+		BuildNextAction(metrics),
+	)
+
+	card := findCard(t, cards, CardMissedOpportunity)
+	if strings.Contains(strings.ToLower(card.Explanation), "черновиков осталось") {
+		t.Fatalf("card must not present annual counter difference as exact draft count: %+v", card)
+	}
+	if !strings.Contains(card.Explanation, "не показывают точное число") {
+		t.Fatalf("card must explain the limitation of annual counters: %q", card.Explanation)
+	}
 }

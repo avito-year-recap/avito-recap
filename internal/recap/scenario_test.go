@@ -49,7 +49,7 @@ func TestMetricsFromScenario(t *testing.T) {
 	if actual.MostActiveMonth != 11 || actual.CategoriesCount != 2 {
 		t.Fatalf("unexpected grouped metrics: %+v", actual)
 	}
-	assertFloat(t, "FavoriteRate", actual.FavoriteRate, 0.2)
+	assertFloat(t, "RepeatRate", actual.RepeatRate, 0.3)
 	assertFloat(t, "PurchaseRate", actual.PurchaseRate, 0.1)
 }
 
