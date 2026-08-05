@@ -35,7 +35,7 @@ func TestBuildAchievementsForMVPProfiles(t *testing.T) {
 		},
 		{
 			name:     "decisive buyer",
-			metrics:  Metrics{ChatsStarted: 15, PurchasesCompleted: 4},
+			metrics:  Metrics{ChatsStarted: 15, ChatsWithPurchase: 4, PurchasesCompleted: 4},
 			expected: []AchievementCode{AchievementDealCloser, AchievementQuickDecision},
 		},
 	}
@@ -58,6 +58,7 @@ func TestBuildAchievementsLimitsSortsAndHasUniqueCodes(t *testing.T) {
 		TotalViews:         300,
 		FavoritesAdded:     40,
 		ChatsStarted:       20,
+		ChatsWithPurchase:  5,
 		PurchasesCompleted: 5,
 		ListingsCreated:    10,
 		ListingsPublished:  10,

@@ -20,7 +20,7 @@ func TestBuildNextActionAllBranches(t *testing.T) {
 		},
 		{
 			name:     "view similar for decisive buyer",
-			metrics:  Metrics{TotalViews: 60, ChatsStarted: 12, PurchasesCompleted: 3},
+			metrics:  Metrics{TotalViews: 60, ChatsStarted: 12, ChatsWithPurchase: 3, PurchasesCompleted: 3},
 			expected: ActionViewSimilarListings,
 		},
 		{
@@ -71,6 +71,7 @@ func TestBuildNextActionUsesBehaviorBeforeGenericFallbacks(t *testing.T) {
 		RepeatedViews:      12,
 		FavoritesAdded:     12,
 		ChatsStarted:       12,
+		ChatsWithPurchase:  3,
 		PurchasesCompleted: 3,
 		TopCategoryCode:    "furniture",
 		TopCategory:        "Мебель и интерьер",

@@ -11,6 +11,7 @@ func TestEnrichMetrics(t *testing.T) {
 		RepeatedViews:      50,
 		FavoritesAdded:     30,
 		ChatsStarted:       10,
+		ChatsWithPurchase:  2,
 		ListingsCreated:    8,
 		ListingsPublished:  6,
 		PurchasesCompleted: 2,
