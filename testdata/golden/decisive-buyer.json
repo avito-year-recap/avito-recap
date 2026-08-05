@@ -1,58 +1,262 @@
 {
+  "id": "db5a697c-53fe-5972-95c4-9505df0909bf",
+  "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
   "profile": {
+    "id": "245a697c-53fe-5972-95c4-9505df0909bf",
     "code": "decisive-buyer",
-    "displayName": "Ольга"
+    "displayName": "Ольга",
+    "description": "Быстро переходит от просмотра объявлений к общению и покупке",
+    "avatarUrl": "/avatars/decisive-buyer.png"
   },
   "year": 2025,
-  "rulesVersion": "1.0.0",
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.3.0",
+  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "metrics": {
+    "totalEvents": 115,
+    "searches": 12,
+    "totalViews": 70,
+    "uniqueListings": 58,
+    "repeatedViews": 12,
+    "favoritesAdded": 14,
+    "chatsStarted": 15,
+    "listingsCreated": 0,
+    "listingsPublished": 0,
+    "purchasesCompleted": 4,
+    "salesCompleted": 0,
+    "activeDays": 36,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 4,
+    "topCategoryCode": "furniture",
+    "topCategory": "Мебель и интерьер",
+    "topCategoryViews": 39,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 11,
+    "repeatRate": 0.17142857142857143,
+    "purchaseRate": 0.26666666666666666
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "af36dc82-9258-5535-8cf9-012039479787",
+    "hasEverPublishedListing": false
+  },
   "behavior": {
-    "code": "DECISIVE_BUYER"
+    "code": "DECISIVE_BUYER",
+    "title": "Решительный покупатель",
+    "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
+    "reason": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+    "score": 100,
+    "evidence": [
+      {
+        "metric": "purchases_completed",
+        "actual": 4,
+        "threshold": 3,
+        "points": 25,
+        "detail": "Завершено покупок: 4 (порог 3)."
+      },
+      {
+        "metric": "chats_started",
+        "actual": 15,
+        "threshold": 5,
+        "points": 15,
+        "detail": "Начато диалогов: 15 (порог 5)."
+      },
+      {
+        "metric": "chats_with_purchase",
+        "actual": 4,
+        "threshold": 3,
+        "points": 30,
+        "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+      },
+      {
+        "metric": "purchase_rate",
+        "actual": 0.26666666666666666,
+        "threshold": 0.2,
+        "points": 30,
+        "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+      }
+    ]
   },
   "achievements": [
     {
-      "code": "DEAL_CLOSER",
-      "shareable": true
-    },
-    {
       "code": "QUICK_DECISION",
+      "category": "BUYING",
+      "title": "Быстрое решение",
+      "description": "Заметная доля начатых диалогов завершилась покупкой.",
+      "reason": "Покупкой завершилось 27% начатых диалогов.",
       "shareable": true
     }
   ],
-  "nextAction": {
-    "type": "VIEW_SIMILAR_LISTINGS"
-  },
   "cards": [
     {
+      "id": "intro",
       "type": "INTRO",
-      "position": 1
+      "position": 1,
+      "title": "Ольга, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
     },
     {
+      "id": "year-activity",
       "type": "YEAR_ACTIVITY",
-      "position": 2
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 115 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 115,
+        "searches": 12,
+        "totalViews": 70,
+        "favoritesAdded": 14,
+        "chatsStarted": 15,
+        "listingsPublished": 0,
+        "purchasesCompleted": 4,
+        "salesCompleted": 0
+      }
     },
     {
+      "id": "top-category",
       "type": "TOP_CATEGORY",
-      "position": 3
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Мебель и интерьер».",
+      "explanation": "Просмотров в этой категории: 39.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "furniture",
+        "category": "Мебель и интерьер",
+        "categoryViews": 39
+      }
     },
     {
+      "id": "active-month",
       "type": "ACTIVE_MONTH",
-      "position": 4
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на ноябрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 11
+      }
     },
     {
+      "id": "behavior",
       "type": "BEHAVIOR",
-      "position": 5
+      "position": 5,
+      "title": "Решительный покупатель",
+      "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
+      "explanation": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+      "shareable": false,
+      "payload": {
+        "code": "DECISIVE_BUYER",
+        "score": 100,
+        "evidence": [
+          {
+            "metric": "purchases_completed",
+            "actual": 4,
+            "threshold": 3,
+            "points": 25,
+            "detail": "Завершено покупок: 4 (порог 3)."
+          },
+          {
+            "metric": "chats_started",
+            "actual": 15,
+            "threshold": 5,
+            "points": 15,
+            "detail": "Начато диалогов: 15 (порог 5)."
+          },
+          {
+            "metric": "chats_with_purchase",
+            "actual": 4,
+            "threshold": 3,
+            "points": 30,
+            "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+          },
+          {
+            "metric": "purchase_rate",
+            "actual": 0.26666666666666666,
+            "threshold": 0.2,
+            "points": 30,
+            "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+          }
+        ]
+      }
     },
     {
+      "id": "achievements",
       "type": "ACHIEVEMENT",
-      "position": 6
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Быстрое решение",
+      "explanation": "Покупкой завершилось 27% начатых диалогов.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "QUICK_DECISION"
+        ]
+      }
     },
     {
+      "id": "next-action",
       "type": "NEXT_ACTION",
-      "position": 7
+      "position": 7,
+      "title": "Посмотри похожие варианты",
+      "description": "Открой подборку, похожую на недавнюю покупку.",
+      "explanation": "Target связан с последним завершённым сценарием покупки.",
+      "shareable": false,
+      "payload": {
+        "code": "VIEW_SIMILAR_LISTINGS",
+        "target": {
+          "listing": {
+            "listingId": "af36dc82-9258-5535-8cf9-012039479787"
+          }
+        }
+      }
     },
     {
-      "type": "SUMMARY",
-      "position": 8
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Решительный покупатель». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Решительный покупатель",
+        "achievementTitle": "Быстрое решение",
+        "topCategory": "Мебель и интерьер"
+      }
     }
-  ]
+  ],
+  "nextAction": {
+    "code": "VIEW_SIMILAR_LISTINGS",
+    "title": "Посмотри похожие варианты",
+    "description": "Открой подборку, похожую на недавнюю покупку.",
+    "buttonText": "Смотреть похожее",
+    "reason": "Target связан с последним завершённым сценарием покупки.",
+    "target": {
+      "listing": {
+        "listingId": "af36dc82-9258-5535-8cf9-012039479787"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
 }
