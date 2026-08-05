@@ -1,12 +1,12 @@
 {
-  "id": "706ec9ae-b217-529d-9292-a592ce97cc09",
-  "shareId": "706fc9ae-b217-529d-9292-a592ce97cc09",
+  "id": "ec5f8ec8-95a5-522a-b26e-71c20c79d338",
+  "shareId": "ec5e8ec8-95a5-522a-b26e-71c20c79d338",
   "profile": {
-    "id": "8f6ec9ae-b217-529d-9292-a592ce97cc09",
-    "code": "active-seller",
-    "displayName": "Мария",
-    "description": "Регулярно публикует объявления и общается с покупателями",
-    "avatarUrl": "/avatars/active-seller.png"
+    "id": "135f8ec8-95a5-522a-b26e-71c20c79d338",
+    "code": "seller-buyer-hybrid",
+    "displayName": "Дмитрий",
+    "description": "Одновременно активно продаёт и уверенно завершает покупки",
+    "avatarUrl": "/avatars/seller-buyer-hybrid.png"
   },
   "year": 2025,
   "period": {
@@ -18,27 +18,27 @@
   "rulesVersion": "3.3.0",
   "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
   "metrics": {
-    "totalEvents": 95,
-    "searches": 5,
-    "totalViews": 35,
-    "uniqueListings": 30,
-    "repeatedViews": 5,
-    "favoritesAdded": 3,
-    "chatsStarted": 26,
-    "listingsCreated": 11,
-    "listingsPublished": 9,
-    "purchasesCompleted": 0,
-    "salesCompleted": 6,
-    "activeDays": 64,
-    "categoriesCount": 3,
-    "chatsWithPurchase": 0,
-    "topCategoryCode": "clothing",
-    "topCategory": "Одежда, обувь и аксессуары",
-    "topCategoryViews": 16,
+    "totalEvents": 154,
+    "searches": 20,
+    "totalViews": 90,
+    "uniqueListings": 75,
+    "repeatedViews": 15,
+    "favoritesAdded": 8,
+    "chatsStarted": 12,
+    "listingsCreated": 8,
+    "listingsPublished": 7,
+    "purchasesCompleted": 4,
+    "salesCompleted": 5,
+    "activeDays": 80,
+    "categoriesCount": 4,
+    "chatsWithPurchase": 4,
+    "topCategoryCode": "electronics",
+    "topCategory": "Электроника",
+    "topCategoryViews": 32,
     "topCategoryShareable": true,
-    "mostActiveMonth": 11,
-    "repeatRate": 0.14285714285714285,
-    "purchaseRate": 0
+    "mostActiveMonth": 12,
+    "repeatRate": 0.16666666666666666,
+    "purchaseRate": 0.3333333333333333
   },
   "actionableState": {
     "capturedAt": "2026-08-04T12:00:00Z",
@@ -46,33 +46,33 @@
     "draftListingId": "00000000-0000-0000-0000-000000000000",
     "openDialogs": 0,
     "openDialogId": "00000000-0000-0000-0000-000000000000",
-    "activeListings": 4,
-    "activeListingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb",
+    "activeListings": 3,
+    "activeListingId": "3f3972a1-b4ac-5d06-9509-f344762f906d",
     "favoritesCount": 0,
     "hasSavedSearchForTopCategory": false,
-    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "lastPurchasedListingId": "95887d47-6da7-5162-81b1-aaa3b741620e",
     "hasEverPublishedListing": true
   },
   "behavior": {
     "code": "ACTIVE_SELLER",
     "title": "Продажи в движении",
     "description": "В течение года было много публикаций и завершённых продаж.",
-    "reason": "Опубликовано объявлений: 9 (порог 5). Завершено продаж: 6 (порог 3).",
+    "reason": "Опубликовано объявлений: 7 (порог 5). Завершено продаж: 5 (порог 3).",
     "score": 100,
     "evidence": [
       {
         "metric": "listings_published",
-        "actual": 9,
+        "actual": 7,
         "threshold": 5,
         "points": 45,
-        "detail": "Опубликовано объявлений: 9 (порог 5)."
+        "detail": "Опубликовано объявлений: 7 (порог 5)."
       },
       {
         "metric": "sales_completed",
-        "actual": 6,
+        "actual": 5,
         "threshold": 3,
         "points": 55,
-        "detail": "Завершено продаж: 6 (порог 3)."
+        "detail": "Завершено продаж: 5 (порог 3)."
       }
     ]
   },
@@ -82,7 +82,23 @@
       "category": "SELLING",
       "title": "Успешные продажи",
       "description": "Несколько сделок были уверенно доведены до результата.",
-      "reason": "Продаж завершено: 6.",
+      "reason": "Продаж завершено: 5.",
+      "shareable": true
+    },
+    {
+      "code": "QUICK_DECISION",
+      "category": "BUYING",
+      "title": "Быстрое решение",
+      "description": "Заметная доля начатых диалогов завершилась покупкой.",
+      "reason": "Покупкой завершилось 33% начатых диалогов.",
+      "shareable": true
+    },
+    {
+      "code": "ALL_ROUNDER",
+      "category": "VERSATILITY",
+      "title": "Всё в одном году",
+      "description": "Поиск, общение, покупки и продажи сложились в один разносторонний сценарий.",
+      "reason": "Покупок: 4. Продаж: 5. Опубликованных объявлений: 7.",
       "shareable": true
     }
   ],
@@ -91,7 +107,7 @@
       "id": "intro",
       "type": "INTRO",
       "position": 1,
-      "title": "Мария, вот твои итоги за 2025 год",
+      "title": "Дмитрий, вот твои итоги за 2025 год",
       "description": "Это финальный recap за завершённый календарный год.",
       "shareable": false
     },
@@ -100,18 +116,18 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 95 действий.",
+      "description": "За завершённый год система учла 154 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 95,
-        "searches": 5,
-        "totalViews": 35,
-        "favoritesAdded": 3,
-        "chatsStarted": 26,
-        "listingsPublished": 9,
-        "purchasesCompleted": 0,
-        "salesCompleted": 6
+        "totalEvents": 154,
+        "searches": 20,
+        "totalViews": 90,
+        "favoritesAdded": 8,
+        "chatsStarted": 12,
+        "listingsPublished": 7,
+        "purchasesCompleted": 4,
+        "salesCompleted": 5
       }
     },
     {
@@ -119,13 +135,13 @@
       "type": "TOP_CATEGORY",
       "position": 3,
       "title": "Главный интерес года",
-      "description": "Чаще всего внимание привлекала категория «Одежда, обувь и аксессуары».",
-      "explanation": "Просмотров в этой категории: 16.",
+      "description": "Чаще всего внимание привлекала категория «Электроника».",
+      "explanation": "Просмотров в этой категории: 32.",
       "shareable": false,
       "payload": {
-        "categoryCode": "clothing",
-        "category": "Одежда, обувь и аксессуары",
-        "categoryViews": 16
+        "categoryCode": "electronics",
+        "category": "Электроника",
+        "categoryViews": 32
       }
     },
     {
@@ -133,11 +149,11 @@
       "type": "ACTIVE_MONTH",
       "position": 4,
       "title": "Самый активный месяц",
-      "description": "Больше всего действий пришлось на ноябрь.",
+      "description": "Больше всего действий пришлось на декабрь.",
       "explanation": "Месяц выбран по максимальному числу событий профиля.",
       "shareable": false,
       "payload": {
-        "month": 11
+        "month": 12
       }
     },
     {
@@ -146,7 +162,7 @@
       "position": 5,
       "title": "Продажи в движении",
       "description": "В течение года было много публикаций и завершённых продаж.",
-      "explanation": "Опубликовано объявлений: 9 (порог 5). Завершено продаж: 6 (порог 3).",
+      "explanation": "Опубликовано объявлений: 7 (порог 5). Завершено продаж: 5 (порог 3).",
       "shareable": false,
       "payload": {
         "code": "ACTIVE_SELLER",
@@ -154,17 +170,17 @@
         "evidence": [
           {
             "metric": "listings_published",
-            "actual": 9,
+            "actual": 7,
             "threshold": 5,
             "points": 45,
-            "detail": "Опубликовано объявлений: 9 (порог 5)."
+            "detail": "Опубликовано объявлений: 7 (порог 5)."
           },
           {
             "metric": "sales_completed",
-            "actual": 6,
+            "actual": 5,
             "threshold": 3,
             "points": 55,
-            "detail": "Завершено продаж: 6 (порог 3)."
+            "detail": "Завершено продаж: 5 (порог 3)."
           }
         ]
       }
@@ -174,12 +190,14 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Успешные продажи",
-      "explanation": "Продаж завершено: 6.",
+      "description": "Успешные продажи • Быстрое решение • Всё в одном году",
+      "explanation": "Продаж завершено: 5. Покупкой завершилось 33% начатых диалогов. Покупок: 4. Продаж: 5. Опубликованных объявлений: 7.",
       "shareable": false,
       "payload": {
         "codes": [
-          "SUCCESSFUL_SELLER"
+          "SUCCESSFUL_SELLER",
+          "QUICK_DECISION",
+          "ALL_ROUNDER"
         ]
       }
     },
@@ -189,13 +207,13 @@
       "position": 7,
       "title": "Усиль активное объявление",
       "description": "Обнови фотографии или описание конкретного активного объявления.",
-      "explanation": "Сейчас активно объявлений: 4; выбран конкретный адресуемый объект.",
+      "explanation": "Сейчас активно объявлений: 3; выбран конкретный адресуемый объект.",
       "shareable": false,
       "payload": {
         "code": "IMPROVE_LISTINGS",
         "target": {
           "listing": {
-            "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+            "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
           }
         }
       }
@@ -209,12 +227,12 @@
       "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
       "shareable": true,
       "payload": {
-        "shareId": "706fc9ae-b217-529d-9292-a592ce97cc09",
+        "shareId": "ec5e8ec8-95a5-522a-b26e-71c20c79d338",
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Продажи в движении",
         "achievementTitle": "Успешные продажи",
-        "topCategory": "Одежда, обувь и аксессуары"
+        "topCategory": "Электроника"
       }
     }
   ],
@@ -223,10 +241,10 @@
     "title": "Усиль активное объявление",
     "description": "Обнови фотографии или описание конкретного активного объявления.",
     "buttonText": "Открыть объявление",
-    "reason": "Сейчас активно объявлений: 4; выбран конкретный адресуемый объект.",
+    "reason": "Сейчас активно объявлений: 3; выбран конкретный адресуемый объект.",
     "target": {
       "listing": {
-        "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+        "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
       }
     }
   },
