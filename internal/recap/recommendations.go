@@ -3,52 +3,81 @@ package recap
 import "fmt"
 
 const (
-	favoritesForAction  uint64 = 10
 	publishedForImprove uint64 = 3
 	chatsForContinue    uint64 = 3
 )
 
-// BuildNextAction returns exactly one deterministic next step.
-// Rules are ordered by the expected value of continuing an unfinished scenario.
+// BuildNextAction returns one deterministic next step tied to the dominant behavior.
+// Continuing an unfinished scenario is preferred over a generic discovery action.
 func BuildNextAction(metrics Metrics) NextAction {
-	switch {
-	case metrics.ListingsCreated > metrics.ListingsPublished:
-		drafts := metrics.ListingsCreated - metrics.ListingsPublished
+	metrics = EnrichMetrics(metrics)
+	behavior := DetectBehavior(metrics)
 
+	switch behavior.Code {
+	case BehaviorStartingSeller:
+		drafts := metrics.ListingsCreated - metrics.ListingsPublished
 		return NextAction{
 			Code:        ActionFinishDraft,
 			Title:       "Заверши начатое объявление",
-			Description: fmt.Sprintf("У тебя осталось незавершённых черновиков: %d.", drafts),
+			Description: fmt.Sprintf("Черновиков, которые можно довести до публикации: %d.", drafts),
 			ButtonText:  "Продолжить публикацию",
-			Reason:      "Количество созданных объявлений больше количества опубликованных.",
+			Reason:      "Низкая доля публикаций показывает, что основной незавершённый шаг — работа с черновиками.",
+		}
+
+	case BehaviorActiveSeller:
+		return NextAction{
+			Code:        ActionCreateListing,
+			Title:       "Продолжи успешный сценарий",
+			Description: "Создай новое объявление, пока опыт публикаций и продаж остаётся актуальным.",
+			ButtonText:  "Создать объявление",
+			Reason:      "Регулярные публикации уже приводили к завершённым продажам.",
+		}
+
+	case BehaviorDecisiveBuyer:
+		return NextAction{
+			Code:        ActionViewSimilarListings,
+			Title:       "Посмотри похожие варианты",
+			Description: "Подборка по главному интересу поможет быстро перейти к следующему выбору.",
+			ButtonText:  "Смотреть похожее",
+			Reason:      "Высокая доля завершённых покупок показывает готовность переходить от общения к действию.",
+		}
+
+	case BehaviorResearcher:
+		return NextAction{
+			Code:        ActionSaveSearch,
+			Title:       "Сохрани поиск",
+			Description: "Новые объявления по выбранным параметрам будут легче отслеживать без повторного поиска.",
+			ButtonText:  "Сохранить поиск",
+			Reason:      "Просмотров и категорий много, а переходов к диалогу мало — автоматическое обновление поиска сокращает повторную работу.",
+		}
+
+	case BehaviorFindHunter:
+		return NextAction{
+			Code:        ActionOpenFavorites,
+			Title:       "Вернись к своим находкам",
+			Description: "В избранном уже есть варианты, которые можно ещё раз сравнить и обсудить.",
+			ButtonText:  "Открыть избранное",
+			Reason:      "Высокая доля сохранений и повторных просмотров указывает на сформированную подборку.",
+		}
+	}
+
+	switch {
+	case metrics.ChatsStarted >= chatsForContinue:
+		return NextAction{
+			Code:        ActionContinueDialogs,
+			Title:       "Продолжи начатые диалоги",
+			Description: "В сообщениях могут оставаться вопросы и договорённости, которые стоит завершить.",
+			ButtonText:  "Открыть сообщения",
+			Reason:      "Диалоги были заметной частью активности, но ни один более узкий сценарий не доминирует.",
 		}
 
 	case metrics.ListingsPublished >= publishedForImprove && metrics.SalesCompleted == 0:
 		return NextAction{
 			Code:        ActionImproveListings,
 			Title:       "Усиль свои объявления",
-			Description: "Попробуй обновить фотографии или описание, чтобы получить больше откликов.",
+			Description: "Обнови фотографии или описание, чтобы повысить шанс на отклик.",
 			ButtonText:  "Посмотреть объявления",
-			Reason:      "Опубликовано несколько объявлений, но завершённых сделок пока нет.",
-		}
-
-	case metrics.ChatsStarted >= chatsForContinue &&
-		metrics.PurchasesCompleted == 0 && metrics.SalesCompleted == 0:
-		return NextAction{
-			Code:        ActionContinueChats,
-			Title:       "Продолжи начатые диалоги",
-			Description: "В переписках могут оставаться сценарии, которые ещё можно завершить.",
-			ButtonText:  "Открыть сообщения",
-			Reason:      "Есть начатые диалоги, но нет завершённых сделок.",
-		}
-
-	case metrics.FavoritesAdded >= favoritesForAction && metrics.ChatsStarted == 0:
-		return NextAction{
-			Code:        ActionOpenFavorites,
-			Title:       "Вернись к своим находкам",
-			Description: "В избранном уже есть варианты, с которыми можно продолжить.",
-			ButtonText:  "Открыть избранное",
-			Reason:      "Есть много сохранённых объявлений, но ещё не начато ни одного диалога.",
+			Reason:      "Опубликовано несколько объявлений, но завершённых продаж пока нет.",
 		}
 
 	case metrics.TopCategory != "":
@@ -66,7 +95,7 @@ func BuildNextAction(metrics Metrics) NextAction {
 			Title:       "Попробуй новый сценарий",
 			Description: "Создай первое объявление и узнай, насколько быстро найдётся покупатель.",
 			ButtonText:  "Создать объявление",
-			Reason:      "Не найден более приоритетный незавершённый пользовательский сценарий.",
+			Reason:      "Не найден более приоритетный незавершённый сценарий.",
 		}
 	}
 }

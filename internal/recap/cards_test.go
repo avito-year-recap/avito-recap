@@ -2,49 +2,75 @@ package recap
 
 import "testing"
 
-func TestBuildCardsFullScenario(t *testing.T) {
+func TestBuildCardsFullAchievementScenario(t *testing.T) {
 	profile := validProfile()
-	metrics := validMetrics()
-	metrics = EnrichMetrics(metrics)
+	metrics := EnrichMetrics(validMetrics())
 	behavior := DetectBehavior(metrics)
 	achievements := BuildAchievements(metrics)
 	nextAction := BuildNextAction(metrics)
 
 	cards := BuildCards(profile, 2025, metrics, behavior, achievements, nextAction)
 
-	expectedCount := 7 + len(achievements)
-	if len(cards) != expectedCount {
-		t.Fatalf("expected %d cards, got %d", expectedCount, len(cards))
+	if len(cards) != 8 {
+		t.Fatalf("expected 8 story cards, got %d: %+v", len(cards), cards)
 	}
+	assertCardSequence(t, cards, []CardType{
+		CardIntro,
+		CardYearActivity,
+		CardTopCategory,
+		CardActiveMonth,
+		CardBehavior,
+		CardAchievement,
+		CardNextAction,
+		CardSummary,
+	})
 
-	seenIDs := make(map[string]struct{}, len(cards))
-	for index, card := range cards {
-		wantPosition := uint32(index + 1)
-		if card.Position != wantPosition {
-			t.Fatalf("card %q position = %d, want %d", card.ID, card.Position, wantPosition)
-		}
-		if card.ID == "" || card.Title == "" || card.Description == "" {
-			t.Fatalf("incomplete card at position %d: %+v", index, card)
-		}
-		if _, exists := seenIDs[card.ID]; exists {
-			t.Fatalf("duplicate card id: %s", card.ID)
-		}
-		seenIDs[card.ID] = struct{}{}
+	achievementCard := findCard(t, cards, CardAchievement)
+	if len(achievementCard.Payload.AchievementCodes) != len(achievements) {
+		t.Fatalf("achievement payload = %+v, want %d codes", achievementCard.Payload, len(achievements))
 	}
-
-	if cards[0].Type != CardIntro || cards[1].Type != CardYearActivity {
-		t.Fatalf("unexpected first cards: %s, %s", cards[0].Type, cards[1].Type)
-	}
-	if cards[len(cards)-2].Type != CardNextAction || cards[len(cards)-1].Type != CardSummary {
-		t.Fatalf("unexpected final cards: %s, %s", cards[len(cards)-2].Type, cards[len(cards)-1].Type)
+	if !achievementCard.Shareable {
+		t.Fatal("card with only public achievements must be shareable")
 	}
 
 	categoryCard := findCard(t, cards, CardTopCategory)
 	if !categoryCard.Shareable {
 		t.Fatal("safe top category card must be shareable")
 	}
-	if categoryCard.Payload.Category != metrics.TopCategory || categoryCard.Payload.CategoryViews != metrics.TopCategoryViews {
+	if categoryCard.Payload.CategoryCode != metrics.TopCategoryCode ||
+		categoryCard.Payload.Category != metrics.TopCategory ||
+		categoryCard.Payload.CategoryViews != metrics.TopCategoryViews {
 		t.Fatalf("unexpected category payload: %+v", categoryCard.Payload)
+	}
+}
+
+func TestBuildCardsUsesMissedOpportunityForResearcher(t *testing.T) {
+	metrics := Metrics{
+		TotalEvents:      200,
+		TotalViews:       150,
+		UniqueListings:   145,
+		ChatsStarted:     3,
+		CategoriesCount:  6,
+		TopCategoryCode:  "electronics",
+		TopCategory:      "Электроника",
+		TopCategoryViews: 40,
+		MostActiveMonth:  12,
+	}
+	metrics = EnrichMetrics(metrics)
+	cards := BuildCards(
+		validProfile(),
+		2025,
+		metrics,
+		DetectBehavior(metrics),
+		BuildAchievements(metrics),
+		BuildNextAction(metrics),
+	)
+
+	findCard(t, cards, CardMissedOpportunity)
+	for _, card := range cards {
+		if card.Type == CardAchievement {
+			t.Fatal("researcher story must use one missed-opportunity card instead of a second insight card")
+		}
 	}
 }
 
@@ -59,7 +85,8 @@ func TestBuildCardsOmitsUnavailableOptionalCards(t *testing.T) {
 	)
 
 	for _, card := range cards {
-		if card.Type == CardTopCategory || card.Type == CardActiveMonth || card.Type == CardAchievement {
+		if card.Type == CardTopCategory || card.Type == CardActiveMonth ||
+			card.Type == CardAchievement || card.Type == CardMissedOpportunity {
 			t.Fatalf("optional card %s must be omitted", card.Type)
 		}
 	}
@@ -72,6 +99,7 @@ func TestBuildCardsDoesNotShareSensitiveCategory(t *testing.T) {
 	metrics := Metrics{
 		TotalEvents:      5,
 		TotalViews:       5,
+		TopCategoryCode:  "sensitive",
 		TopCategory:      "Чувствительная категория",
 		TopCategoryViews: 5,
 	}
@@ -91,17 +119,34 @@ func TestBuildCardsDoesNotShareSensitiveCategory(t *testing.T) {
 }
 
 func TestMonthName(t *testing.T) {
-	tests := map[uint32]string{
-		0:  "",
-		1:  "январь",
-		6:  "июнь",
-		12: "декабрь",
-		13: "",
-	}
+	tests := map[uint32]string{0: "", 1: "январь", 6: "июнь", 12: "декабрь", 13: ""}
 	for month, expected := range tests {
 		if actual := monthName(month); actual != expected {
 			t.Fatalf("monthName(%d) = %q, want %q", month, actual, expected)
 		}
+	}
+}
+
+func assertCardSequence(t *testing.T, cards []Card, expected []CardType) {
+	t.Helper()
+	if len(cards) != len(expected) {
+		t.Fatalf("card count = %d, want %d", len(cards), len(expected))
+	}
+	seenIDs := make(map[string]struct{}, len(cards))
+	for index, card := range cards {
+		if card.Type != expected[index] {
+			t.Fatalf("card %d type = %s, want %s", index, card.Type, expected[index])
+		}
+		if card.Position != uint32(index+1) {
+			t.Fatalf("card %q position = %d, want %d", card.ID, card.Position, index+1)
+		}
+		if card.ID == "" || card.Title == "" || card.Description == "" {
+			t.Fatalf("incomplete card at position %d: %+v", index, card)
+		}
+		if _, exists := seenIDs[card.ID]; exists {
+			t.Fatalf("duplicate card id: %s", card.ID)
+		}
+		seenIDs[card.ID] = struct{}{}
 	}
 }
 

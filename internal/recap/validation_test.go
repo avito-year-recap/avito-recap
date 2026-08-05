@@ -12,10 +12,12 @@ func TestValidateProfile(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "valid", profile: validProfile()},
-		{name: "empty id", profile: Profile{DisplayName: "Name"}, wantErr: true},
-		{name: "blank id", profile: Profile{ID: "  ", DisplayName: "Name"}, wantErr: true},
-		{name: "empty display name", profile: Profile{ID: "id"}, wantErr: true},
-		{name: "blank display name", profile: Profile{ID: "id", DisplayName: "\t"}, wantErr: true},
+		{name: "empty id", profile: Profile{Code: "code", DisplayName: "Name"}, wantErr: true},
+		{name: "blank id", profile: Profile{ID: "  ", Code: "code", DisplayName: "Name"}, wantErr: true},
+		{name: "empty code", profile: Profile{ID: "id", DisplayName: "Name"}, wantErr: true},
+		{name: "blank code", profile: Profile{ID: "id", Code: " ", DisplayName: "Name"}, wantErr: true},
+		{name: "empty display name", profile: Profile{ID: "id", Code: "code"}, wantErr: true},
+		{name: "blank display name", profile: Profile{ID: "id", Code: "code", DisplayName: "\t"}, wantErr: true},
 	}
 
 	for _, test := range tests {
@@ -38,32 +40,29 @@ func TestValidateMetrics(t *testing.T) {
 		name   string
 		mutate func(*Metrics)
 	}{
-		{name: "known events overflow", mutate: func(m *Metrics) { m.TotalEvents = ^uint64(0); m.TotalViews = ^uint64(0); m.FavoritesAdded = 1 }},
+		{name: "known events overflow", mutate: func(m *Metrics) { m.TotalEvents = ^uint64(0); m.Searches = ^uint64(0); m.TotalViews = 1 }},
 		{name: "known events exceed total", mutate: func(m *Metrics) { m.TotalEvents = 1 }},
 		{name: "unique listings exceed views", mutate: func(m *Metrics) { m.UniqueListings = m.TotalViews + 1 }},
 		{name: "repeated views exceed views", mutate: func(m *Metrics) { m.RepeatedViews = m.TotalViews + 1 }},
+		{name: "favorites exceed views", mutate: func(m *Metrics) { m.FavoritesAdded = m.TotalViews + 1; m.TotalEvents += m.TotalViews + 1 }},
+		{name: "chats exceed views", mutate: func(m *Metrics) { m.ChatsStarted = m.TotalViews + 1; m.TotalEvents += m.TotalViews + 1 }},
+		{name: "published exceed created", mutate: func(m *Metrics) { m.ListingsPublished = 1; m.TotalEvents++ }},
+		{name: "sales exceed published", mutate: func(m *Metrics) { m.SalesCompleted = 1; m.TotalEvents++ }},
+		{name: "purchases exceed chats", mutate: func(m *Metrics) { m.PurchasesCompleted = m.ChatsStarted + 1; m.TotalEvents++ }},
 		{name: "top views exceed views", mutate: func(m *Metrics) { m.TopCategoryViews = m.TotalViews + 1 }},
-		{name: "views without category", mutate: func(m *Metrics) { m.TopCategory = "" }},
+		{name: "title without code", mutate: func(m *Metrics) { m.TopCategoryCode = "" }},
+		{name: "code without title", mutate: func(m *Metrics) { m.TopCategory = ""; m.TopCategoryViews = 0 }},
 		{name: "category without views", mutate: func(m *Metrics) { m.TopCategoryViews = 0 }},
 		{name: "invalid month", mutate: func(m *Metrics) { m.MostActiveMonth = 13 }},
-		{name: "shareable empty category", mutate: func(m *Metrics) { m.TopCategory = ""; m.TopCategoryViews = 0; m.TopCategoryShareable = true }},
-		{name: "categories exceed events", mutate: func(m *Metrics) { m.CategoriesCount = m.TotalEvents + 1 }},
-		{name: "active days exceed events", mutate: func(m *Metrics) {
-			m.TotalEvents = 10
-			m.TotalViews = 0
-			m.UniqueListings = 0
-			m.RepeatedViews = 0
-			m.FavoritesAdded = 0
-			m.ChatsStarted = 0
-			m.ListingsCreated = 0
-			m.ListingsPublished = 0
-			m.PurchasesCompleted = 0
-			m.SalesCompleted = 0
-			m.ActiveDays = 11
-			m.CategoriesCount = 0
+		{name: "shareable empty category", mutate: func(m *Metrics) {
+			m.TopCategoryCode = ""
 			m.TopCategory = ""
 			m.TopCategoryViews = 0
-			m.TopCategoryShareable = false
+			m.TopCategoryShareable = true
+		}},
+		{name: "categories exceed events", mutate: func(m *Metrics) { m.CategoriesCount = m.TotalEvents + 1 }},
+		{name: "active days exceed events", mutate: func(m *Metrics) {
+			*m = Metrics{TotalEvents: 10, ActiveDays: 11}
 		}},
 		{name: "too many active days", mutate: func(m *Metrics) { m.TotalEvents = 500; m.ActiveDays = 367 }},
 	}
