@@ -4,10 +4,10 @@ import "testing"
 
 func TestBuildShareCardUsesOnlyExplicitlyPublicData(t *testing.T) {
 	value := Recap{
-		ID:   "11111111-1111-4111-8111-111111111111",
+		ID:   testRecapID,
 		Year: 2025,
 		Profile: Profile{
-			ID:          "private-profile-id",
+			ID:          testProfileID,
 			DisplayName: "Private name",
 		},
 		Metrics: Metrics{

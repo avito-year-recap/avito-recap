@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func TestNewServiceRejectsMissingDependencies(t *testing.T) {
@@ -67,7 +69,7 @@ func TestServiceListProfilesErrors(t *testing.T) {
 
 	t.Run("invalid returned profile", func(t *testing.T) {
 		service := mustService(t,
-			&profileStorageStub{profiles: []Profile{{ID: "id"}}},
+			&profileStorageStub{profiles: []Profile{{ID: testProfileID}}},
 			&analyticsStorageStub{},
 			&recapStorageStub{},
 		)
@@ -93,22 +95,22 @@ func TestServiceGenerate(t *testing.T) {
 			clockCalls++
 			return fixedClock()
 		}),
-		WithIDGenerator(func() (string, error) { return "11111111-1111-4111-8111-111111111111", nil }),
+		WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
 	)
 
-	result, err := service.Generate(context.Background(), "  profile-1  ", 2025)
+	result, err := service.Generate(context.Background(), testProfileID, 2025)
 	if err != nil {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	if profiles.gotID != "profile-1" || analytics.gotID != "profile-1" || analytics.gotYear != 2025 {
-		t.Fatalf("input was not normalized/forwarded correctly: profile=%q analytics=%q year=%d", profiles.gotID, analytics.gotID, analytics.gotYear)
+	if profiles.gotID != testProfileID || analytics.gotID != testProfileID || analytics.gotYear != 2025 {
+		t.Fatalf("input was not normalized/forwarded correctly: profile=%s analytics=%s year=%d", profiles.gotID, analytics.gotID, analytics.gotYear)
 	}
 	if clockCalls != 1 {
 		t.Fatalf("clock called %d times, want exactly once", clockCalls)
 	}
-	if result.ID != "11111111-1111-4111-8111-111111111111" || result.GeneratedAt != fixedClock() {
-		t.Fatalf("unexpected generated metadata: id=%q time=%v", result.ID, result.GeneratedAt)
+	if result.ID != testRecapID || result.GeneratedAt != fixedClock() {
+		t.Fatalf("unexpected generated metadata: id=%s time=%v", result.ID, result.GeneratedAt)
 	}
 	if result.RulesVersion != CurrentRulesVersion {
 		t.Fatalf("rules version = %q, want %q", result.RulesVersion, CurrentRulesVersion)
@@ -126,18 +128,19 @@ func TestServiceGenerateValidationErrorsDoNotSave(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		profileID string
+		profileID uuid.UUID
 		year      uint32
 		profile   Profile
 		metrics   Metrics
 		expected  error
 	}{
-		{name: "empty profile id", profileID: " ", year: 2025, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidProfileID},
-		{name: "zero year", profileID: "id", year: 0, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
-		{name: "future year", profileID: "id", year: futureYear, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
-		{name: "invalid profile", profileID: "id", year: 2025, profile: Profile{ID: "id"}, metrics: validMetrics(), expected: ErrInvalidProfile},
-		{name: "invalid metrics", profileID: "id", year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: 1, TotalViews: 2}, expected: ErrInvalidMetrics},
-		{name: "too little activity", profileID: "id", year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: minEventsForRecap - 1}, expected: ErrNotEnoughActivity},
+		{name: "empty profile id", profileID: uuid.Nil, year: 2025, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidProfileID},
+		{name: "zero year", profileID: testProfileID, year: 0, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
+		{name: "future year", profileID: testProfileID, year: futureYear, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
+		{name: "invalid profile", profileID: testProfileID, year: 2025, profile: Profile{ID: testProfileID}, metrics: validMetrics(), expected: ErrInvalidProfile},
+		{name: "profile id mismatch", profileID: testProfileID, year: 2025, profile: Profile{ID: otherProfileID, Code: "other", DisplayName: "Other"}, metrics: validMetrics(), expected: ErrProfileIDMismatch},
+		{name: "invalid metrics", profileID: testProfileID, year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: 1, TotalViews: 2}, expected: ErrInvalidMetrics},
+		{name: "too little activity", profileID: testProfileID, year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: minEventsForRecap - 1}, expected: ErrNotEnoughActivity},
 	}
 
 	for _, test := range tests {
@@ -209,10 +212,10 @@ func TestServiceGenerateDependencyErrors(t *testing.T) {
 				test.analytics,
 				test.recaps,
 				WithClock(func() time.Time { return fixedClock() }),
-				WithIDGenerator(func() (string, error) { return "11111111-1111-4111-8111-111111111111", nil }),
+				WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
 			)
 
-			_, err := service.Generate(context.Background(), "profile-1", 2025)
+			_, err := service.Generate(context.Background(), testProfileID, 2025)
 			if !errors.Is(err, test.expected) || !strings.Contains(err.Error(), test.contains) {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -227,8 +230,8 @@ func TestServiceGenerateIDErrors(t *testing.T) {
 		name      string
 		generator IDGenerator
 	}{
-		{name: "generator error", generator: func() (string, error) { return "", generatorErr }},
-		{name: "empty id", generator: func() (string, error) { return " ", nil }},
+		{name: "generator error", generator: func() (uuid.UUID, error) { return uuid.Nil, generatorErr }},
+		{name: "empty id", generator: func() (uuid.UUID, error) { return uuid.Nil, nil }},
 	}
 
 	for _, test := range tests {
@@ -243,7 +246,7 @@ func TestServiceGenerateIDErrors(t *testing.T) {
 				WithIDGenerator(test.generator),
 			)
 
-			_, err := service.Generate(context.Background(), "profile-1", 2025)
+			_, err := service.Generate(context.Background(), testProfileID, 2025)
 			if !errors.Is(err, ErrGenerateID) {
 				t.Fatalf("expected ErrGenerateID, got %v", err)
 			}
@@ -258,16 +261,16 @@ func TestServiceGenerateIDErrors(t *testing.T) {
 }
 
 func TestServiceGet(t *testing.T) {
-	stored := Recap{ID: "11111111-1111-4111-8111-111111111111"}
+	stored := Recap{ID: testRecapID}
 	recaps := &recapStorageStub{value: stored}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
 
-	actual, err := service.Get(context.Background(), " 11111111-1111-4111-8111-111111111111 ")
+	actual, err := service.Get(context.Background(), testRecapID)
 	if err != nil {
 		t.Fatalf("Get() error = %v", err)
 	}
-	if actual.ID != stored.ID || recaps.gotRecapID != "11111111-1111-4111-8111-111111111111" {
-		t.Fatalf("unexpected Get result: actual=%+v id=%q", actual, recaps.gotRecapID)
+	if actual.ID != stored.ID || recaps.gotRecapID != testRecapID {
+		t.Fatalf("unexpected Get result: actual=%+v id=%s", actual, recaps.gotRecapID)
 	}
 }
 
@@ -276,7 +279,7 @@ func TestServiceGetErrors(t *testing.T) {
 
 	t.Run("invalid id", func(t *testing.T) {
 		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{})
-		_, err := service.Get(context.Background(), " ")
+		_, err := service.Get(context.Background(), uuid.Nil)
 		if !errors.Is(err, ErrInvalidRecapID) {
 			t.Fatalf("expected ErrInvalidRecapID, got %v", err)
 		}
@@ -284,26 +287,34 @@ func TestServiceGetErrors(t *testing.T) {
 
 	t.Run("storage error", func(t *testing.T) {
 		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{getErr: storageErr})
-		_, err := service.Get(context.Background(), "11111111-1111-4111-8111-111111111111")
+		_, err := service.Get(context.Background(), testRecapID)
 		if !errors.Is(err, storageErr) || !strings.Contains(err.Error(), "get recap") {
 			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("recap id mismatch", func(t *testing.T) {
+		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: Recap{ID: testProfileID}})
+		_, err := service.Get(context.Background(), testRecapID)
+		if !errors.Is(err, ErrRecapIDMismatch) {
+			t.Fatalf("expected ErrRecapIDMismatch, got %v", err)
 		}
 	})
 }
 
 func TestServiceGetShareCard(t *testing.T) {
 	recaps := &recapStorageStub{value: Recap{
-		ID:       "11111111-1111-4111-8111-111111111111",
+		ID:       testRecapID,
 		Year:     2025,
 		Behavior: Behavior{Title: "Исследователь"},
 	}}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
 
-	actual, err := service.GetShareCard(context.Background(), "11111111-1111-4111-8111-111111111111")
+	actual, err := service.GetShareCard(context.Background(), testRecapID)
 	if err != nil {
 		t.Fatalf("GetShareCard() error = %v", err)
 	}
-	if actual.RecapID != "11111111-1111-4111-8111-111111111111" || actual.BehaviorTitle != "Исследователь" {
+	if actual.RecapID != testRecapID || actual.BehaviorTitle != "Исследователь" {
 		t.Fatalf("unexpected share card: %+v", actual)
 	}
 }
@@ -317,17 +328,17 @@ func TestGenerateID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("generateID() second error = %v", err)
 	}
-	if len(first) != 36 || len(second) != 36 {
-		t.Fatalf("unexpected ID lengths: %d, %d", len(first), len(second))
+	if first == uuid.Nil || second == uuid.Nil {
+		t.Fatalf("generated UUIDs must not be nil: %s, %s", first, second)
 	}
 	if first == second {
-		t.Fatalf("generated IDs must differ: %q", first)
+		t.Fatalf("generated UUIDs must differ: %s", first)
 	}
-	if first[14] != '4' {
-		t.Fatalf("generated UUID must be version 4: %q", first)
+	if first.Version() != 4 || second.Version() != 4 {
+		t.Fatalf("generated UUIDs must be version 4: %s, %s", first, second)
 	}
-	if !strings.ContainsRune("89ab", rune(first[19])) {
-		t.Fatalf("generated UUID has invalid RFC 4122 variant: %q", first)
+	if first.Variant() != uuid.RFC4122 || second.Variant() != uuid.RFC4122 {
+		t.Fatalf("generated UUIDs have invalid variants: %s, %s", first, second)
 	}
 }
 
@@ -342,7 +353,7 @@ func (r failingReader) Read([]byte) (int, error) {
 func TestGenerateIDFromReaderError(t *testing.T) {
 	sourceErr := errors.New("reader failed")
 	value, err := generateIDFrom(failingReader{err: sourceErr})
-	if value != "" {
+	if value != uuid.Nil {
 		t.Fatalf("expected empty value, got %q", value)
 	}
 	if !errors.Is(err, sourceErr) {
@@ -359,7 +370,7 @@ func TestServiceGetShareCardPropagatesGetError(t *testing.T) {
 		&recapStorageStub{getErr: storageErr},
 	)
 
-	_, err := service.GetShareCard(context.Background(), "11111111-1111-4111-8111-111111111111")
+	_, err := service.GetShareCard(context.Background(), testRecapID)
 	if !errors.Is(err, storageErr) {
 		t.Fatalf("expected storage error, got %v", err)
 	}

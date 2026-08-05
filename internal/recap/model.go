@@ -1,6 +1,10 @@
 package recap
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 const CurrentRulesVersion = "2.1.0"
 
@@ -18,11 +22,11 @@ const (
 )
 
 type Profile struct {
-	ID          string `json:"id"`
-	Code        string `json:"code"`
-	DisplayName string `json:"displayName"`
-	Description string `json:"description"`
-	AvatarURL   string `json:"avatarUrl,omitempty"`
+	ID          uuid.UUID `json:"id"`
+	Code        string    `json:"code"`
+	DisplayName string    `json:"displayName"`
+	Description string    `json:"description"`
+	AvatarURL   string    `json:"avatarUrl,omitempty"`
 }
 
 type Metrics struct {
@@ -174,7 +178,7 @@ type Card struct {
 }
 
 type Recap struct {
-	ID           string        `json:"id"`
+	ID           uuid.UUID     `json:"id"`
 	Profile      Profile       `json:"profile"`
 	Year         uint32        `json:"year"`
 	RulesVersion string        `json:"rulesVersion"`
@@ -187,9 +191,9 @@ type Recap struct {
 }
 
 type ShareCard struct {
-	RecapID          string `json:"recapId"`
-	Year             uint32 `json:"year"`
-	BehaviorTitle    string `json:"behaviorTitle"`
-	AchievementTitle string `json:"achievementTitle,omitempty"`
-	TopCategory      string `json:"topCategory,omitempty"`
+	RecapID          uuid.UUID `json:"recapId"`
+	Year             uint32    `json:"year"`
+	BehaviorTitle    string    `json:"behaviorTitle"`
+	AchievementTitle string    `json:"achievementTitle,omitempty"`
+	TopCategory      string    `json:"topCategory,omitempty"`
 }

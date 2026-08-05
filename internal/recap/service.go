@@ -2,27 +2,28 @@ package recap
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
-	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var (
-	ErrInvalidProfileID  = errors.New("profile id is required")
-	ErrInvalidRecapID    = errors.New("recap id is required")
+	ErrInvalidProfileID  = errors.New("invalid profile id")
+	ErrInvalidRecapID    = errors.New("invalid recap id")
 	ErrInvalidYear       = errors.New("invalid recap year")
 	ErrNotEnoughActivity = errors.New("not enough activity to generate recap")
 	ErrMissingDependency = errors.New("missing service dependency")
 	ErrGenerateID        = errors.New("generate recap id")
+	ErrProfileIDMismatch = errors.New("profile storage returned another profile")
+	ErrRecapIDMismatch   = errors.New("recap storage returned another recap")
 )
 
 const minEventsForRecap uint64 = 5
 
-type IDGenerator func() (string, error)
+type IDGenerator func() (uuid.UUID, error)
 
 type Service struct {
 	profiles  ProfileStorage
@@ -101,11 +102,10 @@ func (s *Service) ListProfiles(ctx context.Context) ([]Profile, error) {
 
 func (s *Service) Generate(
 	ctx context.Context,
-	profileID string,
+	profileID uuid.UUID,
 	year uint32,
 ) (Recap, error) {
-	profileID = strings.TrimSpace(profileID)
-	if profileID == "" {
+	if profileID == uuid.Nil {
 		return Recap{}, ErrInvalidProfileID
 	}
 
@@ -120,6 +120,9 @@ func (s *Service) Generate(
 	}
 	if err := validateProfile(profile); err != nil {
 		return Recap{}, err
+	}
+	if profile.ID != profileID {
+		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrProfileIDMismatch, profileID, profile.ID)
 	}
 
 	metrics, err := s.analytics.CalculateMetrics(ctx, profileID, year)
@@ -143,8 +146,8 @@ func (s *Service) Generate(
 	if err != nil {
 		return Recap{}, fmt.Errorf("%w: %w", ErrGenerateID, err)
 	}
-	if !isUUID(recapID) {
-		return Recap{}, fmt.Errorf("%w: generated id is not a UUID", ErrGenerateID)
+	if recapID == uuid.Nil {
+		return Recap{}, fmt.Errorf("%w: generated nil UUID", ErrGenerateID)
 	}
 
 	value := Recap{
@@ -167,9 +170,8 @@ func (s *Service) Generate(
 	return value, nil
 }
 
-func (s *Service) Get(ctx context.Context, recapID string) (Recap, error) {
-	recapID = strings.TrimSpace(recapID)
-	if !isUUID(recapID) {
+func (s *Service) Get(ctx context.Context, recapID uuid.UUID) (Recap, error) {
+	if recapID == uuid.Nil {
 		return Recap{}, ErrInvalidRecapID
 	}
 
@@ -177,11 +179,14 @@ func (s *Service) Get(ctx context.Context, recapID string) (Recap, error) {
 	if err != nil {
 		return Recap{}, fmt.Errorf("get recap: %w", err)
 	}
+	if value.ID != recapID {
+		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrRecapIDMismatch, recapID, value.ID)
+	}
 
 	return value, nil
 }
 
-func (s *Service) GetShareCard(ctx context.Context, recapID string) (ShareCard, error) {
+func (s *Service) GetShareCard(ctx context.Context, recapID uuid.UUID) (ShareCard, error) {
 	value, err := s.Get(ctx, recapID)
 	if err != nil {
 		return ShareCard{}, err
@@ -190,23 +195,10 @@ func (s *Service) GetShareCard(ctx context.Context, recapID string) (ShareCard, 
 	return BuildShareCard(value), nil
 }
 
-func generateID() (string, error) {
-	return generateIDFrom(rand.Reader)
+func generateID() (uuid.UUID, error) {
+	return uuid.NewRandom()
 }
 
-func generateIDFrom(reader io.Reader) (string, error) {
-	var raw [16]byte
-	if _, err := io.ReadFull(reader, raw[:]); err != nil {
-		return "", err
-	}
-
-	raw[6] = (raw[6] & 0x0f) | 0x40
-	raw[8] = (raw[8] & 0x3f) | 0x80
-
-	encoded := hex.EncodeToString(raw[:])
-	return encoded[0:8] + "-" +
-		encoded[8:12] + "-" +
-		encoded[12:16] + "-" +
-		encoded[16:20] + "-" +
-		encoded[20:32], nil
+func generateIDFrom(reader io.Reader) (uuid.UUID, error) {
+	return uuid.NewRandomFromReader(reader)
 }
