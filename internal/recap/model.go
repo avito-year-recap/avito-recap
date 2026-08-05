@@ -2,11 +2,12 @@ package recap
 
 import "time"
 
-const CurrentRulesVersion = "1.1.0"
+const CurrentRulesVersion = "2.0.0"
 
 type ActivityType string
 
 const (
+	ActivitySearch            ActivityType = "search"
 	ActivityListingView       ActivityType = "listing_view"
 	ActivityFavoriteAdded     ActivityType = "favorite_added"
 	ActivityChatStarted       ActivityType = "chat_started"
@@ -26,6 +27,7 @@ type Profile struct {
 
 type Metrics struct {
 	TotalEvents        uint64 `json:"totalEvents"`
+	Searches           uint64 `json:"searches"`
 	TotalViews         uint64 `json:"totalViews"`
 	UniqueListings     uint64 `json:"uniqueListings"`
 	RepeatedViews      uint64 `json:"repeatedViews"`
@@ -38,6 +40,7 @@ type Metrics struct {
 	ActiveDays         uint64 `json:"activeDays"`
 	CategoriesCount    uint64 `json:"categoriesCount"`
 
+	TopCategoryCode      string `json:"topCategoryCode,omitempty"`
 	TopCategory          string `json:"topCategory,omitempty"`
 	TopCategoryViews     uint64 `json:"topCategoryViews"`
 	TopCategoryShareable bool   `json:"topCategoryShareable"`
@@ -48,15 +51,18 @@ type Metrics struct {
 	RepeatRate      float64 `json:"repeatRate"`
 	PublicationRate float64 `json:"publicationRate"`
 	SaleRate        float64 `json:"saleRate"`
+	PurchaseRate    float64 `json:"purchaseRate"`
 }
 
 type BehaviorCode string
 
 const (
-	BehaviorActiveSeller BehaviorCode = "ACTIVE_SELLER"
-	BehaviorFindHunter   BehaviorCode = "FIND_HUNTER"
-	BehaviorResearcher   BehaviorCode = "RESEARCHER"
-	BehaviorUniversal    BehaviorCode = "UNIVERSAL_USER"
+	BehaviorActiveSeller   BehaviorCode = "ACTIVE_SELLER"
+	BehaviorStartingSeller BehaviorCode = "STARTING_SELLER"
+	BehaviorDecisiveBuyer  BehaviorCode = "DECISIVE_BUYER"
+	BehaviorFindHunter     BehaviorCode = "FIND_HUNTER"
+	BehaviorResearcher     BehaviorCode = "RESEARCHER"
+	BehaviorUniversal      BehaviorCode = "UNIVERSAL_USER"
 )
 
 type Behavior struct {
@@ -70,11 +76,21 @@ type AchievementCode string
 
 const (
 	AchievementSuccessfulSeller    AchievementCode = "SUCCESSFUL_SELLER"
-	AchievementActivePublisher     AchievementCode = "ACTIVE_PUBLISHER"
+	AchievementConsistentPublisher AchievementCode = "CONSISTENT_PUBLISHER"
 	AchievementAttentiveResearcher AchievementCode = "ATTENTIVE_RESEARCHER"
-	AchievementFavoritesCurator    AchievementCode = "FAVORITES_CURATOR"
-	AchievementCategoryExplorer    AchievementCode = "CATEGORY_EXPLORER"
-	AchievementConsistentUser      AchievementCode = "CONSISTENT_USER"
+	AchievementMasterOfFavorites   AchievementCode = "MASTER_OF_FAVORITES"
+	AchievementBroadInterests      AchievementCode = "BROAD_INTERESTS"
+	AchievementAllRounder          AchievementCode = "ALL_ROUNDER"
+	AchievementFirstSellingSteps   AchievementCode = "FIRST_SELLING_STEPS"
+	AchievementDealCloser          AchievementCode = "DEAL_CLOSER"
+	AchievementQuickDecision       AchievementCode = "QUICK_DECISION"
+)
+
+// Backward-compatible aliases for code that used the first MVP names.
+const (
+	AchievementActivePublisher  = AchievementConsistentPublisher
+	AchievementFavoritesCurator = AchievementMasterOfFavorites
+	AchievementCategoryExplorer = AchievementBroadInterests
 )
 
 type Achievement struct {
@@ -89,13 +105,18 @@ type Achievement struct {
 type ActionCode string
 
 const (
-	ActionFinishDraft        ActionCode = "FINISH_DRAFT"
-	ActionOpenFavorites      ActionCode = "OPEN_FAVORITES"
-	ActionImproveListings    ActionCode = "IMPROVE_LISTINGS"
-	ActionContinueChats      ActionCode = "CONTINUE_CHATS"
-	ActionOpenTopCategory    ActionCode = "OPEN_TOP_CATEGORY"
-	ActionCreateFirstListing ActionCode = "CREATE_FIRST_LISTING"
+	ActionFinishDraft         ActionCode = "FINISH_DRAFT"
+	ActionOpenFavorites       ActionCode = "OPEN_FAVORITES"
+	ActionImproveListings     ActionCode = "IMPROVE_LISTINGS"
+	ActionContinueDialogs     ActionCode = "CONTINUE_DIALOGS"
+	ActionOpenTopCategory     ActionCode = "OPEN_TOP_CATEGORY"
+	ActionCreateFirstListing  ActionCode = "CREATE_FIRST_LISTING"
+	ActionCreateListing       ActionCode = "CREATE_LISTING"
+	ActionSaveSearch          ActionCode = "SAVE_SEARCH"
+	ActionViewSimilarListings ActionCode = "VIEW_SIMILAR_LISTINGS"
 )
+
+const ActionContinueChats = ActionContinueDialogs
 
 type NextAction struct {
 	Code        ActionCode `json:"code"`
@@ -108,18 +129,20 @@ type NextAction struct {
 type CardType string
 
 const (
-	CardIntro        CardType = "INTRO"
-	CardYearActivity CardType = "YEAR_ACTIVITY"
-	CardTopCategory  CardType = "TOP_CATEGORY"
-	CardActiveMonth  CardType = "ACTIVE_MONTH"
-	CardBehavior     CardType = "BEHAVIOR"
-	CardAchievement  CardType = "ACHIEVEMENT"
-	CardNextAction   CardType = "NEXT_ACTION"
-	CardSummary      CardType = "SUMMARY"
+	CardIntro             CardType = "INTRO"
+	CardYearActivity      CardType = "YEAR_ACTIVITY"
+	CardTopCategory       CardType = "TOP_CATEGORY"
+	CardActiveMonth       CardType = "ACTIVE_MONTH"
+	CardBehavior          CardType = "BEHAVIOR"
+	CardAchievement       CardType = "ACHIEVEMENT"
+	CardMissedOpportunity CardType = "MISSED_OPPORTUNITY"
+	CardNextAction        CardType = "NEXT_ACTION"
+	CardSummary           CardType = "SUMMARY"
 )
 
 type CardPayload struct {
 	TotalEvents        uint64 `json:"totalEvents,omitempty"`
+	Searches           uint64 `json:"searches,omitempty"`
 	TotalViews         uint64 `json:"totalViews,omitempty"`
 	FavoritesAdded     uint64 `json:"favoritesAdded,omitempty"`
 	ChatsStarted       uint64 `json:"chatsStarted,omitempty"`
@@ -127,13 +150,15 @@ type CardPayload struct {
 	PurchasesCompleted uint64 `json:"purchasesCompleted,omitempty"`
 	SalesCompleted     uint64 `json:"salesCompleted,omitempty"`
 
+	CategoryCode  string `json:"categoryCode,omitempty"`
 	Category      string `json:"category,omitempty"`
 	CategoryViews uint64 `json:"categoryViews,omitempty"`
 	Month         uint32 `json:"month,omitempty"`
 
-	BehaviorCode    BehaviorCode    `json:"behaviorCode,omitempty"`
-	AchievementCode AchievementCode `json:"achievementCode,omitempty"`
-	ActionCode      ActionCode      `json:"actionCode,omitempty"`
+	BehaviorCode     BehaviorCode      `json:"behaviorCode,omitempty"`
+	AchievementCode  AchievementCode   `json:"achievementCode,omitempty"`
+	AchievementCodes []AchievementCode `json:"achievementCodes,omitempty"`
+	ActionCode       ActionCode        `json:"actionCode,omitempty"`
 }
 
 type Card struct {
