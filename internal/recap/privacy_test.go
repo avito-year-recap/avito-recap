@@ -4,8 +4,9 @@ import "testing"
 
 func TestBuildShareCardUsesOnlyExplicitlyPublicData(t *testing.T) {
 	value := Recap{
-		ID:   testRecapID,
-		Year: 2025,
+		ID:      testRecapID,
+		ShareID: testShareID,
+		Year:    2025,
 		Profile: Profile{
 			ID:          testProfileID,
 			DisplayName: "Private name",
@@ -22,7 +23,7 @@ func TestBuildShareCardUsesOnlyExplicitlyPublicData(t *testing.T) {
 	}
 
 	actual := BuildShareCard(value)
-	if actual.RecapID != value.ID || actual.Year != value.Year || actual.BehaviorTitle != value.Behavior.Title {
+	if actual.ShareID != value.ShareID || actual.Year != value.Year || actual.BehaviorTitle != value.Behavior.Title {
 		t.Fatalf("unexpected base share data: %+v", actual)
 	}
 	if actual.AchievementTitle != "Public achievement" {
@@ -48,5 +49,20 @@ func TestBuildShareCardHandlesNoPublicAchievement(t *testing.T) {
 	})
 	if actual.AchievementTitle != "" {
 		t.Fatalf("expected empty achievement, got %q", actual.AchievementTitle)
+	}
+}
+
+func TestFinalStoryCardMatchesPublicShareCard(t *testing.T) {
+	value := validRecap()
+	last := value.Cards[len(value.Cards)-1]
+	if last.Type != CardShare || !last.Shareable {
+		t.Fatalf("unexpected final card: %+v", last)
+	}
+	payload, ok := last.Payload.(ShareCard)
+	if !ok {
+		t.Fatalf("final card payload = %T, want ShareCard", last.Payload)
+	}
+	if expected := BuildShareCard(value); payload != expected {
+		t.Fatalf("final story payload = %+v, public payload = %+v", payload, expected)
 	}
 }

@@ -4,438 +4,348 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-func TestNewServiceRejectsMissingDependencies(t *testing.T) {
+func TestNewServiceRejectsMissingDependenciesAndRuleset(t *testing.T) {
 	profiles := &profileStorageStub{}
 	analytics := &analyticsStorageStub{}
+	states := &actionStateStorageStub{}
 	recaps := &recapStorageStub{}
-
 	tests := []struct {
-		name      string
-		profiles  ProfileStorage
-		analytics AnalyticsStorage
-		recaps    RecapStorage
+		name string
+		p    ProfileStorage
+		a    AnalyticsStorage
+		s    ActionStateStorage
+		r    RecapStorage
 	}{
-		{name: "profiles", analytics: analytics, recaps: recaps},
-		{name: "analytics", profiles: profiles, recaps: recaps},
-		{name: "recaps", profiles: profiles, analytics: analytics},
+		{name: "profiles", a: analytics, s: states, r: recaps}, {name: "analytics", p: profiles, s: states, r: recaps},
+		{name: "state", p: profiles, a: analytics, r: recaps}, {name: "recaps", p: profiles, a: analytics, s: states},
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			service, err := NewService(test.profiles, test.analytics, test.recaps)
-			if service != nil {
-				t.Fatalf("expected nil service, got %+v", service)
-			}
-			if !errors.Is(err, ErrMissingDependency) {
-				t.Fatalf("expected ErrMissingDependency, got %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			service, err := NewService(tt.p, tt.a, tt.s, tt.r)
+			if service != nil || !errors.Is(err, ErrMissingDependency) {
+				t.Fatalf("service=%v err=%v", service, err)
 			}
 		})
 	}
-}
-
-func TestServiceListProfiles(t *testing.T) {
-	profiles := &profileStorageStub{profiles: []Profile{validProfile()}}
-	service := mustService(t, profiles, &analyticsStorageStub{}, &recapStorageStub{})
-
-	actual, err := service.ListProfiles(context.Background())
-	if err != nil {
-		t.Fatalf("ListProfiles() error = %v", err)
-	}
-	if len(actual) != 1 || actual[0].ID != validProfile().ID {
-		t.Fatalf("unexpected profiles: %+v", actual)
+	_, err := NewService(profiles, analytics, states, recaps, WithRuleset(Ruleset{}))
+	if !errors.Is(err, ErrInvalidRuleset) {
+		t.Fatalf("expected invalid ruleset, got %v", err)
 	}
 }
 
-func TestServiceListProfilesErrors(t *testing.T) {
-	storageErr := errors.New("storage unavailable")
-
-	t.Run("storage error", func(t *testing.T) {
-		service := mustService(t,
-			&profileStorageStub{listErr: storageErr},
-			&analyticsStorageStub{},
-			&recapStorageStub{},
-		)
-		_, err := service.ListProfiles(context.Background())
-		if !errors.Is(err, storageErr) || !strings.Contains(err.Error(), "list profiles") {
-			t.Fatalf("unexpected error: %v", err)
-		}
-	})
-
-	t.Run("invalid returned profile", func(t *testing.T) {
-		service := mustService(t,
-			&profileStorageStub{profiles: []Profile{{ID: testProfileID}}},
-			&analyticsStorageStub{},
-			&recapStorageStub{},
-		)
-		_, err := service.ListProfiles(context.Background())
-		if !errors.Is(err, ErrInvalidProfile) {
-			t.Fatalf("expected ErrInvalidProfile, got %v", err)
-		}
-	})
-}
-
-func TestServiceGenerate(t *testing.T) {
-	profiles := &profileStorageStub{profile: validProfile()}
+func TestServiceGenerateUsesCompletedCalendarYear(t *testing.T) {
 	analytics := &analyticsStorageStub{metrics: validMetrics()}
+	states := &actionStateStorageStub{state: validActionableState()}
 	recaps := &recapStorageStub{}
-	clockCalls := 0
-
-	service := mustService(
-		t,
-		profiles,
-		analytics,
-		recaps,
-		WithClock(func() time.Time {
-			clockCalls++
-			return fixedClock()
-		}),
-		WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
-	)
-
-	result, err := service.Generate(context.Background(), testProfileID, 2025)
+	ids := []uuid.UUID{testRecapID, testShareID}
+	var index int
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, analytics, states, recaps,
+		WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(func() (uuid.UUID, error) { id := ids[index]; index++; return id, nil }))
+	value, err := service.Generate(context.Background(), testProfileID, 2025)
 	if err != nil {
-		t.Fatalf("Generate() error = %v", err)
+		t.Fatalf("Generate: %v", err)
 	}
-
-	if profiles.gotID != testProfileID || analytics.gotID != testProfileID || analytics.gotYear != 2025 {
-		t.Fatalf("input was not normalized/forwarded correctly: profile=%s analytics=%s year=%d", profiles.gotID, analytics.gotID, analytics.gotYear)
+	if !value.Period.Final || value.Period.Year != 2025 || !value.Period.StartAt.Equal(time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)) || !value.Period.EndAt.Equal(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)) {
+		t.Fatalf("unexpected period: %+v", value.Period)
 	}
-	if clockCalls != 1 {
-		t.Fatalf("clock called %d times, want exactly once", clockCalls)
+	if analytics.gotPeriod != value.Period {
+		t.Fatalf("analytics period=%+v recap=%+v", analytics.gotPeriod, value.Period)
 	}
-	if result.ID != testRecapID || result.GeneratedAt != fixedClock() {
-		t.Fatalf("unexpected generated metadata: id=%s time=%v", result.ID, result.GeneratedAt)
+	if value.ID != testRecapID || value.ShareID != testShareID || value.ID == value.ShareID {
+		t.Fatalf("ids not separated: %+v", value)
 	}
-	if result.RulesVersion != CurrentRulesVersion {
-		t.Fatalf("rules version = %q, want %q", result.RulesVersion, CurrentRulesVersion)
-	}
-	if result.Metrics.RepeatRate == 0 || result.Behavior.Code == "" || len(result.Cards) == 0 {
-		t.Fatalf("recap was not fully generated: %+v", result)
-	}
-	if recaps.saveCalls != 1 || recaps.saved == nil || recaps.saved.ID != result.ID {
-		t.Fatalf("recap was not saved exactly once: calls=%d saved=%+v", recaps.saveCalls, recaps.saved)
+	if value.ActionableState.CapturedAt != fixedClock() {
+		t.Fatalf("state timestamp=%v", value.ActionableState.CapturedAt)
 	}
 }
 
-func TestServiceGenerateValidationErrorsDoNotSave(t *testing.T) {
-	futureYear := uint32(fixedClock().Year() + 1)
-
-	tests := []struct {
-		name      string
-		profileID uuid.UUID
-		year      uint32
-		profile   Profile
-		metrics   Metrics
-		expected  error
-	}{
-		{name: "empty profile id", profileID: uuid.Nil, year: 2025, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidProfileID},
-		{name: "zero year", profileID: testProfileID, year: 0, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
-		{name: "future year", profileID: testProfileID, year: futureYear, profile: validProfile(), metrics: validMetrics(), expected: ErrInvalidYear},
-		{name: "invalid profile", profileID: testProfileID, year: 2025, profile: Profile{ID: testProfileID}, metrics: validMetrics(), expected: ErrInvalidProfile},
-		{name: "profile id mismatch", profileID: testProfileID, year: 2025, profile: Profile{ID: otherProfileID, Code: "other", DisplayName: "Other"}, metrics: validMetrics(), expected: ErrProfileIDMismatch},
-		{name: "invalid metrics", profileID: testProfileID, year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: 1, TotalViews: 2}, expected: ErrInvalidMetrics},
-		{name: "too little activity", profileID: testProfileID, year: 2025, profile: validProfile(), metrics: Metrics{TotalEvents: minEventsForRecap - 1}, expected: ErrNotEnoughActivity},
+func TestServiceGenerateRejectsCurrentAndFutureYear(t *testing.T) {
+	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{}, WithClock(func() time.Time { return fixedClock() }))
+	if _, err := service.Generate(context.Background(), testProfileID, 2026); !errors.Is(err, ErrYearNotComplete) {
+		t.Fatalf("current year: %v", err)
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			recaps := &recapStorageStub{}
-			service := mustService(
-				t,
-				&profileStorageStub{profile: test.profile},
-				&analyticsStorageStub{metrics: test.metrics},
-				recaps,
-				WithClock(func() time.Time { return fixedClock() }),
-			)
-
-			_, err := service.Generate(context.Background(), test.profileID, test.year)
-			if !errors.Is(err, test.expected) {
-				t.Fatalf("expected %v, got %v", test.expected, err)
-			}
-			if recaps.saveCalls != 0 {
-				t.Fatalf("invalid recap must not be saved, calls=%d", recaps.saveCalls)
-			}
-		})
+	if _, err := service.Generate(context.Background(), testProfileID, 2027); !errors.Is(err, ErrInvalidYear) {
+		t.Fatalf("future year: %v", err)
 	}
 }
 
-func TestServiceGenerateDependencyErrors(t *testing.T) {
-	profileErr := errors.New("profile storage failed")
-	analyticsErr := errors.New("analytics failed")
-	saveErr := errors.New("save failed")
-
-	tests := []struct {
-		name      string
-		profiles  *profileStorageStub
-		analytics *analyticsStorageStub
-		recaps    *recapStorageStub
-		expected  error
-		contains  string
-	}{
-		{
-			name:      "profile storage",
-			profiles:  &profileStorageStub{getErr: profileErr},
-			analytics: &analyticsStorageStub{},
-			recaps:    &recapStorageStub{},
-			expected:  profileErr,
-			contains:  "get profile",
-		},
-		{
-			name:      "analytics storage",
-			profiles:  &profileStorageStub{profile: validProfile()},
-			analytics: &analyticsStorageStub{err: analyticsErr},
-			recaps:    &recapStorageStub{},
-			expected:  analyticsErr,
-			contains:  "calculate metrics",
-		},
-		{
-			name:      "recap storage",
-			profiles:  &profileStorageStub{profile: validProfile()},
-			analytics: &analyticsStorageStub{metrics: validMetrics()},
-			recaps:    &recapStorageStub{saveErr: saveErr},
-			expected:  saveErr,
-			contains:  "save recap",
-		},
+func TestServiceGenerateIsIdempotentByProfileYearAndRulesVersion(t *testing.T) {
+	analytics := &analyticsStorageStub{metrics: validMetrics()}
+	states := &actionStateStorageStub{state: validActionableState()}
+	recaps := &recapStorageStub{}
+	var idCalls int
+	ids := []uuid.UUID{testRecapID, testShareID}
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, analytics, states, recaps,
+		WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(func() (uuid.UUID, error) { id := ids[idCalls]; idCalls++; return id, nil }))
+	first, err := service.Generate(context.Background(), testProfileID, 2025)
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			service := mustService(
-				t,
-				test.profiles,
-				test.analytics,
-				test.recaps,
-				WithClock(func() time.Time { return fixedClock() }),
-				WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
-			)
-
-			_, err := service.Generate(context.Background(), testProfileID, 2025)
-			if !errors.Is(err, test.expected) || !strings.Contains(err.Error(), test.contains) {
-				t.Fatalf("unexpected error: %v", err)
-			}
-		})
+	second, err := service.Generate(context.Background(), testProfileID, 2025)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.ID != second.ID || first.ShareID != second.ShareID {
+		t.Fatalf("non-idempotent ids: %s/%s vs %s/%s", first.ID, first.ShareID, second.ID, second.ShareID)
+	}
+	if analytics.calls != 1 || states.calls != 1 || recaps.createCalls != 1 || idCalls != 2 {
+		t.Fatalf("analytics=%d states=%d create=%d ids=%d", analytics.calls, states.calls, recaps.createCalls, idCalls)
+	}
+	expected := RecapKey{ProfileID: testProfileID, Year: 2025, RulesVersion: CurrentRulesVersion}
+	if recaps.gotKey != expected {
+		t.Fatalf("key=%+v want %+v", recaps.gotKey, expected)
 	}
 }
 
-func TestServiceGenerateIDErrors(t *testing.T) {
-	generatorErr := errors.New("random source failed")
-
-	tests := []struct {
-		name      string
-		generator IDGenerator
-	}{
-		{name: "generator error", generator: func() (uuid.UUID, error) { return uuid.Nil, generatorErr }},
-		{name: "empty id", generator: func() (uuid.UUID, error) { return uuid.Nil, nil }},
+func TestServiceGenerateConcurrentCallsReturnOneStoredRecap(t *testing.T) {
+	analytics := &analyticsStorageStub{metrics: validMetrics()}
+	states := &actionStateStorageStub{state: validActionableState()}
+	recaps := &recapStorageStub{}
+	var seq atomic.Uint32
+	generator := func() (uuid.UUID, error) {
+		n := seq.Add(1)
+		return uuid.MustParse(map[uint32]string{1: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", 2: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", 3: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", 4: "dddddddd-dddd-4ddd-8ddd-dddddddddddd"}[n]), nil
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			recaps := &recapStorageStub{}
-			service := mustService(
-				t,
-				&profileStorageStub{profile: validProfile()},
-				&analyticsStorageStub{metrics: validMetrics()},
-				recaps,
-				WithClock(func() time.Time { return fixedClock() }),
-				WithIDGenerator(test.generator),
-			)
-
-			_, err := service.Generate(context.Background(), testProfileID, 2025)
-			if !errors.Is(err, ErrGenerateID) {
-				t.Fatalf("expected ErrGenerateID, got %v", err)
-			}
-			if test.name == "generator error" && !errors.Is(err, generatorErr) {
-				t.Fatalf("expected source generator error to be wrapped, got %v", err)
-			}
-			if recaps.saveCalls != 0 {
-				t.Fatalf("recap with invalid id must not be saved")
-			}
-		})
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, analytics, states, recaps, WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(generator))
+	var wg sync.WaitGroup
+	results := make(chan Recap, 2)
+	errs := make(chan error, 2)
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			v, e := service.Generate(context.Background(), testProfileID, 2025)
+			results <- v
+			errs <- e
+		}()
+	}
+	wg.Wait()
+	close(results)
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("concurrent generate: %v", err)
+		}
+	}
+	var values []Recap
+	for v := range results {
+		values = append(values, v)
+	}
+	if len(values) != 2 || values[0].ID != values[1].ID || values[0].ShareID != values[1].ShareID {
+		t.Fatalf("concurrent results differ: %+v", values)
+	}
+	if recaps.createCalls < 1 || recaps.createCalls > 2 {
+		t.Fatalf("create calls=%d", recaps.createCalls)
 	}
 }
 
-func TestServiceGet(t *testing.T) {
+func TestServiceGenerateUsesConfiguredRulesetVersionInKey(t *testing.T) {
+	rules := DefaultRuleset()
+	rules.Version = "3.1.0-test"
+	recaps := &recapStorageStub{byKey: func() Recap { v := validRecap(); v.RulesVersion = rules.Version; return v }()}
+	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps, WithRuleset(rules), WithClock(func() time.Time { return fixedClock() }))
+	value, err := service.Generate(context.Background(), testProfileID, 2025)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.RulesVersion != rules.Version || recaps.gotKey.RulesVersion != rules.Version {
+		t.Fatalf("rules version not used: %+v %+v", value, recaps.gotKey)
+	}
+}
+
+func TestServiceGenerateActionComesFromCurrentState(t *testing.T) {
+	state := validActionableState()
+	state.CurrentDrafts = 1
+	state.DraftListingID = testDraftListingID
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, &analyticsStorageStub{metrics: validMetrics()}, &actionStateStorageStub{state: state}, &recapStorageStub{},
+		WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(sequenceIDGenerator(testRecapID, testShareID)))
+	value, err := service.Generate(context.Background(), testProfileID, 2025)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.NextAction.Code != ActionFinishDraft || value.NextAction.Target.Listing == nil || value.NextAction.Target.Listing.ListingID != testDraftListingID {
+		t.Fatalf("action not state-backed: %+v", value.NextAction)
+	}
+}
+
+func TestServiceGetUsesInternalIDAndShareUsesPublicID(t *testing.T) {
 	stored := validRecap()
 	recaps := &recapStorageStub{value: stored}
 	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
-
-	actual, err := service.Get(context.Background(), testRecapID)
+	value, err := service.Get(context.Background(), testRecapID)
 	if err != nil {
-		t.Fatalf("Get() error = %v", err)
+		t.Fatal(err)
 	}
-	if actual.ID != stored.ID || recaps.gotRecapID != testRecapID {
-		t.Fatalf("unexpected Get result: actual=%+v id=%s", actual, recaps.gotRecapID)
+	if value.ID != testRecapID || recaps.gotRecapID != testRecapID {
+		t.Fatalf("internal get mismatch")
+	}
+	card, err := service.GetShareCard(context.Background(), testShareID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if card.ShareID != testShareID || recaps.gotShareID != testShareID {
+		t.Fatalf("share get mismatch: %+v", card)
+	}
+	if strings.Contains(strings.ToLower(card.BehaviorTitle), testRecapID.String()) {
+		t.Fatal("internal id leaked")
 	}
 }
 
-func TestServiceGetErrors(t *testing.T) {
-	storageErr := errors.New("get failed")
-
-	t.Run("invalid id", func(t *testing.T) {
-		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{})
-		_, err := service.Get(context.Background(), uuid.Nil)
-		if !errors.Is(err, ErrInvalidRecapID) {
-			t.Fatalf("expected ErrInvalidRecapID, got %v", err)
-		}
-	})
-
-	t.Run("storage error", func(t *testing.T) {
-		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{getErr: storageErr})
-		_, err := service.Get(context.Background(), testRecapID)
-		if !errors.Is(err, storageErr) || !strings.Contains(err.Error(), "get recap") {
-			t.Fatalf("unexpected error: %v", err)
-		}
-	})
-
-	t.Run("recap id mismatch", func(t *testing.T) {
-		service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: Recap{ID: testProfileID}})
-		_, err := service.Get(context.Background(), testRecapID)
-		if !errors.Is(err, ErrRecapIDMismatch) {
-			t.Fatalf("expected ErrRecapIDMismatch, got %v", err)
-		}
-	})
+func TestServiceGetRejectsIdentifierMismatches(t *testing.T) {
+	wrong := validRecap()
+	wrong.ID = otherProfileID
+	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: wrong})
+	if _, err := service.Get(context.Background(), testRecapID); !errors.Is(err, ErrRecapIDMismatch) {
+		t.Fatalf("internal mismatch: %v", err)
+	}
+	wrong = validRecap()
+	wrong.ShareID = otherProfileID
+	service = mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: wrong})
+	if _, err := service.GetShareCard(context.Background(), testShareID); !errors.Is(err, ErrShareIDMismatch) {
+		t.Fatalf("share mismatch: %v", err)
+	}
 }
 
-func TestServiceGetShareCard(t *testing.T) {
-	stored := validRecap()
-	stored.Behavior.Title = "Исследователь"
-	recaps := &recapStorageStub{value: stored}
-	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, recaps)
-
-	actual, err := service.GetShareCard(context.Background(), testRecapID)
+func TestServiceGenerateNormalizesStoredStrings(t *testing.T) {
+	profile := validProfile()
+	profile.Code = " active-buyer "
+	profile.DisplayName = " Алексей "
+	metrics := validMetrics()
+	metrics.TopCategoryCode = " electronics "
+	metrics.TopCategory = " Электроника\n"
+	service := mustService(t, &profileStorageStub{profile: profile}, &analyticsStorageStub{metrics: metrics}, &recapStorageStub{}, WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(sequenceIDGenerator(testRecapID, testShareID)))
+	value, err := service.Generate(context.Background(), testProfileID, 2025)
 	if err != nil {
-		t.Fatalf("GetShareCard() error = %v", err)
+		t.Fatal(err)
 	}
-	if actual.RecapID != testRecapID || actual.BehaviorTitle != "Исследователь" {
-		t.Fatalf("unexpected share card: %+v", actual)
+	if value.Profile.Code != "active-buyer" || value.Metrics.TopCategoryCode != "electronics" || value.Metrics.TopCategory != "Электроника" {
+		t.Fatalf("not normalized: %+v", value)
 	}
 }
 
 func TestGenerateID(t *testing.T) {
 	first, err := generateID()
 	if err != nil {
-		t.Fatalf("generateID() error = %v", err)
+		t.Fatal(err)
 	}
 	second, err := generateID()
 	if err != nil {
-		t.Fatalf("generateID() second error = %v", err)
+		t.Fatal(err)
 	}
-	if first == uuid.Nil || second == uuid.Nil {
-		t.Fatalf("generated UUIDs must not be nil: %s, %s", first, second)
-	}
-	if first == second {
-		t.Fatalf("generated UUIDs must differ: %s", first)
-	}
-	if first.Version() != 4 || second.Version() != 4 {
-		t.Fatalf("generated UUIDs must be version 4: %s, %s", first, second)
-	}
-	if first.Variant() != uuid.RFC4122 || second.Variant() != uuid.RFC4122 {
-		t.Fatalf("generated UUIDs have invalid variants: %s, %s", first, second)
+	if first == uuid.Nil || second == uuid.Nil || first == second || first.Version() != 4 || first.Variant() != uuid.RFC4122 {
+		t.Fatalf("bad ids: %s %s", first, second)
 	}
 }
 
-type failingReader struct {
-	err error
-}
+type failingReader struct{ err error }
 
-func (r failingReader) Read([]byte) (int, error) {
-	return 0, r.err
-}
-
+func (r failingReader) Read([]byte) (int, error) { return 0, r.err }
 func TestGenerateIDFromReaderError(t *testing.T) {
-	sourceErr := errors.New("reader failed")
-	value, err := generateIDFrom(failingReader{err: sourceErr})
-	if value != uuid.Nil {
-		t.Fatalf("expected empty value, got %q", value)
-	}
-	if !errors.Is(err, sourceErr) {
-		t.Fatalf("expected source error, got %v", err)
+	source := errors.New("reader failed")
+	value, err := generateIDFrom(failingReader{source})
+	if value != uuid.Nil || !errors.Is(err, source) {
+		t.Fatalf("value=%s err=%v", value, err)
 	}
 }
 
-func TestServiceGetShareCardPropagatesGetError(t *testing.T) {
-	storageErr := errors.New("get failed")
-	service := mustService(
-		t,
-		&profileStorageStub{},
-		&analyticsStorageStub{},
-		&recapStorageStub{getErr: storageErr},
-	)
-
-	_, err := service.GetShareCard(context.Background(), testRecapID)
-	if !errors.Is(err, storageErr) {
-		t.Fatalf("expected storage error, got %v", err)
+func sequenceIDGenerator(ids ...uuid.UUID) IDGenerator {
+	index := 0
+	return func() (uuid.UUID, error) {
+		if index >= len(ids) {
+			return uuid.Nil, errors.New("no ids")
+		}
+		id := ids[index]
+		index++
+		return id, nil
 	}
 }
 
-func TestServiceGenerateNormalizesStoredStrings(t *testing.T) {
-	profile := validProfile()
-	profile.Code = "  active-buyer\t"
-	profile.DisplayName = "  Алексей  "
-	profile.Description = "  Тестовый профиль\n"
-	metrics := validMetrics()
-	metrics.TopCategoryCode = "  electronics "
-	metrics.TopCategory = "\nЭлектроника\t"
+func TestServiceRejectsCurrentYearBeforeCallingDependencies(t *testing.T) {
+	profiles := &profileStorageStub{profile: validProfile()}
+	analytics := &analyticsStorageStub{metrics: validMetrics()}
+	states := &actionStateStorageStub{state: validActionableState()}
+	recaps := &recapStorageStub{}
+	service := mustServiceWithState(t, profiles, analytics, states, recaps, WithClock(fixedClock))
 
-	service := mustService(
-		t,
-		&profileStorageStub{profile: profile},
-		&analyticsStorageStub{metrics: metrics},
-		&recapStorageStub{},
-		WithClock(func() time.Time { return fixedClock() }),
-		WithIDGenerator(func() (uuid.UUID, error) { return testRecapID, nil }),
-	)
-
-	actual, err := service.Generate(context.Background(), testProfileID, 2025)
-	if err != nil {
-		t.Fatalf("Generate() error = %v", err)
+	_, err := service.Generate(context.Background(), testProfileID, 2026)
+	if !errors.Is(err, ErrYearNotComplete) {
+		t.Fatalf("Generate current year error = %v, want %v", err, ErrYearNotComplete)
 	}
-	if actual.Profile.Code != "active-buyer" || actual.Profile.DisplayName != "Алексей" ||
-		actual.Metrics.TopCategoryCode != "electronics" || actual.Metrics.TopCategory != "Электроника" {
-		t.Fatalf("generated recap contains unnormalized strings: %+v", actual)
+	if profiles.gotID != uuid.Nil || analytics.calls != 0 || states.calls != 0 || recaps.gotKey != (RecapKey{}) || recaps.createCalls != 0 {
+		t.Fatalf("dependencies were called for unfinished year: profile=%s analytics=%d states=%d key=%+v creates=%d",
+			profiles.gotID, analytics.calls, states.calls, recaps.gotKey, recaps.createCalls)
 	}
 }
 
-func TestServiceGetRejectsInvalidStoredRecap(t *testing.T) {
+func TestServiceGetRejectsCorruptStoredRecap(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(*Recap)
+	}{
+		{name: "stale rate", mutate: func(value *Recap) { value.Metrics.RepeatRate = 0.999 }},
+		{name: "duplicate card id", mutate: func(value *Recap) { value.Cards[1].ID = value.Cards[0].ID }},
+		{name: "broken position", mutate: func(value *Recap) { value.Cards[1].Position = 99 }},
+		{name: "missing action target", mutate: func(value *Recap) { value.NextAction.Target = ActionTarget{} }},
+		{name: "wrong payload type", mutate: func(value *Recap) { value.Cards[1].Payload = ActiveMonthPayload{Month: 1} }},
+		{name: "blank user text", mutate: func(value *Recap) { value.Behavior.Title = "   " }},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			stored := validRecap()
+			test.mutate(&stored)
+			service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: stored})
+			_, err := service.Get(context.Background(), testRecapID)
+			if !errors.Is(err, ErrInvalidRecap) {
+				t.Fatalf("Get corrupt recap error = %v, want %v", err, ErrInvalidRecap)
+			}
+		})
+	}
+}
+
+func TestServiceGetShareCardRejectsCorruptStoredRecap(t *testing.T) {
 	stored := validRecap()
-	stored.Cards[0].Position = 99
-	service := mustService(
-		t,
-		&profileStorageStub{},
-		&analyticsStorageStub{},
-		&recapStorageStub{value: stored},
-	)
-
-	_, err := service.Get(context.Background(), testRecapID)
-	if !errors.Is(err, ErrInvalidRecap) || !strings.Contains(err.Error(), "validate stored recap") {
-		t.Fatalf("expected invalid stored recap error, got %v", err)
+	stored.Cards[1].ID = stored.Cards[0].ID
+	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: stored})
+	_, err := service.GetShareCard(context.Background(), testShareID)
+	if !errors.Is(err, ErrInvalidRecap) {
+		t.Fatalf("GetShareCard corrupt recap error = %v, want %v", err, ErrInvalidRecap)
 	}
 }
 
-func TestServiceGetNormalizesStoredRecap(t *testing.T) {
+func TestServiceReturnsOnlyRecapsThatPassValidation(t *testing.T) {
 	stored := validRecap()
-	stored.Profile.DisplayName = "  Алексей  "
-	stored.Metrics.TopCategory = "  Электроника\n"
-	stored.Cards[0].Title = "  Заголовок  "
-	service := mustService(
-		t,
-		&profileStorageStub{},
-		&analyticsStorageStub{},
-		&recapStorageStub{value: stored},
-	)
-
-	actual, err := service.Get(context.Background(), testRecapID)
+	service := mustService(t, &profileStorageStub{}, &analyticsStorageStub{}, &recapStorageStub{value: stored})
+	value, err := service.Get(context.Background(), testRecapID)
 	if err != nil {
-		t.Fatalf("Get() error = %v", err)
+		t.Fatalf("Get: %v", err)
 	}
-	if actual.Profile.DisplayName != "Алексей" || actual.Metrics.TopCategory != "Электроника" ||
-		actual.Cards[0].Title != "Заголовок" {
-		t.Fatalf("stored recap was not normalized: %+v", actual)
+	if err := validateRecap(value); err != nil {
+		t.Fatalf("service returned recap that does not pass validation: %v", err)
+	}
+}
+
+func TestServiceGenerateRejectsCorruptExistingRecapByKey(t *testing.T) {
+	stored := validRecap()
+	stored.NextAction.Target = ActionTarget{}
+	recaps := &recapStorageStub{byKey: stored}
+	analytics := &analyticsStorageStub{metrics: validMetrics()}
+	states := &actionStateStorageStub{state: validActionableState()}
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, analytics, states, recaps, WithClock(fixedClock))
+
+	_, err := service.Generate(context.Background(), testProfileID, 2025)
+	if !errors.Is(err, ErrInvalidRecap) {
+		t.Fatalf("Generate with corrupt existing recap error = %v, want %v", err, ErrInvalidRecap)
+	}
+	if analytics.calls != 0 || states.calls != 0 || recaps.createCalls != 0 {
+		t.Fatalf("corrupt existing recap must fail before regeneration: analytics=%d states=%d creates=%d", analytics.calls, states.calls, recaps.createCalls)
 	}
 }

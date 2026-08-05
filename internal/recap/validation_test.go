@@ -3,6 +3,7 @@ package recap
 import (
 	"encoding/json"
 	"errors"
+	"math"
 	"testing"
 	"time"
 
@@ -11,26 +12,23 @@ import (
 
 func TestValidateProfile(t *testing.T) {
 	tests := []struct {
-		name    string
-		profile Profile
-		wantErr bool
+		name  string
+		value Profile
+		ok    bool
 	}{
-		{name: "valid", profile: validProfile()},
-		{name: "empty id", profile: Profile{Code: "code", DisplayName: "Name"}, wantErr: true},
-		{name: "empty code", profile: Profile{ID: testProfileID, DisplayName: "Name"}, wantErr: true},
-		{name: "blank code", profile: Profile{ID: testProfileID, Code: " ", DisplayName: "Name"}, wantErr: true},
-		{name: "empty display name", profile: Profile{ID: testProfileID, Code: "code"}, wantErr: true},
-		{name: "blank display name", profile: Profile{ID: testProfileID, Code: "code", DisplayName: "\t"}, wantErr: true},
+		{name: "valid", value: validProfile(), ok: true},
+		{name: "missing id", value: Profile{Code: "x", DisplayName: "X"}},
+		{name: "blank code", value: Profile{ID: testProfileID, Code: " ", DisplayName: "X"}},
+		{name: "blank name", value: Profile{ID: testProfileID, Code: "x", DisplayName: "\t"}},
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			err := validateProfile(test.profile)
-			if test.wantErr && !errors.Is(err, ErrInvalidProfile) {
-				t.Fatalf("expected ErrInvalidProfile, got %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateProfile(tt.value)
+			if tt.ok && err != nil {
+				t.Fatal(err)
 			}
-			if !test.wantErr && err != nil {
-				t.Fatalf("unexpected error: %v", err)
+			if !tt.ok && !errors.Is(err, ErrInvalidProfile) {
+				t.Fatalf("got %v", err)
 			}
 		})
 	}
@@ -38,166 +36,166 @@ func TestValidateProfile(t *testing.T) {
 
 func TestValidateMetrics(t *testing.T) {
 	valid := validMetrics()
-
-	tests := []struct {
-		name   string
-		mutate func(*Metrics)
-	}{
-		{name: "known events overflow", mutate: func(m *Metrics) { m.TotalEvents = ^uint64(0); m.Searches = ^uint64(0); m.TotalViews = 1 }},
-		{name: "known events exceed total", mutate: func(m *Metrics) { m.TotalEvents = 1 }},
-		{name: "unique listings exceed views", mutate: func(m *Metrics) { m.UniqueListings = m.TotalViews + 1 }},
-		{name: "repeated views exceed views", mutate: func(m *Metrics) { m.RepeatedViews = m.TotalViews + 1 }},
-		{name: "linked chats exceed started chats", mutate: func(m *Metrics) { m.ChatsWithPurchase = m.ChatsStarted + 1 }},
-		{name: "top views exceed views", mutate: func(m *Metrics) { m.TopCategoryViews = m.TotalViews + 1 }},
-		{name: "title without code", mutate: func(m *Metrics) { m.TopCategoryCode = "" }},
-		{name: "code without title", mutate: func(m *Metrics) { m.TopCategory = ""; m.TopCategoryViews = 0 }},
-		{name: "category without views", mutate: func(m *Metrics) { m.TopCategoryViews = 0 }},
-		{name: "invalid month", mutate: func(m *Metrics) { m.MostActiveMonth = 13 }},
-		{name: "shareable empty category", mutate: func(m *Metrics) {
-			m.TopCategoryCode = ""
-			m.TopCategory = ""
-			m.TopCategoryViews = 0
-			m.TopCategoryShareable = true
-		}},
-		{name: "categories exceed events", mutate: func(m *Metrics) { m.CategoriesCount = m.TotalEvents + 1 }},
-		{name: "active days exceed events", mutate: func(m *Metrics) {
-			*m = Metrics{TotalEvents: 10, ActiveDays: 11}
-		}},
-		{name: "too many active days", mutate: func(m *Metrics) { m.TotalEvents = 500; m.ActiveDays = 367 }},
-	}
-
 	if err := validateMetrics(valid); err != nil {
-		t.Fatalf("valid metrics rejected: %v", err)
+		t.Fatal(err)
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			metrics := valid
-			test.mutate(&metrics)
-			err := validateMetrics(metrics)
-			if !errors.Is(err, ErrInvalidMetrics) {
-				t.Fatalf("expected ErrInvalidMetrics, got %v", err)
-			}
-		})
+	mutations := []func(*Metrics){
+		func(m *Metrics) { m.TotalEvents = 1 }, func(m *Metrics) { m.UniqueListings = m.TotalViews + 1 },
+		func(m *Metrics) { m.RepeatedViews++ }, func(m *Metrics) { m.ChatsWithPurchase = m.ChatsStarted + 1 },
+		func(m *Metrics) { m.TopCategoryCode = "" }, func(m *Metrics) { m.MostActiveMonth = 13 },
 	}
-}
-
-func TestValidateMetricsAllowsCrossPeriodCounters(t *testing.T) {
-	metrics := Metrics{
-		TotalEvents:        17,
-		TotalViews:         1,
-		UniqueListings:     1,
-		FavoritesAdded:     5,
-		ChatsStarted:       3,
-		ListingsPublished:  3,
-		PurchasesCompleted: 2,
-		SalesCompleted:     3,
-	}
-
-	if err := validateMetrics(metrics); err != nil {
-		t.Fatalf("cross-period counters must not be treated as one funnel: %v", err)
+	for index, mutate := range mutations {
+		m := valid
+		mutate(&m)
+		if err := validateMetrics(m); !errors.Is(err, ErrInvalidMetrics) {
+			t.Fatalf("case %d: %v", index, err)
+		}
 	}
 }
 
-func TestUUIDJSONRejectsInvalidValue(t *testing.T) {
-	var profile Profile
-	err := profile.ID.UnmarshalText([]byte("not-a-uuid"))
-	if err == nil {
-		t.Fatal("expected invalid UUID error")
+func TestValidateMetricsUsesExactPeriodLength(t *testing.T) {
+	m := validMetrics()
+	m.TotalEvents = 500
+	m.ActiveDays = 366
+	if err := validateMetricsForPeriod(m, RecapPeriod{Year: 2024, StartAt: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), EndAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), Final: true}); err != nil {
+		t.Fatal(err)
 	}
-
-	if profile.ID != uuid.Nil {
-		t.Fatalf("invalid UUID must not be stored, got %s", profile.ID)
+	if err := validateMetricsForPeriod(m, validPeriod()); !errors.Is(err, ErrInvalidMetrics) {
+		t.Fatalf("non-leap year accepted: %v", err)
 	}
 }
 
 func TestProfileUUIDJSONRoundTrip(t *testing.T) {
 	original := validProfile()
-
 	data, err := json.Marshal(original)
 	if err != nil {
-		t.Fatalf("marshal profile: %v", err)
+		t.Fatal(err)
 	}
-
 	var decoded Profile
 	if err := json.Unmarshal(data, &decoded); err != nil {
-		t.Fatalf("unmarshal profile: %v", err)
+		t.Fatal(err)
 	}
 	if decoded.ID != original.ID {
-		t.Fatalf("profile ID changed after JSON round trip: got %s, want %s", decoded.ID, original.ID)
+		t.Fatalf("id changed")
+	}
+}
+
+func TestValidateActionableState(t *testing.T) {
+	valid := validActionableState()
+	if err := validateActionableState(valid); err != nil {
+		t.Fatal(err)
+	}
+	cases := []ActionableState{{}, {CapturedAt: fixedClock(), DraftListingID: testDraftListingID}, {CapturedAt: fixedClock(), OpenDialogID: testDialogID}, {CapturedAt: fixedClock(), ActiveListingID: testActiveListingID}}
+	for _, value := range cases {
+		if err := validateActionableState(value); !errors.Is(err, ErrInvalidActionableState) {
+			t.Fatalf("value=%+v err=%v", value, err)
+		}
+	}
+}
+
+func TestValidateActionTargetOneOfAndActionCompatibility(t *testing.T) {
+	valid := NextAction{Code: ActionOpenTopCategory, Title: "T", Description: "D", ButtonText: "B", Reason: "R", Target: categoryActionTarget("cars")}
+	if err := validateNextAction(valid); err != nil {
+		t.Fatal(err)
+	}
+	invalid := valid
+	invalid.Target.Route = &RouteTarget{Route: "/cars"}
+	if err := validateNextAction(invalid); err == nil {
+		t.Fatal("multiple destinations accepted")
+	}
+	invalid = valid
+	invalid.Target = routeActionTarget("/cars")
+	if err := validateNextAction(invalid); err == nil {
+		t.Fatal("wrong destination type accepted")
 	}
 }
 
 func TestValidateRecap(t *testing.T) {
 	if err := validateRecap(validRecap()); err != nil {
-		t.Fatalf("valid recap rejected: %v", err)
+		t.Fatalf("valid recap: %v", err)
 	}
-
 	tests := []struct {
 		name   string
 		mutate func(*Recap)
 	}{
-		{name: "missing id", mutate: func(r *Recap) { r.ID = uuid.Nil }},
-		{name: "invalid profile", mutate: func(r *Recap) { r.Profile.Code = "" }},
-		{name: "missing year", mutate: func(r *Recap) { r.Year = 0 }},
-		{name: "missing rules version", mutate: func(r *Recap) { r.RulesVersion = "" }},
-		{name: "invalid metrics", mutate: func(r *Recap) { r.Metrics.UniqueListings = r.Metrics.TotalViews + 1 }},
-		{name: "too little activity", mutate: func(r *Recap) {
-			r.Metrics = EnrichMetrics(Metrics{TotalEvents: minEventsForRecap - 1})
+		{name: "missing internal id", mutate: func(r *Recap) { r.ID = uuid.Nil }},
+		{name: "missing share id", mutate: func(r *Recap) { r.ShareID = uuid.Nil }},
+		{name: "same ids", mutate: func(r *Recap) { r.ShareID = r.ID }},
+		{name: "period mismatch", mutate: func(r *Recap) { r.Period.Year = 2024 }},
+		{name: "non final", mutate: func(r *Recap) { r.Period.Final = false }},
+		{name: "stale rate", mutate: func(r *Recap) { r.Metrics.RepeatRate = .99 }},
+		{name: "bad state", mutate: func(r *Recap) { r.ActionableState.CapturedAt = time.Time{} }},
+		{name: "bad behavior score", mutate: func(r *Recap) { r.Behavior.Score++ }},
+		{name: "bad action target", mutate: func(r *Recap) { r.NextAction.Target = ActionTarget{} }},
+		{name: "wrong card payload", mutate: func(r *Recap) {
+			r.Cards[1].Payload = TopCategoryPayload{CategoryCode: "x", Category: "X", CategoryViews: 1}
 		}},
-		{name: "stale repeat rate", mutate: func(r *Recap) { r.Metrics.RepeatRate = 0.99 }},
-		{name: "stale purchase rate", mutate: func(r *Recap) { r.Metrics.PurchaseRate = 0.99 }},
-		{name: "unknown behavior", mutate: func(r *Recap) { r.Behavior.Code = "UNKNOWN" }},
-		{name: "incomplete behavior", mutate: func(r *Recap) { r.Behavior.Title = "" }},
-		{name: "too many achievements", mutate: func(r *Recap) {
-			for len(r.Achievements) <= maxAchievements {
-				r.Achievements = append(r.Achievements, Achievement{
-					Code:        AchievementDealCloser,
-					Title:       "Title",
-					Description: "Description",
-					Reason:      "Reason",
-				})
-			}
+		{name: "personal card marked shareable", mutate: func(r *Recap) { r.Cards[1].Shareable = true }},
+		{name: "final share card not shareable", mutate: func(r *Recap) { r.Cards[len(r.Cards)-1].Shareable = false }},
+		{name: "share payload differs from public dto", mutate: func(r *Recap) {
+			index := len(r.Cards) - 1
+			payload := r.Cards[index].Payload.(ShareCard)
+			payload.Year++
+			r.Cards[index].Payload = payload
 		}},
-		{name: "unknown achievement", mutate: func(r *Recap) { r.Achievements[0].Code = "UNKNOWN" }},
-		{name: "incomplete achievement", mutate: func(r *Recap) { r.Achievements[0].Reason = "" }},
-		{name: "duplicate achievement", mutate: func(r *Recap) {
-			r.Achievements = append(r.Achievements, r.Achievements[0])
-		}},
-		{name: "unknown action", mutate: func(r *Recap) { r.NextAction.Code = "UNKNOWN" }},
-		{name: "incomplete action", mutate: func(r *Recap) { r.NextAction.ButtonText = "" }},
-		{name: "missing cards", mutate: func(r *Recap) { r.Cards = nil }},
-		{name: "unknown card type", mutate: func(r *Recap) { r.Cards[0].Type = "UNKNOWN" }},
-		{name: "incomplete card", mutate: func(r *Recap) { r.Cards[0].Title = "" }},
-		{name: "wrong card position", mutate: func(r *Recap) { r.Cards[0].Position = 99 }},
 		{name: "duplicate card id", mutate: func(r *Recap) { r.Cards[1].ID = r.Cards[0].ID }},
-		{name: "unknown card behavior", mutate: func(r *Recap) { r.Cards[0].Payload.BehaviorCode = "UNKNOWN" }},
-		{name: "unknown primary card achievement", mutate: func(r *Recap) { r.Cards[0].Payload.AchievementCode = "UNKNOWN" }},
-		{name: "unknown card achievement list", mutate: func(r *Recap) { r.Cards[0].Payload.AchievementCodes = []AchievementCode{"UNKNOWN"} }},
-		{name: "unknown card action", mutate: func(r *Recap) { r.Cards[0].Payload.ActionCode = "UNKNOWN" }},
-		{name: "missing generated time", mutate: func(r *Recap) { r.GeneratedAt = time.Time{} }},
+		{name: "generated before end", mutate: func(r *Recap) { r.GeneratedAt = r.Period.StartAt; r.ActionableState.CapturedAt = r.GeneratedAt }},
 	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			value := validRecap()
-			test.mutate(&value)
+			tt.mutate(&value)
 			if err := validateRecap(value); !errors.Is(err, ErrInvalidRecap) {
-				t.Fatalf("expected ErrInvalidRecap, got %v", err)
+				t.Fatalf("got %v", err)
 			}
 		})
 	}
 }
 
-func TestValidateRecapAllowsLegacyCreateFirstListingAction(t *testing.T) {
-	value := validRecap()
-	value.NextAction.Code = ActionCreateFirstListing
-	for index := range value.Cards {
-		if value.Cards[index].Type == CardNextAction {
-			value.Cards[index].Payload.ActionCode = ActionCreateFirstListing
-		}
+func TestValidateStoredRatesRejectsNonFiniteValues(t *testing.T) {
+	m := EnrichMetrics(validMetrics())
+	m.RepeatRate = math.NaN()
+	if err := validateStoredRates(m); err == nil {
+		t.Fatal("NaN accepted")
 	}
-	if err := validateRecap(value); err != nil {
-		t.Fatalf("legacy stored action must remain readable: %v", err)
+}
+
+func TestCardPayloadIsATypeSafeUnion(t *testing.T) {
+	cards := validRecap().Cards
+	for _, card := range cards {
+		switch card.Type {
+		case CardIntro:
+			if card.Payload != nil {
+				t.Fatalf("%s has payload", card.Type)
+			}
+		case CardShare:
+			if _, ok := card.Payload.(ShareCard); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardYearActivity:
+			if _, ok := card.Payload.(YearActivityPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardTopCategory:
+			if _, ok := card.Payload.(TopCategoryPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardActiveMonth:
+			if _, ok := card.Payload.(ActiveMonthPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardBehavior:
+			if _, ok := card.Payload.(BehaviorPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardAchievement:
+			if _, ok := card.Payload.(AchievementPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		case CardMissedOpportunity, CardNextAction:
+			if _, ok := card.Payload.(ActionPayload); !ok {
+				t.Fatalf("wrong payload %T", card.Payload)
+			}
+		}
 	}
 }

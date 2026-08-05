@@ -11,12 +11,13 @@ import (
 var ErrInvalidScenario = errors.New("invalid seed scenario")
 
 type SeedScenario struct {
-	ProfileCode string             `json:"profileCode"`
-	Year        uint32             `json:"year"`
-	RandomSeed  int64              `json:"randomSeed"`
-	Activity    SeedActivity       `json:"activity"`
-	Categories  []WeightedCategory `json:"categories"`
-	Months      []WeightedMonth    `json:"months"`
+	ProfileCode     string             `json:"profileCode"`
+	Year            uint32             `json:"year"`
+	RandomSeed      int64              `json:"randomSeed"`
+	Activity        SeedActivity       `json:"activity"`
+	Categories      []WeightedCategory `json:"categories"`
+	Months          []WeightedMonth    `json:"months"`
+	ActionableState ActionableState    `json:"actionableState"`
 }
 
 type SeedActivity struct {

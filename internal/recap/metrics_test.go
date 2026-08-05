@@ -1,7 +1,10 @@
 package recap
 
 import (
+	"encoding/json"
 	"math"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -58,5 +61,31 @@ func assertFloat(t *testing.T, name string, actual, expected float64) {
 	t.Helper()
 	if math.Abs(actual-expected) > 1e-9 {
 		t.Fatalf("%s = %f, want %f", name, actual, expected)
+	}
+}
+
+func TestMetricsExposeOnlyCohortSafeRates(t *testing.T) {
+	typeOfMetrics := reflect.TypeOf(Metrics{})
+	var rateFields []string
+	for index := 0; index < typeOfMetrics.NumField(); index++ {
+		field := typeOfMetrics.Field(index)
+		if strings.HasSuffix(field.Name, "Rate") {
+			rateFields = append(rateFields, field.Name)
+		}
+	}
+	want := []string{"RepeatRate", "PurchaseRate"}
+	if !reflect.DeepEqual(rateFields, want) {
+		t.Fatalf("rate fields = %v, want only cohort-safe rates %v", rateFields, want)
+	}
+
+	data, err := json.Marshal(Metrics{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	serialized := string(data)
+	for _, forbidden := range []string{"favoriteRate", "chatRate", "publicationRate", "saleRate"} {
+		if strings.Contains(serialized, forbidden) {
+			t.Fatalf("cross-cohort rate %q leaked into metrics JSON: %s", forbidden, serialized)
+		}
 	}
 }
