@@ -2,26 +2,29 @@ package recap
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
 
-// ProfileStorage hides the concrete database from the domain service.
-// The ClickHouse implementation will live in internal/storage/clickhouse.
 type ProfileStorage interface {
 	ListProfiles(ctx context.Context) ([]Profile, error)
 	GetProfile(ctx context.Context, profileID uuid.UUID) (Profile, error)
 }
 
 type AnalyticsStorage interface {
-	CalculateMetrics(
-		ctx context.Context,
-		profileID uuid.UUID,
-		year uint32,
-	) (Metrics, error)
+	CalculateMetrics(ctx context.Context, profileID uuid.UUID, period RecapPeriod) (Metrics, error)
 }
 
+type ActionStateStorage interface {
+	GetActionableState(ctx context.Context, profileID uuid.UUID, asOf time.Time) (ActionableState, error)
+}
+
+// RecapStorage must enforce a unique constraint on
+// (profile_id, year, rules_version) and atomically implement CreateRecapIfAbsent.
 type RecapStorage interface {
-	SaveRecap(ctx context.Context, value Recap) error
+	GetRecapByKey(ctx context.Context, key RecapKey) (Recap, error)
+	CreateRecapIfAbsent(ctx context.Context, key RecapKey, value Recap) (Recap, error)
 	GetRecap(ctx context.Context, recapID uuid.UUID) (Recap, error)
+	GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (Recap, error)
 }

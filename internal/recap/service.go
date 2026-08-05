@@ -13,12 +13,17 @@ import (
 var (
 	ErrInvalidProfileID  = errors.New("invalid profile id")
 	ErrInvalidRecapID    = errors.New("invalid recap id")
+	ErrInvalidShareID    = errors.New("invalid share id")
 	ErrInvalidYear       = errors.New("invalid recap year")
+	ErrYearNotComplete   = errors.New("recap year is not complete")
 	ErrNotEnoughActivity = errors.New("not enough activity to generate recap")
 	ErrMissingDependency = errors.New("missing service dependency")
 	ErrGenerateID        = errors.New("generate recap id")
 	ErrProfileIDMismatch = errors.New("profile storage returned another profile")
 	ErrRecapIDMismatch   = errors.New("recap storage returned another recap")
+	ErrShareIDMismatch   = errors.New("recap storage returned another share id")
+	ErrRecapKeyMismatch  = errors.New("recap storage returned another idempotency key")
+	ErrRecapNotFound     = errors.New("recap not found")
 )
 
 const minEventsForRecap uint64 = 5
@@ -26,9 +31,11 @@ const minEventsForRecap uint64 = 5
 type IDGenerator func() (uuid.UUID, error)
 
 type Service struct {
-	profiles  ProfileStorage
-	analytics AnalyticsStorage
-	recaps    RecapStorage
+	profiles     ProfileStorage
+	analytics    AnalyticsStorage
+	actionStates ActionStateStorage
+	recaps       RecapStorage
+	ruleset      Ruleset
 
 	now   func() time.Time
 	newID IDGenerator
@@ -52,9 +59,14 @@ func WithIDGenerator(generator IDGenerator) Option {
 	}
 }
 
+func WithRuleset(ruleset Ruleset) Option {
+	return func(service *Service) { service.ruleset = ruleset }
+}
+
 func NewService(
 	profiles ProfileStorage,
 	analytics AnalyticsStorage,
+	actionStates ActionStateStorage,
 	recaps RecapStorage,
 	options ...Option,
 ) (*Service, error) {
@@ -64,24 +76,26 @@ func NewService(
 	if analytics == nil {
 		return nil, fmt.Errorf("%w: analytics storage", ErrMissingDependency)
 	}
+	if actionStates == nil {
+		return nil, fmt.Errorf("%w: action-state storage", ErrMissingDependency)
+	}
 	if recaps == nil {
 		return nil, fmt.Errorf("%w: recap storage", ErrMissingDependency)
 	}
 
 	service := &Service{
-		profiles:  profiles,
-		analytics: analytics,
-		recaps:    recaps,
-		now:       time.Now,
-		newID:     generateID,
+		profiles: profiles, analytics: analytics, actionStates: actionStates, recaps: recaps,
+		ruleset: DefaultRuleset(), now: time.Now, newID: generateID,
 	}
-
 	for _, option := range options {
 		if option != nil {
 			option(service)
 		}
 	}
-
+	service.ruleset.Version = normalizeString(service.ruleset.Version)
+	if err := service.ruleset.Validate(); err != nil {
+		return nil, err
+	}
 	return service, nil
 }
 
@@ -90,7 +104,6 @@ func (s *Service) ListProfiles(ctx context.Context) ([]Profile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list profiles: %w", err)
 	}
-
 	for index, profile := range profiles {
 		profile = normalizeProfile(profile)
 		if err := validateProfile(profile); err != nil {
@@ -98,22 +111,24 @@ func (s *Service) ListProfiles(ctx context.Context) ([]Profile, error) {
 		}
 		profiles[index] = profile
 	}
-
 	return profiles, nil
 }
 
-func (s *Service) Generate(
-	ctx context.Context,
-	profileID uuid.UUID,
-	year uint32,
-) (Recap, error) {
+func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32) (Recap, error) {
 	if profileID == uuid.Nil {
 		return Recap{}, ErrInvalidProfileID
 	}
-
 	now := s.now().UTC()
-	if year == 0 || year > uint32(now.Year()) {
-		return Recap{}, ErrInvalidYear
+	period, err := completedYearPeriod(year, now)
+	if err != nil {
+		return Recap{}, err
+	}
+	key := RecapKey{ProfileID: profileID, Year: year, RulesVersion: s.ruleset.Version}
+
+	if existing, err := s.recaps.GetRecapByKey(ctx, key); err == nil {
+		return s.validateStoredByKey(existing, key)
+	} else if !errors.Is(err, ErrRecapNotFound) {
+		return Recap{}, fmt.Errorf("get recap by idempotency key: %w", err)
 	}
 
 	profile, err := s.profiles.GetProfile(ctx, profileID)
@@ -128,12 +143,12 @@ func (s *Service) Generate(
 		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrProfileIDMismatch, profileID, profile.ID)
 	}
 
-	metrics, err := s.analytics.CalculateMetrics(ctx, profileID, year)
+	metrics, err := s.analytics.CalculateMetrics(ctx, profileID, period)
 	if err != nil {
 		return Recap{}, fmt.Errorf("calculate metrics: %w", err)
 	}
 	metrics = normalizeMetrics(metrics)
-	if err := validateMetrics(metrics); err != nil {
+	if err := validateMetricsForPeriod(metrics, period); err != nil {
 		return Recap{}, err
 	}
 	if metrics.TotalEvents < minEventsForRecap {
@@ -141,48 +156,56 @@ func (s *Service) Generate(
 	}
 	metrics = EnrichMetrics(metrics)
 
-	behavior := DetectBehavior(metrics)
-	achievements := BuildAchievements(metrics)
-	nextAction := BuildNextAction(metrics)
-	cards := BuildCards(profile, year, metrics, behavior, achievements, nextAction)
-
-	recapID, err := s.newID()
+	state, err := s.actionStates.GetActionableState(ctx, profileID, now)
 	if err != nil {
-		return Recap{}, fmt.Errorf("%w: %w", ErrGenerateID, err)
+		return Recap{}, fmt.Errorf("get actionable state: %w", err)
 	}
-	if recapID == uuid.Nil {
-		return Recap{}, fmt.Errorf("%w: generated nil UUID", ErrGenerateID)
-	}
-
-	value := Recap{
-		ID:           recapID,
-		Profile:      profile,
-		Year:         year,
-		RulesVersion: CurrentRulesVersion,
-		Metrics:      metrics,
-		Behavior:     behavior,
-		Achievements: achievements,
-		Cards:        cards,
-		NextAction:   nextAction,
-		GeneratedAt:  now,
+	state = normalizeActionableState(state)
+	state.CapturedAt = now
+	if err := validateActionableState(state); err != nil {
+		return Recap{}, err
 	}
 
-	if err := validateRecap(value); err != nil {
+	behavior := s.ruleset.DetectBehavior(metrics)
+	achievements := s.ruleset.BuildAchievements(metrics)
+	nextAction := s.ruleset.BuildNextAction(metrics, state, behavior)
+
+	recapID, err := s.generateNonNilID("internal recap")
+	if err != nil {
+		return Recap{}, err
+	}
+	shareID, err := s.generateNonNilID("public share")
+	if err != nil {
+		return Recap{}, err
+	}
+	if recapID == shareID {
+		return Recap{}, fmt.Errorf("%w: internal and public ids must differ", ErrGenerateID)
+	}
+	cards := BuildCards(profile, year, shareID, metrics, behavior, achievements, nextAction)
+
+	candidate := Recap{
+		ID: recapID, ShareID: shareID, Profile: profile, Year: year, Period: period,
+		RulesVersion: s.ruleset.Version, Metrics: metrics, ActionableState: state,
+		Behavior: behavior, Achievements: achievements, Cards: cards, NextAction: nextAction,
+		GeneratedAt: now,
+	}
+	if err := validateRecap(candidate); err != nil {
 		return Recap{}, fmt.Errorf("validate generated recap: %w", err)
 	}
 
-	if err := s.recaps.SaveRecap(ctx, value); err != nil {
-		return Recap{}, fmt.Errorf("save recap: %w", err)
+	// The storage operation is the concurrency boundary. It must insert candidate or
+	// atomically return the already stored value for the same unique key.
+	stored, err := s.recaps.CreateRecapIfAbsent(ctx, key, candidate)
+	if err != nil {
+		return Recap{}, fmt.Errorf("create recap if absent: %w", err)
 	}
-
-	return value, nil
+	return s.validateStoredByKey(stored, key)
 }
 
 func (s *Service) Get(ctx context.Context, recapID uuid.UUID) (Recap, error) {
 	if recapID == uuid.Nil {
 		return Recap{}, ErrInvalidRecapID
 	}
-
 	value, err := s.recaps.GetRecap(ctx, recapID)
 	if err != nil {
 		return Recap{}, fmt.Errorf("get recap: %w", err)
@@ -190,28 +213,52 @@ func (s *Service) Get(ctx context.Context, recapID uuid.UUID) (Recap, error) {
 	if value.ID != recapID {
 		return Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrRecapIDMismatch, recapID, value.ID)
 	}
-
 	value = normalizeRecap(value)
 	if err := validateRecap(value); err != nil {
 		return Recap{}, fmt.Errorf("validate stored recap: %w", err)
 	}
-
 	return value, nil
 }
 
-func (s *Service) GetShareCard(ctx context.Context, recapID uuid.UUID) (ShareCard, error) {
-	value, err := s.Get(ctx, recapID)
-	if err != nil {
-		return ShareCard{}, err
+func (s *Service) GetShareCard(ctx context.Context, shareID uuid.UUID) (ShareCard, error) {
+	if shareID == uuid.Nil {
+		return ShareCard{}, ErrInvalidShareID
 	}
-
+	value, err := s.recaps.GetRecapByShareID(ctx, shareID)
+	if err != nil {
+		return ShareCard{}, fmt.Errorf("get recap by share id: %w", err)
+	}
+	if value.ShareID != shareID {
+		return ShareCard{}, fmt.Errorf("%w: requested %s, got %s", ErrShareIDMismatch, shareID, value.ShareID)
+	}
+	value = normalizeRecap(value)
+	if err := validateRecap(value); err != nil {
+		return ShareCard{}, fmt.Errorf("validate shared recap: %w", err)
+	}
 	return BuildShareCard(value), nil
 }
 
-func generateID() (uuid.UUID, error) {
-	return uuid.NewRandom()
+func (s *Service) validateStoredByKey(value Recap, key RecapKey) (Recap, error) {
+	value = normalizeRecap(value)
+	if value.Key() != key {
+		return Recap{}, fmt.Errorf("%w: requested %+v, got %+v", ErrRecapKeyMismatch, key, value.Key())
+	}
+	if err := validateRecap(value); err != nil {
+		return Recap{}, fmt.Errorf("validate stored recap: %w", err)
+	}
+	return value, nil
 }
 
-func generateIDFrom(reader io.Reader) (uuid.UUID, error) {
-	return uuid.NewRandomFromReader(reader)
+func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {
+	value, err := s.newID()
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("%w: %s: %w", ErrGenerateID, kind, err)
+	}
+	if value == uuid.Nil {
+		return uuid.Nil, fmt.Errorf("%w: %s: generated nil UUID", ErrGenerateID, kind)
+	}
+	return value, nil
 }
+
+func generateID() (uuid.UUID, error)                     { return uuid.NewRandom() }
+func generateIDFrom(reader io.Reader) (uuid.UUID, error) { return uuid.NewRandomFromReader(reader) }

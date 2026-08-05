@@ -2,48 +2,115 @@ package recap
 
 import "strings"
 
+func normalizeString(value string) string { return strings.TrimSpace(value) }
+
 func normalizeProfile(profile Profile) Profile {
-	profile.Code = strings.TrimSpace(profile.Code)
-	profile.DisplayName = strings.TrimSpace(profile.DisplayName)
-	profile.Description = strings.TrimSpace(profile.Description)
-	profile.AvatarURL = strings.TrimSpace(profile.AvatarURL)
+	profile.Code = normalizeString(profile.Code)
+	profile.DisplayName = normalizeString(profile.DisplayName)
+	profile.Description = normalizeString(profile.Description)
+	profile.AvatarURL = normalizeString(profile.AvatarURL)
 	return profile
 }
 
 func normalizeMetrics(metrics Metrics) Metrics {
-	metrics.TopCategoryCode = strings.TrimSpace(metrics.TopCategoryCode)
-	metrics.TopCategory = strings.TrimSpace(metrics.TopCategory)
+	metrics.TopCategoryCode = normalizeString(metrics.TopCategoryCode)
+	metrics.TopCategory = normalizeString(metrics.TopCategory)
 	return metrics
 }
 
+func normalizeActionableState(state ActionableState) ActionableState { return state }
+
+func normalizeActionTarget(target ActionTarget) ActionTarget {
+	if target.Route != nil {
+		value := *target.Route
+		value.Route = normalizeString(value.Route)
+		target.Route = &value
+	}
+	if target.Category != nil {
+		value := *target.Category
+		value.CategoryCode = normalizeString(value.CategoryCode)
+		target.Category = &value
+	}
+	if target.Listing != nil {
+		value := *target.Listing
+		target.Listing = &value
+	}
+	if target.Dialog != nil {
+		value := *target.Dialog
+		target.Dialog = &value
+	}
+	if target.Search != nil {
+		value := *target.Search
+		value.CategoryCode = normalizeString(value.CategoryCode)
+		target.Search = &value
+	}
+	return target
+}
+
 func normalizeRecap(value Recap) Recap {
+	value.Behavior.Evidence = append([]BehaviorEvidence(nil), value.Behavior.Evidence...)
+	value.Achievements = append([]Achievement(nil), value.Achievements...)
+	value.Cards = append([]Card(nil), value.Cards...)
 	value.Profile = normalizeProfile(value.Profile)
-	value.RulesVersion = strings.TrimSpace(value.RulesVersion)
+	value.RulesVersion = normalizeString(value.RulesVersion)
 	value.Metrics = normalizeMetrics(value.Metrics)
-	value.Behavior.Title = strings.TrimSpace(value.Behavior.Title)
-	value.Behavior.Description = strings.TrimSpace(value.Behavior.Description)
-	value.Behavior.Reason = strings.TrimSpace(value.Behavior.Reason)
-	value.NextAction.Title = strings.TrimSpace(value.NextAction.Title)
-	value.NextAction.Description = strings.TrimSpace(value.NextAction.Description)
-	value.NextAction.ButtonText = strings.TrimSpace(value.NextAction.ButtonText)
-	value.NextAction.Reason = strings.TrimSpace(value.NextAction.Reason)
+	value.ActionableState = normalizeActionableState(value.ActionableState)
+	value.Behavior.Title = normalizeString(value.Behavior.Title)
+	value.Behavior.Description = normalizeString(value.Behavior.Description)
+	value.Behavior.Reason = normalizeString(value.Behavior.Reason)
+	for index := range value.Behavior.Evidence {
+		value.Behavior.Evidence[index].Metric = normalizeString(value.Behavior.Evidence[index].Metric)
+		value.Behavior.Evidence[index].Detail = normalizeString(value.Behavior.Evidence[index].Detail)
+	}
+	value.NextAction.Title = normalizeString(value.NextAction.Title)
+	value.NextAction.Description = normalizeString(value.NextAction.Description)
+	value.NextAction.ButtonText = normalizeString(value.NextAction.ButtonText)
+	value.NextAction.Reason = normalizeString(value.NextAction.Reason)
+	value.NextAction.Target = normalizeActionTarget(value.NextAction.Target)
 
 	for index := range value.Achievements {
 		achievement := &value.Achievements[index]
-		achievement.Title = strings.TrimSpace(achievement.Title)
-		achievement.Description = strings.TrimSpace(achievement.Description)
-		achievement.Reason = strings.TrimSpace(achievement.Reason)
+		achievement.Title = normalizeString(achievement.Title)
+		achievement.Description = normalizeString(achievement.Description)
+		achievement.Reason = normalizeString(achievement.Reason)
 	}
 
 	for index := range value.Cards {
 		card := &value.Cards[index]
-		card.ID = strings.TrimSpace(card.ID)
-		card.Title = strings.TrimSpace(card.Title)
-		card.Description = strings.TrimSpace(card.Description)
-		card.Explanation = strings.TrimSpace(card.Explanation)
-		card.Payload.CategoryCode = strings.TrimSpace(card.Payload.CategoryCode)
-		card.Payload.Category = strings.TrimSpace(card.Payload.Category)
+		card.ID = normalizeString(card.ID)
+		card.Title = normalizeString(card.Title)
+		card.Description = normalizeString(card.Description)
+		card.Explanation = normalizeString(card.Explanation)
+		card.Payload = normalizeCardPayload(card.Payload)
 	}
-
 	return value
+}
+
+func normalizeCardPayload(payload CardPayload) CardPayload {
+	switch value := payload.(type) {
+	case TopCategoryPayload:
+		value.CategoryCode = normalizeString(value.CategoryCode)
+		value.Category = normalizeString(value.Category)
+		return value
+	case BehaviorPayload:
+		value.Evidence = append([]BehaviorEvidence(nil), value.Evidence...)
+		for index := range value.Evidence {
+			value.Evidence[index].Metric = normalizeString(value.Evidence[index].Metric)
+			value.Evidence[index].Detail = normalizeString(value.Evidence[index].Detail)
+		}
+		return value
+	case AchievementPayload:
+		value.Codes = append([]AchievementCode(nil), value.Codes...)
+		return value
+	case ActionPayload:
+		value.Target = normalizeActionTarget(value.Target)
+		return value
+	case ShareCard:
+		value.BehaviorTitle = normalizeString(value.BehaviorTitle)
+		value.AchievementTitle = normalizeString(value.AchievementTitle)
+		value.TopCategory = normalizeString(value.TopCategory)
+		return value
+	default:
+		return payload
+	}
 }
