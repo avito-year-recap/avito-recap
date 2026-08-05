@@ -7,13 +7,14 @@ import (
 
 func TestEnrichMetrics(t *testing.T) {
 	input := Metrics{
-		TotalViews:        200,
-		RepeatedViews:     50,
-		FavoritesAdded:    30,
-		ChatsStarted:      10,
-		ListingsCreated:   8,
-		ListingsPublished: 6,
-		SalesCompleted:    3,
+		TotalViews:         200,
+		RepeatedViews:      50,
+		FavoritesAdded:     30,
+		ChatsStarted:       10,
+		ListingsCreated:    8,
+		ListingsPublished:  6,
+		PurchasesCompleted: 2,
+		SalesCompleted:     3,
 	}
 
 	actual := EnrichMetrics(input)
@@ -23,22 +24,33 @@ func TestEnrichMetrics(t *testing.T) {
 	assertFloat(t, "RepeatRate", actual.RepeatRate, 0.25)
 	assertFloat(t, "PublicationRate", actual.PublicationRate, 0.75)
 	assertFloat(t, "SaleRate", actual.SaleRate, 0.5)
+	assertFloat(t, "PurchaseRate", actual.PurchaseRate, 0.2)
 
 	if actual.TotalViews != input.TotalViews {
 		t.Fatalf("base metric changed: got %d, want %d", actual.TotalViews, input.TotalViews)
 	}
 }
 
+func TestEnrichMetricsReplacesStaleRates(t *testing.T) {
+	actual := EnrichMetrics(Metrics{
+		TotalViews:     10,
+		FavoritesAdded: 1,
+		FavoriteRate:   0.99,
+	})
+	assertFloat(t, "FavoriteRate", actual.FavoriteRate, 0.1)
+}
+
 func TestEnrichMetricsZeroDenominators(t *testing.T) {
 	actual := EnrichMetrics(Metrics{
-		FavoritesAdded: 3,
-		ChatsStarted:   2,
-		RepeatedViews:  1,
-		SalesCompleted: 1,
+		FavoritesAdded:     3,
+		ChatsStarted:       0,
+		RepeatedViews:      1,
+		PurchasesCompleted: 1,
+		SalesCompleted:     1,
 	})
 
 	if actual.FavoriteRate != 0 || actual.ChatRate != 0 || actual.RepeatRate != 0 ||
-		actual.PublicationRate != 0 || actual.SaleRate != 0 {
+		actual.PublicationRate != 0 || actual.SaleRate != 0 || actual.PurchaseRate != 0 {
 		t.Fatalf("expected all rates to be zero, got %+v", actual)
 	}
 }

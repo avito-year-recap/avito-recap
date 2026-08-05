@@ -2,81 +2,105 @@ package recap
 
 import "testing"
 
-func TestBuildAchievementsEachRuleBoundary(t *testing.T) {
+func TestBuildAchievementsForMVPProfiles(t *testing.T) {
 	tests := []struct {
 		name     string
 		metrics  Metrics
-		expected AchievementCode
+		expected []AchievementCode
 	}{
-		{name: "successful seller", metrics: Metrics{SalesCompleted: 5}, expected: AchievementSuccessfulSeller},
-		{name: "active publisher", metrics: Metrics{ListingsPublished: 5}, expected: AchievementActivePublisher},
-		{name: "attentive researcher", metrics: Metrics{TotalViews: 150}, expected: AchievementAttentiveResearcher},
-		{name: "favorites curator", metrics: Metrics{FavoritesAdded: 20}, expected: AchievementFavoritesCurator},
-		{name: "category explorer", metrics: Metrics{CategoriesCount: 6}, expected: AchievementCategoryExplorer},
-		{name: "consistent user", metrics: Metrics{ActiveDays: 30}, expected: AchievementConsistentUser},
+		{
+			name:     "active buyer",
+			metrics:  Metrics{TotalViews: 180, FavoritesAdded: 28},
+			expected: []AchievementCode{AchievementAttentiveResearcher, AchievementMasterOfFavorites},
+		},
+		{
+			name:     "active seller",
+			metrics:  Metrics{ListingsPublished: 9, SalesCompleted: 6},
+			expected: []AchievementCode{AchievementSuccessfulSeller, AchievementConsistentPublisher},
+		},
+		{
+			name:     "researcher",
+			metrics:  Metrics{TotalViews: 260, CategoriesCount: 7},
+			expected: []AchievementCode{AchievementBroadInterests, AchievementAttentiveResearcher},
+		},
+		{
+			name:     "universal",
+			metrics:  Metrics{PurchasesCompleted: 1, SalesCompleted: 2, ListingsPublished: 4, ChatsStarted: 9},
+			expected: []AchievementCode{AchievementAllRounder},
+		},
+		{
+			name:     "draft seller",
+			metrics:  Metrics{ListingsCreated: 7, ListingsPublished: 2},
+			expected: []AchievementCode{AchievementFirstSellingSteps},
+		},
+		{
+			name:     "decisive buyer",
+			metrics:  Metrics{ChatsStarted: 15, PurchasesCompleted: 4},
+			expected: []AchievementCode{AchievementDealCloser, AchievementQuickDecision},
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := BuildAchievements(test.metrics)
-			if len(result) != 1 {
-				t.Fatalf("expected one achievement, got %d: %+v", len(result), result)
-			}
-			if result[0].Code != test.expected {
-				t.Fatalf("expected %s, got %s", test.expected, result[0].Code)
-			}
-			if result[0].Priority == 0 || result[0].Title == "" || result[0].Reason == "" {
-				t.Fatalf("incomplete achievement: %+v", result[0])
+			actual := BuildAchievements(test.metrics)
+			assertAchievementCodes(t, actual, test.expected)
+			for _, achievement := range actual {
+				if achievement.Priority == 0 || achievement.Title == "" || achievement.Reason == "" {
+					t.Fatalf("incomplete achievement: %+v", achievement)
+				}
 			}
 		})
 	}
 }
 
+func TestBuildAchievementsLimitsSortsAndHasUniqueCodes(t *testing.T) {
+	result := BuildAchievements(Metrics{
+		TotalViews:         300,
+		FavoritesAdded:     40,
+		ChatsStarted:       20,
+		PurchasesCompleted: 5,
+		ListingsCreated:    10,
+		ListingsPublished:  10,
+		SalesCompleted:     7,
+		CategoriesCount:    8,
+	})
+
+	if len(result) != maxAchievements {
+		t.Fatalf("expected %d achievements, got %d", maxAchievements, len(result))
+	}
+	seen := make(map[AchievementCode]struct{}, len(result))
+	for index, achievement := range result {
+		if _, exists := seen[achievement.Code]; exists {
+			t.Fatalf("duplicate achievement code: %s", achievement.Code)
+		}
+		seen[achievement.Code] = struct{}{}
+		if index > 0 && result[index-1].Priority <= achievement.Priority {
+			t.Fatalf("achievements are not strictly ordered by priority: %+v", result)
+		}
+	}
+}
+
 func TestBuildAchievementsBelowThresholds(t *testing.T) {
 	result := BuildAchievements(Metrics{
-		SalesCompleted:    4,
-		ListingsPublished: 4,
 		TotalViews:        149,
 		FavoritesAdded:    19,
+		ListingsCreated:   2,
+		ListingsPublished: 2,
 		CategoriesCount:   5,
-		ActiveDays:        29,
 	})
 	if len(result) != 0 {
 		t.Fatalf("expected no achievements, got %+v", result)
 	}
 }
 
-func TestBuildAchievementsLimitsSortsAndHasUniqueCodes(t *testing.T) {
-	result := BuildAchievements(Metrics{
-		TotalViews:        300,
-		FavoritesAdded:    40,
-		ListingsPublished: 10,
-		SalesCompleted:    7,
-		CategoriesCount:   8,
-		ActiveDays:        120,
-	})
-
-	if len(result) != maxAchievements {
-		t.Fatalf("expected %d achievements, got %d", maxAchievements, len(result))
+func assertAchievementCodes(t *testing.T, actual []Achievement, expected []AchievementCode) {
+	t.Helper()
+	if len(actual) != len(expected) {
+		t.Fatalf("achievement count = %d, want %d: %+v", len(actual), len(expected), actual)
 	}
-
-	expected := []AchievementCode{
-		AchievementSuccessfulSeller,
-		AchievementActivePublisher,
-		AchievementAttentiveResearcher,
-	}
-	seen := make(map[AchievementCode]struct{}, len(result))
-
 	for index, code := range expected {
-		if result[index].Code != code {
-			t.Fatalf("achievement %d: expected %s, got %s", index, code, result[index].Code)
-		}
-		if _, exists := seen[result[index].Code]; exists {
-			t.Fatalf("duplicate achievement code: %s", result[index].Code)
-		}
-		seen[result[index].Code] = struct{}{}
-		if index > 0 && result[index-1].Priority <= result[index].Priority {
-			t.Fatalf("achievements are not strictly ordered by priority: %+v", result)
+		if actual[index].Code != code {
+			t.Fatalf("achievement %d = %s, want %s", index, actual[index].Code, code)
 		}
 	}
 }
