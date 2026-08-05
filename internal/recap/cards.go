@@ -3,11 +3,14 @@ package recap
 import (
 	"fmt"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 func BuildCards(
 	profile Profile,
 	year uint32,
+	shareID uuid.UUID,
 	metrics Metrics,
 	behavior Behavior,
 	achievements []Achievement,
@@ -15,6 +18,7 @@ func BuildCards(
 ) []Card {
 	profile = normalizeProfile(profile)
 	metrics = normalizeMetrics(metrics)
+	shareCard := buildShareCard(shareID, year, metrics, behavior, achievements)
 	cards := make([]Card, 0, 9)
 
 	appendCard := func(card Card) {
@@ -26,16 +30,16 @@ func BuildCards(
 		ID:          "intro",
 		Type:        CardIntro,
 		Title:       fmt.Sprintf("%s, вот твои итоги за %d год", profile.DisplayName, year),
-		Description: "Мы связали главные действия в короткую историю — от интересов до следующего шага.",
+		Description: "Это финальный recap за завершённый календарный год.",
 	})
 
 	appendCard(Card{
 		ID:          "year-activity",
 		Type:        CardYearActivity,
 		Title:       "Год в цифрах",
-		Description: fmt.Sprintf("За год система учла %d действий.", metrics.TotalEvents),
+		Description: fmt.Sprintf("За завершённый год система учла %d действий.", metrics.TotalEvents),
 		Explanation: "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
-		Payload: CardPayload{
+		Payload: YearActivityPayload{
 			TotalEvents:        metrics.TotalEvents,
 			Searches:           metrics.Searches,
 			TotalViews:         metrics.TotalViews,
@@ -54,8 +58,7 @@ func BuildCards(
 			Title:       "Главный интерес года",
 			Description: fmt.Sprintf("Чаще всего внимание привлекала категория «%s».", metrics.TopCategory),
 			Explanation: fmt.Sprintf("Просмотров в этой категории: %d.", metrics.TopCategoryViews),
-			Shareable:   metrics.TopCategoryShareable,
-			Payload: CardPayload{
+			Payload: TopCategoryPayload{
 				CategoryCode:  metrics.TopCategoryCode,
 				Category:      metrics.TopCategory,
 				CategoryViews: metrics.TopCategoryViews,
@@ -70,9 +73,7 @@ func BuildCards(
 			Title:       "Самый активный месяц",
 			Description: fmt.Sprintf("Больше всего действий пришлось на %s.", monthName(metrics.MostActiveMonth)),
 			Explanation: "Месяц выбран по максимальному числу событий профиля.",
-			Payload: CardPayload{
-				Month: metrics.MostActiveMonth,
-			},
+			Payload:     ActiveMonthPayload{Month: metrics.MostActiveMonth},
 		})
 	}
 
@@ -82,9 +83,8 @@ func BuildCards(
 		Title:       behavior.Title,
 		Description: behavior.Description,
 		Explanation: behavior.Reason,
-		Shareable:   true,
-		Payload: CardPayload{
-			BehaviorCode: behavior.Code,
+		Payload: BehaviorPayload{
+			Code: behavior.Code, Score: behavior.Score, Evidence: behavior.Evidence,
 		},
 	})
 
@@ -102,16 +102,17 @@ func BuildCards(
 		Title:       nextAction.Title,
 		Description: nextAction.Description,
 		Explanation: nextAction.Reason,
-		Payload: CardPayload{
-			ActionCode: nextAction.Code,
-		},
+		Payload:     ActionPayload{Code: nextAction.Code, Target: nextAction.Target},
 	})
 
 	appendCard(Card{
-		ID:          "summary",
-		Type:        CardSummary,
-		Title:       "Итоги готовы",
-		Description: "Главное за год собрано — следующий шаг уже связан с тем, что было важно именно в этом сценарии.",
+		ID:          "share",
+		Type:        CardShare,
+		Title:       "Итоги готовы — можно делиться",
+		Description: fmt.Sprintf("В %d году ты — «%s». Карточка содержит только данные, разрешённые для публичного показа.", year, behavior.Title),
+		Explanation: "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+		Shareable:   true,
+		Payload:     shareCard,
 	})
 
 	return cards
@@ -121,30 +122,18 @@ func buildAchievementCard(achievements []Achievement) *Card {
 	if len(achievements) == 0 {
 		return nil
 	}
-
 	titles := make([]string, 0, len(achievements))
 	reasons := make([]string, 0, len(achievements))
 	codes := make([]AchievementCode, 0, len(achievements))
-	shareable := true
-
 	for _, achievement := range achievements {
 		titles = append(titles, achievement.Title)
 		reasons = append(reasons, achievement.Reason)
 		codes = append(codes, achievement.Code)
-		shareable = shareable && achievement.Shareable
 	}
-
 	return &Card{
-		ID:          "achievements",
-		Type:        CardAchievement,
-		Title:       "Ачивки года",
-		Description: strings.Join(titles, " • "),
-		Explanation: strings.Join(reasons, " "),
-		Shareable:   shareable,
-		Payload: CardPayload{
-			AchievementCode:  codes[0],
-			AchievementCodes: codes,
-		},
+		ID: "achievements", Type: CardAchievement, Title: "Ачивки года",
+		Description: strings.Join(titles, " • "), Explanation: strings.Join(reasons, " "),
+		Payload: AchievementPayload{Codes: codes},
 	}
 }
 
@@ -152,56 +141,28 @@ func buildMissedOpportunityCard(metrics Metrics, nextAction NextAction) *Card {
 	switch nextAction.Code {
 	case ActionSaveSearch:
 		return &Card{
-			ID:          "missed-opportunity",
-			Type:        CardMissedOpportunity,
+			ID: "missed-opportunity", Type: CardMissedOpportunity,
 			Title:       "Возможность, которая сэкономит время",
-			Description: "Сохранённый поиск может сам показывать новые объявления по интересующим параметрам.",
-			Explanation: fmt.Sprintf(
-				"Просмотров было %d, а диалогов — %d: автоматическое обновление поиска поможет не повторять сравнение вручную.",
-				metrics.TotalViews,
-				metrics.ChatsStarted,
-			),
-			Payload: CardPayload{ActionCode: nextAction.Code},
+			Description: "Сохранённый поиск может сам показывать новые объявления по главному интересу.",
+			Explanation: fmt.Sprintf("Просмотров было %d, а сохранённого поиска по главной категории сейчас нет.", metrics.TotalViews),
+			Payload:     ActionPayload{Code: nextAction.Code, Target: nextAction.Target},
 		}
-
 	case ActionFinishDraft:
 		return &Card{
-			ID:          "missed-opportunity",
-			Type:        CardMissedOpportunity,
-			Title:       "Шанс довести начатое до публикации",
-			Description: "Проверь созданные объявления: среди них могут быть незавершённые публикации.",
-			Explanation: fmt.Sprintf(
-				"В выбранном году создано %d объявлений, опубликовано %d. Эти годовые счётчики не показывают точное число текущих черновиков.",
-				metrics.ListingsCreated,
-				metrics.ListingsPublished,
-			),
-			Payload: CardPayload{ActionCode: nextAction.Code},
+			ID: "missed-opportunity", Type: CardMissedOpportunity,
+			Title:       "Шанс довести актуальный черновик до публикации",
+			Description: "Текущий черновик можно открыть напрямую.",
+			Explanation: "Карточка опирается на актуальное состояние объявлений, а не на разницу годовых счётчиков.",
+			Payload:     ActionPayload{Code: nextAction.Code, Target: nextAction.Target},
 		}
 	}
-
 	return nil
 }
 
 func monthName(month uint32) string {
-	names := [...]string{
-		"",
-		"январь",
-		"февраль",
-		"март",
-		"апрель",
-		"май",
-		"июнь",
-		"июль",
-		"август",
-		"сентябрь",
-		"октябрь",
-		"ноябрь",
-		"декабрь",
-	}
-
+	names := [...]string{"", "январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"}
 	if month >= uint32(len(names)) {
 		return ""
 	}
-
 	return names[month]
 }

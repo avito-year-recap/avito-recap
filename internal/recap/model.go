@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CurrentRulesVersion = "2.2.0"
+const CurrentRulesVersion = "3.1.0"
 
 type ActivityType string
 
@@ -27,6 +27,15 @@ type Profile struct {
 	DisplayName string    `json:"displayName"`
 	Description string    `json:"description"`
 	AvatarURL   string    `json:"avatarUrl,omitempty"`
+}
+
+// RecapPeriod is a half-open UTC interval [StartAt, EndAt).
+// Annual recaps are generated only for completed calendar years and are final.
+type RecapPeriod struct {
+	Year    uint32    `json:"year"`
+	StartAt time.Time `json:"startAt"`
+	EndAt   time.Time `json:"endAt"`
+	Final   bool      `json:"final"`
 }
 
 type Metrics struct {
@@ -55,6 +64,27 @@ type Metrics struct {
 	PurchaseRate float64 `json:"purchaseRate"`
 }
 
+// ActionableState is a point-in-time snapshot used only to select executable CTAs.
+// Historical annual counters must not be used as a substitute for this state.
+type ActionableState struct {
+	CapturedAt time.Time `json:"capturedAt"`
+
+	CurrentDrafts  uint64    `json:"currentDrafts"`
+	DraftListingID uuid.UUID `json:"draftListingId,omitempty"`
+
+	OpenDialogs  uint64    `json:"openDialogs"`
+	OpenDialogID uuid.UUID `json:"openDialogId,omitempty"`
+
+	ActiveListings  uint64    `json:"activeListings"`
+	ActiveListingID uuid.UUID `json:"activeListingId,omitempty"`
+
+	FavoritesCount uint64 `json:"favoritesCount"`
+
+	HasSavedSearchForTopCategory bool      `json:"hasSavedSearchForTopCategory"`
+	LastPurchasedListingID       uuid.UUID `json:"lastPurchasedListingId,omitempty"`
+	HasEverPublishedListing      bool      `json:"hasEverPublishedListing"`
+}
+
 type BehaviorCode string
 
 const (
@@ -66,11 +96,21 @@ const (
 	BehaviorUniversal      BehaviorCode = "UNIVERSAL_USER"
 )
 
+type BehaviorEvidence struct {
+	Metric    string  `json:"metric"`
+	Actual    float64 `json:"actual"`
+	Threshold float64 `json:"threshold"`
+	Points    uint32  `json:"points"`
+	Detail    string  `json:"detail"`
+}
+
 type Behavior struct {
-	Code        BehaviorCode `json:"code"`
-	Title       string       `json:"title"`
-	Description string       `json:"description"`
-	Reason      string       `json:"reason"`
+	Code        BehaviorCode       `json:"code"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Reason      string             `json:"reason"`
+	Score       uint32             `json:"score"`
+	Evidence    []BehaviorEvidence `json:"evidence,omitempty"`
 }
 
 type AchievementCode string
@@ -87,7 +127,6 @@ const (
 	AchievementQuickDecision       AchievementCode = "QUICK_DECISION"
 )
 
-// Backward-compatible aliases for code that used the first MVP names.
 const (
 	AchievementActivePublisher  = AchievementConsistentPublisher
 	AchievementFavoritesCurator = AchievementMasterOfFavorites
@@ -106,13 +145,12 @@ type Achievement struct {
 type ActionCode string
 
 const (
-	ActionFinishDraft     ActionCode = "FINISH_DRAFT"
-	ActionOpenFavorites   ActionCode = "OPEN_FAVORITES"
-	ActionImproveListings ActionCode = "IMPROVE_LISTINGS"
-	ActionContinueDialogs ActionCode = "CONTINUE_DIALOGS"
-	ActionOpenTopCategory ActionCode = "OPEN_TOP_CATEGORY"
-	
-	ActionCreateFirstListing     ActionCode = "CREATE_FIRST_LISTING"
+	ActionFinishDraft            ActionCode = "FINISH_DRAFT"
+	ActionOpenFavorites          ActionCode = "OPEN_FAVORITES"
+	ActionImproveListings        ActionCode = "IMPROVE_LISTINGS"
+	ActionContinueDialogs        ActionCode = "CONTINUE_DIALOGS"
+	ActionOpenTopCategory        ActionCode = "OPEN_TOP_CATEGORY"
+	ActionCreateFirstListing     ActionCode = "CREATE_FIRST_LISTING" // legacy stored value
 	ActionCreateListing          ActionCode = "CREATE_LISTING"
 	ActionSaveSearch             ActionCode = "SAVE_SEARCH"
 	ActionViewSimilarListings    ActionCode = "VIEW_SIMILAR_LISTINGS"
@@ -121,12 +159,42 @@ const (
 
 const ActionContinueChats = ActionContinueDialogs
 
+type RouteTarget struct {
+	Route string `json:"route"`
+}
+
+type CategoryTarget struct {
+	CategoryCode string `json:"categoryCode"`
+}
+
+type ListingTarget struct {
+	ListingID uuid.UUID `json:"listingId"`
+}
+
+type DialogTarget struct {
+	DialogID uuid.UUID `json:"dialogId"`
+}
+
+type SearchTarget struct {
+	CategoryCode string `json:"categoryCode"`
+}
+
+// ActionTarget mirrors protobuf oneof semantics. Exactly one field must be set.
+type ActionTarget struct {
+	Route    *RouteTarget    `json:"route,omitempty"`
+	Category *CategoryTarget `json:"category,omitempty"`
+	Listing  *ListingTarget  `json:"listing,omitempty"`
+	Dialog   *DialogTarget   `json:"dialog,omitempty"`
+	Search   *SearchTarget   `json:"search,omitempty"`
+}
+
 type NextAction struct {
-	Code        ActionCode `json:"code"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	ButtonText  string     `json:"buttonText"`
-	Reason      string     `json:"reason"`
+	Code        ActionCode   `json:"code"`
+	Title       string       `json:"title"`
+	Description string       `json:"description"`
+	ButtonText  string       `json:"buttonText"`
+	Reason      string       `json:"reason"`
+	Target      ActionTarget `json:"target"`
 }
 
 type CardType string
@@ -140,29 +208,61 @@ const (
 	CardAchievement       CardType = "ACHIEVEMENT"
 	CardMissedOpportunity CardType = "MISSED_OPPORTUNITY"
 	CardNextAction        CardType = "NEXT_ACTION"
-	CardSummary           CardType = "SUMMARY"
+	CardShare             CardType = "SHARE"
 )
 
-type CardPayload struct {
-	TotalEvents        uint64 `json:"totalEvents,omitempty"`
-	Searches           uint64 `json:"searches,omitempty"`
-	TotalViews         uint64 `json:"totalViews,omitempty"`
-	FavoritesAdded     uint64 `json:"favoritesAdded,omitempty"`
-	ChatsStarted       uint64 `json:"chatsStarted,omitempty"`
-	ListingsPublished  uint64 `json:"listingsPublished,omitempty"`
-	PurchasesCompleted uint64 `json:"purchasesCompleted,omitempty"`
-	SalesCompleted     uint64 `json:"salesCompleted,omitempty"`
-
-	CategoryCode  string `json:"categoryCode,omitempty"`
-	Category      string `json:"category,omitempty"`
-	CategoryViews uint64 `json:"categoryViews,omitempty"`
-	Month         uint32 `json:"month,omitempty"`
-
-	BehaviorCode     BehaviorCode      `json:"behaviorCode,omitempty"`
-	AchievementCode  AchievementCode   `json:"achievementCode,omitempty"`
-	AchievementCodes []AchievementCode `json:"achievementCodes,omitempty"`
-	ActionCode       ActionCode        `json:"actionCode,omitempty"`
+// CardPayload is a sealed union: only the payload types below can be assigned.
+type CardPayload interface {
+	isCardPayload()
 }
+
+type YearActivityPayload struct {
+	TotalEvents        uint64 `json:"totalEvents"`
+	Searches           uint64 `json:"searches"`
+	TotalViews         uint64 `json:"totalViews"`
+	FavoritesAdded     uint64 `json:"favoritesAdded"`
+	ChatsStarted       uint64 `json:"chatsStarted"`
+	ListingsPublished  uint64 `json:"listingsPublished"`
+	PurchasesCompleted uint64 `json:"purchasesCompleted"`
+	SalesCompleted     uint64 `json:"salesCompleted"`
+}
+
+func (YearActivityPayload) isCardPayload() {}
+
+type TopCategoryPayload struct {
+	CategoryCode  string `json:"categoryCode"`
+	Category      string `json:"category"`
+	CategoryViews uint64 `json:"categoryViews"`
+}
+
+func (TopCategoryPayload) isCardPayload() {}
+
+type ActiveMonthPayload struct {
+	Month uint32 `json:"month"`
+}
+
+func (ActiveMonthPayload) isCardPayload() {}
+
+type BehaviorPayload struct {
+	Code     BehaviorCode       `json:"code"`
+	Score    uint32             `json:"score"`
+	Evidence []BehaviorEvidence `json:"evidence,omitempty"`
+}
+
+func (BehaviorPayload) isCardPayload() {}
+
+type AchievementPayload struct {
+	Codes []AchievementCode `json:"codes"`
+}
+
+func (AchievementPayload) isCardPayload() {}
+
+type ActionPayload struct {
+	Code   ActionCode   `json:"code"`
+	Target ActionTarget `json:"target"`
+}
+
+func (ActionPayload) isCardPayload() {}
 
 type Card struct {
 	ID          string      `json:"id"`
@@ -172,26 +272,44 @@ type Card struct {
 	Description string      `json:"description"`
 	Explanation string      `json:"explanation,omitempty"`
 	Shareable   bool        `json:"shareable"`
-	Payload     CardPayload `json:"payload"`
+	Payload     CardPayload `json:"payload,omitempty"`
+}
+
+type RecapKey struct {
+	ProfileID    uuid.UUID `json:"profileId"`
+	Year         uint32    `json:"year"`
+	RulesVersion string    `json:"rulesVersion"`
 }
 
 type Recap struct {
-	ID           uuid.UUID     `json:"id"`
-	Profile      Profile       `json:"profile"`
-	Year         uint32        `json:"year"`
-	RulesVersion string        `json:"rulesVersion"`
-	Metrics      Metrics       `json:"metrics"`
-	Behavior     Behavior      `json:"behavior"`
-	Achievements []Achievement `json:"achievements"`
-	Cards        []Card        `json:"cards"`
-	NextAction   NextAction    `json:"nextAction"`
-	GeneratedAt  time.Time     `json:"generatedAt"`
+	ID              uuid.UUID       `json:"id"`
+	ShareID         uuid.UUID       `json:"shareId"`
+	Profile         Profile         `json:"profile"`
+	Year            uint32          `json:"year"`
+	Period          RecapPeriod     `json:"period"`
+	RulesVersion    string          `json:"rulesVersion"`
+	Metrics         Metrics         `json:"metrics"`
+	ActionableState ActionableState `json:"actionableState"`
+	Behavior        Behavior        `json:"behavior"`
+	Achievements    []Achievement   `json:"achievements"`
+	Cards           []Card          `json:"cards"`
+	NextAction      NextAction      `json:"nextAction"`
+	GeneratedAt     time.Time       `json:"generatedAt"`
+}
+
+func (r Recap) Key() RecapKey {
+	return RecapKey{ProfileID: r.Profile.ID, Year: r.Year, RulesVersion: r.RulesVersion}
 }
 
 type ShareCard struct {
-	RecapID          uuid.UUID `json:"recapId"`
+	ShareID          uuid.UUID `json:"shareId"`
 	Year             uint32    `json:"year"`
 	BehaviorTitle    string    `json:"behaviorTitle"`
 	AchievementTitle string    `json:"achievementTitle,omitempty"`
 	TopCategory      string    `json:"topCategory,omitempty"`
 }
+
+// ShareCard is both the strict public DTO and the payload of the final story
+// card. Keeping one type guarantees that the user sees exactly the same safe
+// data that will be available through the public share link.
+func (ShareCard) isCardPayload() {}

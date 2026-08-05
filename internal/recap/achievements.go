@@ -14,8 +14,12 @@ type achievementRule struct {
 }
 
 func BuildAchievements(metrics Metrics) []Achievement {
+	return DefaultRuleset().BuildAchievements(metrics)
+}
+
+func (r Ruleset) BuildAchievements(metrics Metrics) []Achievement {
 	metrics = EnrichMetrics(metrics)
-	rules := achievementRules()
+	rules := r.achievementRules()
 	result := make([]Achievement, 0, len(rules))
 
 	for _, rule := range rules {
@@ -39,7 +43,8 @@ func BuildAchievements(metrics Metrics) []Achievement {
 	return result
 }
 
-func achievementRules() []achievementRule {
+func (r Ruleset) achievementRules() []achievementRule {
+	thresholds := r.Thresholds
 	return []achievementRule{
 		{
 			priority: 110,
@@ -87,7 +92,7 @@ func achievementRules() []achievementRule {
 		{
 			priority: 95,
 			match: func(m Metrics) bool {
-				return m.PurchasesCompleted >= 3 && m.PurchaseRate >= decisiveBuyerMinPurchaseRate
+				return m.PurchasesCompleted >= 3 && m.PurchaseRate >= thresholds.DecisiveBuyerMinPurchaseRate
 			},
 			build: func(m Metrics) Achievement {
 				return Achievement{
@@ -169,7 +174,7 @@ func achievementRules() []achievementRule {
 		{
 			priority: 96,
 			match: func(m Metrics) bool {
-				return m.ListingsCreated >= startingSellerMinCreated &&
+				return m.ListingsCreated >= thresholds.StartingSellerMinCreated &&
 					m.ListingsCreated > m.ListingsPublished &&
 					m.SalesCompleted == 0
 			},
