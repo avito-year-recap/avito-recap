@@ -88,19 +88,19 @@ func MetricsFromScenario(scenario SeedScenario) (Metrics, error) {
 	}
 
 	metrics := Metrics{
-		TotalEvents:         totalEvents,
-		Searches:            scenario.Activity.Searches,
-		TotalViews:          scenario.Activity.ListingViews,
-		UniqueListings:      scenario.Activity.UniqueListings,
-		RepeatedViews:       scenario.Activity.ListingViews - scenario.Activity.UniqueListings,
-		FavoritesAdded:      scenario.Activity.FavoritesAdded,
-		ChatsStarted:        scenario.Activity.ChatsStarted,
-		ChatsWithPurchase:   scenario.Activity.ChatsWithPurchase,
-		ListingsCreated:     scenario.Activity.ListingsCreated,
-		ListingsPublished:   scenario.Activity.ListingsPublished,
-		PurchasesCompleted:  scenario.Activity.PurchasesCompleted,
-		SalesCompleted:      scenario.Activity.SalesCompleted,
-		ActiveDays:          scenario.Activity.ActiveDays,
+		TotalEvents:          totalEvents,
+		Searches:             scenario.Activity.Searches,
+		TotalViews:           scenario.Activity.ListingViews,
+		UniqueListings:       scenario.Activity.UniqueListings,
+		RepeatedViews:        scenario.Activity.ListingViews - scenario.Activity.UniqueListings,
+		FavoritesAdded:       scenario.Activity.FavoritesAdded,
+		ChatsStarted:         scenario.Activity.ChatsStarted,
+		ChatsWithPurchase:    scenario.Activity.ChatsWithPurchase,
+		ListingsCreated:      scenario.Activity.ListingsCreated,
+		ListingsPublished:    scenario.Activity.ListingsPublished,
+		PurchasesCompleted:   scenario.Activity.PurchasesCompleted,
+		SalesCompleted:       scenario.Activity.SalesCompleted,
+		ActiveDays:           scenario.Activity.ActiveDays,
 		CategoriesCount:      uint64(len(scenario.Categories)),
 		TopCategoryCode:      topCategory.Code,
 		TopCategory:          topCategory.Title,
@@ -199,4 +199,3 @@ func weightedCount(total uint64, weight uint32) uint64 {
 	}
 	return uint64(value)
 }
-

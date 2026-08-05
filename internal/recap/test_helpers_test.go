@@ -4,6 +4,14 @@ import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
+)
+
+var (
+	testProfileID  = uuid.MustParse("11111111-1111-4111-8111-111111111111")
+	testRecapID    = uuid.MustParse("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+	otherProfileID = uuid.MustParse("22222222-2222-4222-8222-222222222222")
 )
 
 type profileStorageStub struct {
@@ -11,7 +19,7 @@ type profileStorageStub struct {
 	profile  Profile
 	listErr  error
 	getErr   error
-	gotID    string
+	gotID    uuid.UUID
 }
 
 func (s *profileStorageStub) ListProfiles(context.Context) ([]Profile, error) {
@@ -21,7 +29,7 @@ func (s *profileStorageStub) ListProfiles(context.Context) ([]Profile, error) {
 	return s.profiles, nil
 }
 
-func (s *profileStorageStub) GetProfile(_ context.Context, profileID string) (Profile, error) {
+func (s *profileStorageStub) GetProfile(_ context.Context, profileID uuid.UUID) (Profile, error) {
 	s.gotID = profileID
 	if s.getErr != nil {
 		return Profile{}, s.getErr
@@ -32,13 +40,13 @@ func (s *profileStorageStub) GetProfile(_ context.Context, profileID string) (Pr
 type analyticsStorageStub struct {
 	metrics Metrics
 	err     error
-	gotID   string
+	gotID   uuid.UUID
 	gotYear uint32
 }
 
 func (s *analyticsStorageStub) CalculateMetrics(
 	_ context.Context,
-	profileID string,
+	profileID uuid.UUID,
 	year uint32,
 ) (Metrics, error) {
 	s.gotID = profileID
@@ -54,7 +62,7 @@ type recapStorageStub struct {
 	value      Recap
 	saveErr    error
 	getErr     error
-	gotRecapID string
+	gotRecapID uuid.UUID
 	saveCalls  int
 }
 
@@ -68,7 +76,7 @@ func (s *recapStorageStub) SaveRecap(_ context.Context, value Recap) error {
 	return nil
 }
 
-func (s *recapStorageStub) GetRecap(_ context.Context, recapID string) (Recap, error) {
+func (s *recapStorageStub) GetRecap(_ context.Context, recapID uuid.UUID) (Recap, error) {
 	s.gotRecapID = recapID
 	if s.getErr != nil {
 		return Recap{}, s.getErr
@@ -78,7 +86,7 @@ func (s *recapStorageStub) GetRecap(_ context.Context, recapID string) (Recap, e
 
 func validProfile() Profile {
 	return Profile{
-		ID:          "profile-1",
+		ID:          testProfileID,
 		Code:        "active-buyer",
 		DisplayName: "Алексей",
 		Description: "Тестовый профиль",

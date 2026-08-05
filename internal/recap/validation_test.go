@@ -1,8 +1,11 @@
 package recap
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestValidateProfile(t *testing.T) {
@@ -13,11 +16,10 @@ func TestValidateProfile(t *testing.T) {
 	}{
 		{name: "valid", profile: validProfile()},
 		{name: "empty id", profile: Profile{Code: "code", DisplayName: "Name"}, wantErr: true},
-		{name: "blank id", profile: Profile{ID: "  ", Code: "code", DisplayName: "Name"}, wantErr: true},
-		{name: "empty code", profile: Profile{ID: "id", DisplayName: "Name"}, wantErr: true},
-		{name: "blank code", profile: Profile{ID: "id", Code: " ", DisplayName: "Name"}, wantErr: true},
-		{name: "empty display name", profile: Profile{ID: "id", Code: "code"}, wantErr: true},
-		{name: "blank display name", profile: Profile{ID: "id", Code: "code", DisplayName: "\t"}, wantErr: true},
+		{name: "empty code", profile: Profile{ID: testProfileID, DisplayName: "Name"}, wantErr: true},
+		{name: "blank code", profile: Profile{ID: testProfileID, Code: " ", DisplayName: "Name"}, wantErr: true},
+		{name: "empty display name", profile: Profile{ID: testProfileID, Code: "code"}, wantErr: true},
+		{name: "blank display name", profile: Profile{ID: testProfileID, Code: "code", DisplayName: "\t"}, wantErr: true},
 	}
 
 	for _, test := range tests {
@@ -96,22 +98,31 @@ func TestValidateMetricsAllowsCrossPeriodCounters(t *testing.T) {
 	}
 }
 
-func TestIsUUID(t *testing.T) {
-	tests := []struct {
-		value string
-		valid bool
-	}{
-		{value: "11111111-1111-4111-8111-111111111111", valid: true},
-		{value: "00000000-0000-0000-0000-000000000000", valid: false},
-		{value: "", valid: false},
-		{value: "11111111111141118111111111111111", valid: false},
-		{value: "11111111-1111-4111-8111-11111111111z", valid: false},
-		{value: "11111111-1111-4111-8111", valid: false},
+func TestUUIDJSONRejectsInvalidValue(t *testing.T) {
+	var profile Profile
+	err := profile.ID.UnmarshalText([]byte("not-a-uuid"))
+	if err == nil {
+		t.Fatal("expected invalid UUID error")
 	}
 
-	for _, test := range tests {
-		if actual := isUUID(test.value); actual != test.valid {
-			t.Fatalf("isUUID(%q) = %t, want %t", test.value, actual, test.valid)
-		}
+	if profile.ID != uuid.Nil {
+		t.Fatalf("invalid UUID must not be stored, got %s", profile.ID)
+	}
+}
+
+func TestProfileUUIDJSONRoundTrip(t *testing.T) {
+	original := validProfile()
+
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("marshal profile: %v", err)
+	}
+
+	var decoded Profile
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("unmarshal profile: %v", err)
+	}
+	if decoded.ID != original.ID {
+		t.Fatalf("profile ID changed after JSON round trip: got %s, want %s", decoded.ID, original.ID)
 	}
 }
