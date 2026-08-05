@@ -11,30 +11,53 @@ func TestDetectBehavior(t *testing.T) {
 		{
 			name: "active seller at boundary",
 			metrics: Metrics{
+				ListingsCreated:   activeSellerMinListings,
 				ListingsPublished: activeSellerMinListings,
 				SalesCompleted:    activeSellerMinDeals,
 			},
 			expected: BehaviorActiveSeller,
 		},
 		{
-			name: "active seller has priority over buyer patterns",
+			name: "active seller has highest priority",
 			metrics: Metrics{
-				TotalViews:        200,
-				ListingsPublished: activeSellerMinListings,
-				SalesCompleted:    activeSellerMinDeals,
-				FavoriteRate:      0.5,
-				RepeatRate:        0.5,
-				CategoriesCount:   8,
-				ChatRate:          0,
+				TotalViews:         200,
+				UniqueListings:     100,
+				RepeatedViews:      100,
+				FavoritesAdded:     50,
+				ChatsStarted:       20,
+				PurchasesCompleted: 4,
+				ListingsCreated:    5,
+				ListingsPublished:  5,
+				SalesCompleted:     3,
+				CategoriesCount:    8,
 			},
 			expected: BehaviorActiveSeller,
+		},
+		{
+			name: "starting seller at boundary",
+			metrics: Metrics{
+				ListingsCreated:   startingSellerMinCreated,
+				ListingsPublished: 1,
+			},
+			expected: BehaviorStartingSeller,
+		},
+		{
+			name: "decisive buyer at boundary",
+			metrics: Metrics{
+				TotalViews:         20,
+				UniqueListings:     20,
+				ChatsStarted:       decisiveBuyerMinChats,
+				PurchasesCompleted: decisiveBuyerMinPurchases,
+			},
+			expected: BehaviorDecisiveBuyer,
 		},
 		{
 			name: "find hunter at boundary",
 			metrics: Metrics{
-				TotalViews:   findHunterMinViews,
-				FavoriteRate: findHunterMinFavorite,
-				RepeatRate:   findHunterMinRepeat,
+				TotalViews:     findHunterMinViews,
+				UniqueListings: 16,
+				RepeatedViews:  4,
+
 			},
 			expected: BehaviorFindHunter,
 		},
@@ -42,8 +65,9 @@ func TestDetectBehavior(t *testing.T) {
 			name: "researcher at lower boundaries",
 			metrics: Metrics{
 				TotalViews:      researcherMinViews,
+				UniqueListings:  researcherMinViews,
+				ChatsStarted:    4,
 				CategoriesCount: researcherMinCategories,
-				ChatRate:        researcherMaxChatRate - 0.001,
 			},
 			expected: BehaviorResearcher,
 		},
@@ -51,27 +75,24 @@ func TestDetectBehavior(t *testing.T) {
 			name: "researcher upper chat boundary is exclusive",
 			metrics: Metrics{
 				TotalViews:      researcherMinViews,
+				UniqueListings:  researcherMinViews,
+				ChatsStarted:    5,
 				CategoriesCount: researcherMinCategories,
-				ChatRate:        researcherMaxChatRate,
 			},
 			expected: BehaviorUniversal,
 		},
 		{
 			name: "find hunter more specific than researcher",
 			metrics: Metrics{
-				TotalViews:      150,
-				CategoriesCount: 8,
-				ChatRate:        0,
-				FavoriteRate:    findHunterMinFavorite,
-				RepeatRate:      findHunterMinRepeat,
+				TotalViews:      100,
+				UniqueListings:  80,
+				RepeatedViews:   20,
+				FavoritesAdded:  15,
+				CategoriesCount: 6,
 			},
 			expected: BehaviorFindHunter,
 		},
-		{
-			name:     "fallback",
-			metrics:  Metrics{},
-			expected: BehaviorUniversal,
-		},
+		{name: "fallback", metrics: Metrics{}, expected: BehaviorUniversal},
 	}
 
 	for _, test := range tests {

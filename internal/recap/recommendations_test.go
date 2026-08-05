@@ -9,47 +9,46 @@ func TestBuildNextActionAllBranches(t *testing.T) {
 		expected ActionCode
 	}{
 		{
-			name: "finish draft",
-			metrics: Metrics{
-				ListingsCreated:   4,
-				ListingsPublished: 3,
-			},
+			name:     "finish draft",
+			metrics:  Metrics{ListingsCreated: 6, ListingsPublished: 2},
 			expected: ActionFinishDraft,
 		},
 		{
-			name: "improve listings",
-			metrics: Metrics{
-				ListingsCreated:   publishedForImprove,
-				ListingsPublished: publishedForImprove,
-			},
-			expected: ActionImproveListings,
+			name:     "create listing for active seller",
+			metrics:  Metrics{ListingsCreated: 5, ListingsPublished: 5, SalesCompleted: 3},
+			expected: ActionCreateListing,
 		},
 		{
-			name: "continue chats",
-			metrics: Metrics{
-				ChatsStarted: chatsForContinue,
-			},
-			expected: ActionContinueChats,
+			name:     "view similar for decisive buyer",
+			metrics:  Metrics{TotalViews: 60, ChatsStarted: 12, PurchasesCompleted: 3},
+			expected: ActionViewSimilarListings,
 		},
 		{
-			name: "open favorites",
-			metrics: Metrics{
-				FavoritesAdded: favoritesForAction,
-			},
+			name:     "save search for researcher",
+			metrics:  Metrics{TotalViews: 100, UniqueListings: 100, ChatsStarted: 4, CategoriesCount: 5},
+			expected: ActionSaveSearch,
+		},
+		{
+			name:     "open favorites for find hunter",
+			metrics:  Metrics{TotalViews: 20, UniqueListings: 16, RepeatedViews: 4, FavoritesAdded: 3},
 			expected: ActionOpenFavorites,
 		},
 		{
-			name: "open top category",
-			metrics: Metrics{
-				TopCategory: "Электроника",
-			},
-			expected: ActionOpenTopCategory,
+			name:     "continue dialogs for universal user",
+			metrics:  Metrics{ChatsStarted: chatsForContinue},
+			expected: ActionContinueDialogs,
 		},
 		{
-			name:     "create first listing fallback",
-			metrics:  Metrics{},
-			expected: ActionCreateFirstListing,
+			name:     "improve listings",
+			metrics:  Metrics{ListingsCreated: publishedForImprove, ListingsPublished: publishedForImprove},
+			expected: ActionImproveListings,
 		},
+		{
+			name:     "open top category",
+			metrics:  Metrics{TopCategoryCode: "electronics", TopCategory: "Электроника"},
+			expected: ActionOpenTopCategory,
+		},
+		{name: "create first listing fallback", metrics: Metrics{}, expected: ActionCreateFirstListing},
 	}
 
 	for _, test := range tests {
@@ -65,27 +64,19 @@ func TestBuildNextActionAllBranches(t *testing.T) {
 	}
 }
 
-func TestBuildNextActionPriority(t *testing.T) {
+func TestBuildNextActionUsesBehaviorBeforeGenericFallbacks(t *testing.T) {
 	metrics := Metrics{
-		ListingsCreated:   5,
-		ListingsPublished: 4,
-		FavoritesAdded:    30,
-		ChatsStarted:      10,
-		TopCategory:       "Авто",
+		TotalViews:         60,
+		UniqueListings:     48,
+		RepeatedViews:      12,
+		FavoritesAdded:     12,
+		ChatsStarted:       12,
+		PurchasesCompleted: 3,
+		TopCategoryCode:    "furniture",
+		TopCategory:        "Мебель и интерьер",
 	}
 
-	if actual := BuildNextAction(metrics); actual.Code != ActionFinishDraft {
-		t.Fatalf("draft must have highest priority, got %s", actual.Code)
-	}
-
-	metrics.ListingsCreated = metrics.ListingsPublished
-	if actual := BuildNextAction(metrics); actual.Code != ActionImproveListings {
-		t.Fatalf("listing improvement must win after draft, got %s", actual.Code)
-	}
-
-	metrics.ListingsCreated = 0
-	metrics.ListingsPublished = 0
-	if actual := BuildNextAction(metrics); actual.Code != ActionContinueChats {
-		t.Fatalf("chat continuation must win after seller actions, got %s", actual.Code)
+	if actual := BuildNextAction(metrics); actual.Code != ActionViewSimilarListings {
+		t.Fatalf("decisive buyer action must win over favorites, chats and category, got %s", actual.Code)
 	}
 }

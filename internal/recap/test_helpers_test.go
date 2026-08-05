@@ -79,7 +79,7 @@ func (s *recapStorageStub) GetRecap(_ context.Context, recapID string) (Recap, e
 func validProfile() Profile {
 	return Profile{
 		ID:          "profile-1",
-		Code:        "researcher",
+		Code:        "active-buyer",
 		DisplayName: "Алексей",
 		Description: "Тестовый профиль",
 	}
@@ -87,17 +87,17 @@ func validProfile() Profile {
 
 func validMetrics() Metrics {
 	return Metrics{
-		TotalEvents:          260,
+		TotalEvents:          243,
+		Searches:             20,
 		TotalViews:           180,
-		UniqueListings:       140,
-		RepeatedViews:        40,
-		FavoritesAdded:       25,
-		ChatsStarted:         5,
-		ListingsCreated:      3,
-		ListingsPublished:    2,
-		SalesCompleted:       1,
+		UniqueListings:       130,
+		RepeatedViews:        50,
+		FavoritesAdded:       30,
+		ChatsStarted:         3,
+		PurchasesCompleted:   1,
 		ActiveDays:           45,
-		CategoriesCount:      6,
+		CategoriesCount:      4,
+		TopCategoryCode:      "electronics",
 		TopCategory:          "Электроника",
 		TopCategoryViews:     80,
 		TopCategoryShareable: true,
