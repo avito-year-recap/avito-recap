@@ -44,11 +44,7 @@ func TestValidateMetrics(t *testing.T) {
 		{name: "known events exceed total", mutate: func(m *Metrics) { m.TotalEvents = 1 }},
 		{name: "unique listings exceed views", mutate: func(m *Metrics) { m.UniqueListings = m.TotalViews + 1 }},
 		{name: "repeated views exceed views", mutate: func(m *Metrics) { m.RepeatedViews = m.TotalViews + 1 }},
-		{name: "favorites exceed views", mutate: func(m *Metrics) { m.FavoritesAdded = m.TotalViews + 1; m.TotalEvents += m.TotalViews + 1 }},
-		{name: "chats exceed views", mutate: func(m *Metrics) { m.ChatsStarted = m.TotalViews + 1; m.TotalEvents += m.TotalViews + 1 }},
-		{name: "published exceed created", mutate: func(m *Metrics) { m.ListingsPublished = 1; m.TotalEvents++ }},
-		{name: "sales exceed published", mutate: func(m *Metrics) { m.SalesCompleted = 1; m.TotalEvents++ }},
-		{name: "purchases exceed chats", mutate: func(m *Metrics) { m.PurchasesCompleted = m.ChatsStarted + 1; m.TotalEvents++ }},
+		{name: "linked chats exceed started chats", mutate: func(m *Metrics) { m.ChatsWithPurchase = m.ChatsStarted + 1 }},
 		{name: "top views exceed views", mutate: func(m *Metrics) { m.TopCategoryViews = m.TotalViews + 1 }},
 		{name: "title without code", mutate: func(m *Metrics) { m.TopCategoryCode = "" }},
 		{name: "code without title", mutate: func(m *Metrics) { m.TopCategory = ""; m.TopCategoryViews = 0 }},
@@ -80,6 +76,23 @@ func TestValidateMetrics(t *testing.T) {
 				t.Fatalf("expected ErrInvalidMetrics, got %v", err)
 			}
 		})
+	}
+}
+
+func TestValidateMetricsAllowsCrossPeriodCounters(t *testing.T) {
+	metrics := Metrics{
+		TotalEvents:        17,
+		TotalViews:         1,
+		UniqueListings:     1,
+		FavoritesAdded:     5,
+		ChatsStarted:       3,
+		ListingsPublished:  3,
+		PurchasesCompleted: 2,
+		SalesCompleted:     3,
+	}
+
+	if err := validateMetrics(metrics); err != nil {
+		t.Fatalf("cross-period counters must not be treated as one funnel: %v", err)
 	}
 }
 

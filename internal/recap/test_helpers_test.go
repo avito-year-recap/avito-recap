@@ -94,6 +94,7 @@ func validMetrics() Metrics {
 		RepeatedViews:        50,
 		FavoritesAdded:       30,
 		ChatsStarted:         3,
+		ChatsWithPurchase:    1,
 		PurchasesCompleted:   1,
 		ActiveDays:           45,
 		CategoriesCount:      4,

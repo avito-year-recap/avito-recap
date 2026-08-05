@@ -16,6 +16,7 @@ func TestMetricsFromScenario(t *testing.T) {
 			UniqueListings:     70,
 			FavoritesAdded:     20,
 			ChatsStarted:       10,
+			ChatsWithPurchase:  1,
 			ListingsCreated:    2,
 			ListingsPublished:  2,
 			PurchasesCompleted: 1,

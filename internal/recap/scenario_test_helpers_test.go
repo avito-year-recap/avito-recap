@@ -25,13 +25,13 @@ type SeedActivity struct {
 	UniqueListings     uint64 `json:"uniqueListings"`
 	FavoritesAdded     uint64 `json:"favoritesAdded"`
 	ChatsStarted       uint64 `json:"chatsStarted"`
+	ChatsWithPurchase  uint64 `json:"chatsWithPurchase"`
 	ListingsCreated    uint64 `json:"listingsCreated"`
 	ListingsPublished  uint64 `json:"listingsPublished"`
 	PurchasesCompleted uint64 `json:"purchasesCompleted"`
 	SalesCompleted     uint64 `json:"salesCompleted"`
 	ActiveDays         uint64 `json:"activeDays"`
 }
-
 type WeightedCategory struct {
 	Code      string `json:"code"`
 	Title     string `json:"title"`
@@ -80,20 +80,27 @@ func MetricsFromScenario(scenario SeedScenario) (Metrics, error) {
 	if err != nil {
 		return Metrics{}, fmt.Errorf("%w: %v", ErrInvalidScenario, err)
 	}
+	if scenario.Activity.ChatsWithPurchase > scenario.Activity.ChatsStarted {
+		return Metrics{}, fmt.Errorf(
+			"%w: chats with purchase exceed started chats",
+			ErrInvalidScenario,
+		)
+	}
 
 	metrics := Metrics{
-		TotalEvents:          totalEvents,
-		Searches:             scenario.Activity.Searches,
-		TotalViews:           scenario.Activity.ListingViews,
-		UniqueListings:       scenario.Activity.UniqueListings,
-		RepeatedViews:        scenario.Activity.ListingViews - scenario.Activity.UniqueListings,
-		FavoritesAdded:       scenario.Activity.FavoritesAdded,
-		ChatsStarted:         scenario.Activity.ChatsStarted,
-		ListingsCreated:      scenario.Activity.ListingsCreated,
-		ListingsPublished:    scenario.Activity.ListingsPublished,
-		PurchasesCompleted:   scenario.Activity.PurchasesCompleted,
-		SalesCompleted:       scenario.Activity.SalesCompleted,
-		ActiveDays:           scenario.Activity.ActiveDays,
+		TotalEvents:         totalEvents,
+		Searches:            scenario.Activity.Searches,
+		TotalViews:          scenario.Activity.ListingViews,
+		UniqueListings:      scenario.Activity.UniqueListings,
+		RepeatedViews:       scenario.Activity.ListingViews - scenario.Activity.UniqueListings,
+		FavoritesAdded:      scenario.Activity.FavoritesAdded,
+		ChatsStarted:        scenario.Activity.ChatsStarted,
+		ChatsWithPurchase:   scenario.Activity.ChatsWithPurchase,
+		ListingsCreated:     scenario.Activity.ListingsCreated,
+		ListingsPublished:   scenario.Activity.ListingsPublished,
+		PurchasesCompleted:  scenario.Activity.PurchasesCompleted,
+		SalesCompleted:      scenario.Activity.SalesCompleted,
+		ActiveDays:          scenario.Activity.ActiveDays,
 		CategoriesCount:      uint64(len(scenario.Categories)),
 		TopCategoryCode:      topCategory.Code,
 		TopCategory:          topCategory.Title,

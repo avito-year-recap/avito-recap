@@ -83,17 +83,9 @@ func validateMetrics(metrics Metrics) error {
 	if metrics.RepeatedViews > metrics.TotalViews {
 		return fmt.Errorf("%w: repeated views exceed total views", ErrInvalidMetrics)
 	}
-	if metrics.FavoritesAdded > metrics.TotalViews {
-		return fmt.Errorf("%w: favorites exceed total views", ErrInvalidMetrics)
-	}
-	if metrics.ChatsStarted > metrics.TotalViews {
-		return fmt.Errorf("%w: chats exceed total views", ErrInvalidMetrics)
-	}
-	if metrics.ListingsPublished > metrics.ListingsCreated {
-		return fmt.Errorf("%w: published listings exceed created listings", ErrInvalidMetrics)
-	}
-	if metrics.SalesCompleted > metrics.ListingsPublished {
-		return fmt.Errorf("%w: completed sales exceed published listings", ErrInvalidMetrics)
+//// Counters for different action types are not a closed annual funnel
+	if metrics.ChatsWithPurchase > metrics.ChatsStarted {
+		return fmt.Errorf("%w: chats with purchase exceed started chats", ErrInvalidMetrics)
 	}
 
 	if metrics.TopCategoryViews > metrics.TotalViews {

@@ -3,30 +3,31 @@ package recap
 import "fmt"
 
 const (
-	activeSellerMinListings          uint64  = 5
-	activeSellerMinDeals             uint64  = 3
-	startingSellerMinCreated         uint64  = 3
-	startingSellerMinDrafts          uint64  = 2
-	startingSellerMaxPublicationRate float64 = 0.60
-	decisiveBuyerMinPurchases        uint64  = 3
-	decisiveBuyerMinChats            uint64  = 5
-	decisiveBuyerMinPurchaseRate     float64 = 0.20
-	findHunterMinViews               uint64  = 20
-	findHunterMinFavorite            float64 = 0.15
-	findHunterMinRepeat              float64 = 0.20
-	researcherMinViews               uint64  = 100
-	researcherMinCategories          uint64  = 5
-	researcherMaxChatRate            float64 = 0.05
+	activeSellerMinListings      uint64  = 5
+	activeSellerMinDeals         uint64  = 3
+	startingSellerMinCreated     uint64  = 3
+	startingSellerMaxPublished   uint64  = 2
+	decisiveBuyerMinPurchases    uint64  = 3
+	decisiveBuyerMinChats        uint64  = 5
+	decisiveBuyerMinLinkedChats  uint64  = 3
+	decisiveBuyerMinPurchaseRate float64 = 0.20
+	findHunterMinViews           uint64  = 20
+	findHunterMinFavorites       uint64  = 3
+	findHunterMinRepeatRate      float64 = 0.20
+	researcherMinViews           uint64  = 100
+	researcherMinCategories      uint64  = 5
+	researcherMaxChats           uint64  = 4
 )
 
 // DetectBehavior is deterministic: equal counters and rules version produce equal behavior.
-// More specific scenarios stay above broader ones.
+//
+// Annual counters can belong to different listings and different event cohorts. For example,
+// a listing may be viewed in December and added to favorites in January. Therefore rules must
+// not interpret favorites/views, chats/views, published/created, or sales/published as funnels.
+// A ratio is used only when its numerator explicitly represents a linked subset of the
+// denominator, as ChatsWithPurchase does for ChatsStarted.
 func DetectBehavior(metrics Metrics) Behavior {
 	metrics = EnrichMetrics(metrics)
-	drafts := uint64(0)
-	if metrics.ListingsCreated > metrics.ListingsPublished {
-		drafts = metrics.ListingsCreated - metrics.ListingsPublished
-	}
 
 	switch {
 	case metrics.ListingsPublished >= activeSellerMinListings &&
@@ -34,7 +35,7 @@ func DetectBehavior(metrics Metrics) Behavior {
 		return Behavior{
 			Code:        BehaviorActiveSeller,
 			Title:       "Продажи в движении",
-			Description: "Объявления регулярно публиковались, а сделки доходили до результата.",
+			Description: "В течение года было много публикаций и завершённых продаж.",
 			Reason: fmt.Sprintf(
 				"Объявлений опубликовано: %d. Продаж завершено: %d.",
 				metrics.ListingsPublished,
@@ -43,56 +44,59 @@ func DetectBehavior(metrics Metrics) Behavior {
 		}
 
 	case metrics.ListingsCreated >= startingSellerMinCreated &&
-		drafts >= startingSellerMinDrafts &&
-		metrics.PublicationRate < startingSellerMaxPublicationRate &&
+		metrics.ListingsPublished <= startingSellerMaxPublished &&
+		metrics.ListingsCreated > metrics.ListingsPublished &&
 		metrics.SalesCompleted == 0:
 		return Behavior{
 			Code:        BehaviorStartingSeller,
 			Title:       "Старт в продажах",
-			Description: "Создание объявлений уже началось, но часть публикаций ещё ждёт завершения.",
+			Description: "В течение года объявления создавались чаще, чем публиковались.",
 			Reason: fmt.Sprintf(
-				"Объявлений создано: %d. Опубликовано: %d. Черновиков осталось: %d.",
+				"Объявлений создано: %d. Опубликовано: %d. Завершённых продаж: %d.",
 				metrics.ListingsCreated,
 				metrics.ListingsPublished,
-				drafts,
+				metrics.SalesCompleted,
 			),
 		}
 
 	case metrics.PurchasesCompleted >= decisiveBuyerMinPurchases &&
 		metrics.ChatsStarted >= decisiveBuyerMinChats &&
+		metrics.ChatsWithPurchase >= decisiveBuyerMinLinkedChats &&
 		metrics.PurchaseRate >= decisiveBuyerMinPurchaseRate:
 		return Behavior{
 			Code:        BehaviorDecisiveBuyer,
-			Title:       "Быстрый выбор",
-			Description: "После просмотра вариантов общение быстро переходило к покупке.",
+			Title:       "Решительный покупатель",
+			Description: "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
 			Reason: fmt.Sprintf(
-				"Диалогов начато: %d. Покупок завершено: %d.",
+				"Диалогов начато: %d. Диалогов с покупкой: %d. Покупок завершено: %d.",
 				metrics.ChatsStarted,
+				metrics.ChatsWithPurchase,
 				metrics.PurchasesCompleted,
 			),
 		}
 
 	case metrics.TotalViews >= findHunterMinViews &&
-		metrics.FavoriteRate >= findHunterMinFavorite &&
-		metrics.RepeatRate >= findHunterMinRepeat:
+		metrics.FavoritesAdded >= findHunterMinFavorites &&
+		metrics.RepeatRate >= findHunterMinRepeatRate:
 		return Behavior{
 			Code:        BehaviorFindHunter,
 			Title:       "Охота за находками",
-			Description: "Интересные варианты сохранялись, а к объявлениям часто возвращались для сравнения.",
+			Description: "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
 			Reason: fmt.Sprintf(
-				"В избранное добавлено: %d. Повторных просмотров: %d.",
+				"В избранное добавлено: %d. Повторных просмотров: %d из %d.",
 				metrics.FavoritesAdded,
 				metrics.RepeatedViews,
+				metrics.TotalViews,
 			),
 		}
 
 	case metrics.TotalViews >= researcherMinViews &&
 		metrics.CategoriesCount >= researcherMinCategories &&
-		metrics.ChatRate < researcherMaxChatRate:
+		metrics.ChatsStarted <= researcherMaxChats:
 		return Behavior{
 			Code:        BehaviorResearcher,
 			Title:       "Глубокое исследование",
-			Description: "Много вариантов сравнивалось в разных категориях до перехода к общению.",
+			Description: "За год было много просмотров в разных категориях и сравнительно мало начатых диалогов.",
 			Reason: fmt.Sprintf(
 				"Просмотров: %d. Категорий с активностью: %d. Диалогов начато: %d.",
 				metrics.TotalViews,
