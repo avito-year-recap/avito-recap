@@ -1,0 +1,292 @@
+{
+  "id": "f1ddaf60-ee7c-5a22-9410-41b83aad763d",
+  "shareId": "f1dcaf60-ee7c-5a22-9410-41b83aad763d",
+  "profile": {
+    "id": "0eddaf60-ee7c-5a22-9410-41b83aad763d",
+    "code": "music-traveler",
+    "displayName": "Максим",
+    "description": "Совмещает музыку и путешествия, поэтому получает сразу несколько тематических достижений",
+    "avatarUrl": "/avatars/music-traveler.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "metrics": {
+    "totalEvents": 204,
+    "searches": 42,
+    "totalViews": 130,
+    "uniqueListings": 100,
+    "repeatedViews": 30,
+    "favoritesAdded": 16,
+    "chatsStarted": 12,
+    "listingsCreated": 0,
+    "listingsPublished": 0,
+    "purchasesCompleted": 4,
+    "salesCompleted": 0,
+    "activeDays": 66,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 2,
+    "topCategoryCode": "music",
+    "topCategory": "Музыкальные инструменты и аудио",
+    "topCategoryViews": 59,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 6,
+    "repeatRate": 0.23076923076923078,
+    "purchaseRate": 0.16666666666666666,
+    "categoryActivities": [
+      {
+        "categoryCode": "electronics",
+        "category": "Электроника",
+        "shareable": true,
+        "views": 20,
+        "favoritesAdded": 2,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "music",
+        "category": "Музыкальные инструменты и аудио",
+        "shareable": true,
+        "views": 58,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      },
+      {
+        "categoryCode": "outdoor_travel",
+        "category": "Туризм и путешествия",
+        "shareable": true,
+        "views": 52,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      }
+    ]
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": false
+  },
+  "behavior": {
+    "code": "FIND_HUNTER",
+    "title": "Искушенный наблюдатель",
+    "description": "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
+    "reason": "Просмотров: 130 (порог 20). Добавлено в избранное: 16 (порог 3). Доля повторных просмотров: 23% (порог 20%).",
+    "score": 100,
+    "evidence": [
+      {
+        "metric": "total_views",
+        "actual": 130,
+        "threshold": 20,
+        "points": 25,
+        "detail": "Просмотров: 130 (порог 20)."
+      },
+      {
+        "metric": "favorites_added",
+        "actual": 16,
+        "threshold": 3,
+        "points": 30,
+        "detail": "Добавлено в избранное: 16 (порог 3)."
+      },
+      {
+        "metric": "repeat_rate",
+        "actual": 0.23076923076923078,
+        "threshold": 0.2,
+        "points": 45,
+        "detail": "Доля повторных просмотров: 23% (порог 20%)."
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "code": "DEAL_CLOSER",
+      "category": "BUYING",
+      "title": "Сделка состоялась",
+      "description": "Выбранные варианты несколько раз превращались в завершённые покупки.",
+      "reason": "Покупок завершено: 4.",
+      "shareable": true
+    },
+    {
+      "code": "IN_THE_RHYTHM_OF_MUSIC",
+      "category": "INTEREST",
+      "title": "В ритме музыки",
+      "description": "Музыкальные товары задавали особое настроение твоим находкам.",
+      "reason": "Категории: Музыкальные инструменты и аудио. Просмотров: 58. Добавлений в избранное: 7. Покупок: 2. Доля тематической активности: 45%.",
+      "shareable": false
+    },
+    {
+      "code": "TRAVELER",
+      "category": "INTEREST",
+      "title": "Путешественник",
+      "description": "Снаряжение для маршрутов и отдыха стало одним из главных интересов года.",
+      "reason": "Категории: Туризм и путешествия. Просмотров: 52. Добавлений в избранное: 7. Покупок: 2. Доля тематической активности: 43%.",
+      "shareable": false
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Максим, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 204 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 204,
+        "searches": 42,
+        "totalViews": 130,
+        "favoritesAdded": 16,
+        "chatsStarted": 12,
+        "listingsPublished": 0,
+        "purchasesCompleted": 4,
+        "salesCompleted": 0
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Музыкальные инструменты и аудио».",
+      "explanation": "Просмотров в этой категории: 59.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "music",
+        "category": "Музыкальные инструменты и аудио",
+        "categoryViews": 59
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на июнь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 6
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Искушенный наблюдатель",
+      "description": "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
+      "explanation": "Просмотров: 130 (порог 20). Добавлено в избранное: 16 (порог 3). Доля повторных просмотров: 23% (порог 20%).",
+      "shareable": false,
+      "payload": {
+        "code": "FIND_HUNTER",
+        "score": 100,
+        "evidence": [
+          {
+            "metric": "total_views",
+            "actual": 130,
+            "threshold": 20,
+            "points": 25,
+            "detail": "Просмотров: 130 (порог 20)."
+          },
+          {
+            "metric": "favorites_added",
+            "actual": 16,
+            "threshold": 3,
+            "points": 30,
+            "detail": "Добавлено в избранное: 16 (порог 3)."
+          },
+          {
+            "metric": "repeat_rate",
+            "actual": 0.23076923076923078,
+            "threshold": 0.2,
+            "points": 45,
+            "detail": "Доля повторных просмотров: 23% (порог 20%)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Сделка состоялась • В ритме музыки • Путешественник",
+      "explanation": "Покупок завершено: 4. Категории: Музыкальные инструменты и аудио. Просмотров: 58. Добавлений в избранное: 7. Покупок: 2. Доля тематической активности: 45%. Категории: Туризм и путешествия. Просмотров: 52. Добавлений в избранное: 7. Покупок: 2. Доля тематической активности: 43%.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "DEAL_CLOSER",
+          "IN_THE_RHYTHM_OF_MUSIC",
+          "TRAVELER"
+        ]
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 7,
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 130; повторных просмотров: 30; добавлений в избранное: 16.",
+      "shareable": false,
+      "payload": {
+        "code": "OPEN_TOP_CATEGORY",
+        "target": {
+          "category": {
+            "categoryCode": "music"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Искушенный наблюдатель». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "f1dcaf60-ee7c-5a22-9410-41b83aad763d",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Искушенный наблюдатель",
+        "achievementTitle": "Сделка состоялась",
+        "topCategory": "Музыкальные инструменты и аудио"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 130; повторных просмотров: 30; добавлений в избранное: 16.",
+    "target": {
+      "category": {
+        "categoryCode": "music"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

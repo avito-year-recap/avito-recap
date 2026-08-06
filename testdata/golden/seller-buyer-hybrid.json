@@ -15,10 +15,10 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.3.0",
-  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
-    "totalEvents": 154,
+    "totalEvents": 155,
     "searches": 20,
     "totalViews": 90,
     "uniqueListings": 75,
@@ -27,7 +27,7 @@
     "chatsStarted": 12,
     "listingsCreated": 8,
     "listingsPublished": 7,
-    "purchasesCompleted": 4,
+    "purchasesCompleted": 5,
     "salesCompleted": 5,
     "activeDays": 80,
     "categoriesCount": 4,
@@ -78,27 +78,27 @@
   },
   "achievements": [
     {
+      "code": "ALL_ROUNDER",
+      "category": "VERSATILITY",
+      "title": "Человек-швейцарский нож",
+      "description": "Покупки и продажи сложились в один по-настоящему универсальный сценарий.",
+      "reason": "Покупок: 5. Продаж: 5.",
+      "shareable": true
+    },
+    {
       "code": "SUCCESSFUL_SELLER",
       "category": "SELLING",
-      "title": "Успешные продажи",
-      "description": "Несколько сделок были уверенно доведены до результата.",
+      "title": "Мастер переговоров",
+      "description": "Сделки уверенно доходили до результата.",
       "reason": "Продаж завершено: 5.",
       "shareable": true
     },
     {
       "code": "QUICK_DECISION",
       "category": "BUYING",
-      "title": "Быстрое решение",
-      "description": "Заметная доля начатых диалогов завершилась покупкой.",
+      "title": "Молния",
+      "description": "Ты быстро переходил от диалога к подходящему выбору.",
       "reason": "Покупкой завершилось 33% начатых диалогов.",
-      "shareable": true
-    },
-    {
-      "code": "ALL_ROUNDER",
-      "category": "VERSATILITY",
-      "title": "Всё в одном году",
-      "description": "Поиск, общение, покупки и продажи сложились в один разносторонний сценарий.",
-      "reason": "Покупок: 4. Продаж: 5. Опубликованных объявлений: 7.",
       "shareable": true
     }
   ],
@@ -116,17 +116,17 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 154 действий.",
+      "description": "За завершённый год система учла 155 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 154,
+        "totalEvents": 155,
         "searches": 20,
         "totalViews": 90,
         "favoritesAdded": 8,
         "chatsStarted": 12,
         "listingsPublished": 7,
-        "purchasesCompleted": 4,
+        "purchasesCompleted": 5,
         "salesCompleted": 5
       }
     },
@@ -190,14 +190,14 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Успешные продажи • Быстрое решение • Всё в одном году",
-      "explanation": "Продаж завершено: 5. Покупкой завершилось 33% начатых диалогов. Покупок: 4. Продаж: 5. Опубликованных объявлений: 7.",
+      "description": "Человек-швейцарский нож • Мастер переговоров • Молния",
+      "explanation": "Покупок: 5. Продаж: 5. Продаж завершено: 5. Покупкой завершилось 33% начатых диалогов.",
       "shareable": false,
       "payload": {
         "codes": [
+          "ALL_ROUNDER",
           "SUCCESSFUL_SELLER",
-          "QUICK_DECISION",
-          "ALL_ROUNDER"
+          "QUICK_DECISION"
         ]
       }
     },
@@ -205,15 +205,15 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Усиль активное объявление",
-      "description": "Обнови фотографии или описание конкретного активного объявления.",
-      "explanation": "Сейчас активно объявлений: 3; выбран конкретный адресуемый объект.",
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 90; повторных просмотров: 15; добавлений в избранное: 8.",
       "shareable": false,
       "payload": {
-        "code": "IMPROVE_LISTINGS",
+        "code": "OPEN_TOP_CATEGORY",
         "target": {
-          "listing": {
-            "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
+          "category": {
+            "categoryCode": "electronics"
           }
         }
       }
@@ -231,20 +231,20 @@
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Продажи в движении",
-        "achievementTitle": "Успешные продажи",
+        "achievementTitle": "Человек-швейцарский нож",
         "topCategory": "Электроника"
       }
     }
   ],
   "nextAction": {
-    "code": "IMPROVE_LISTINGS",
-    "title": "Усиль активное объявление",
-    "description": "Обнови фотографии или описание конкретного активного объявления.",
-    "buttonText": "Открыть объявление",
-    "reason": "Сейчас активно объявлений: 3; выбран конкретный адресуемый объект.",
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 90; повторных просмотров: 15; добавлений в избранное: 8.",
     "target": {
-      "listing": {
-        "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
+      "category": {
+        "categoryCode": "electronics"
       }
     }
   },
