@@ -33,10 +33,13 @@ type SeedActivity struct {
 	ActiveDays         uint64 `json:"activeDays"`
 }
 type WeightedCategory struct {
-	Code      string `json:"code"`
-	Title     string `json:"title"`
-	Weight    uint32 `json:"weight"`
-	Shareable bool   `json:"shareable"`
+	Code               string `json:"code"`
+	Title              string `json:"title"`
+	Weight             uint32 `json:"weight"`
+	Shareable          bool   `json:"shareable"`
+	Views              uint64 `json:"views,omitempty"`
+	FavoritesAdded     uint64 `json:"favoritesAdded,omitempty"`
+	PurchasesCompleted uint64 `json:"purchasesCompleted,omitempty"`
 }
 
 type WeightedMonth struct {
@@ -87,6 +90,18 @@ func MetricsFromScenario(scenario SeedScenario) (Metrics, error) {
 		)
 	}
 
+	categoryActivities := make([]CategoryActivity, 0, len(scenario.Categories))
+	for _, category := range scenario.Categories {
+		if category.Views == 0 && category.FavoritesAdded == 0 && category.PurchasesCompleted == 0 {
+			continue
+		}
+		categoryActivities = append(categoryActivities, CategoryActivity{
+			CategoryCode: category.Code, Category: category.Title, Shareable: category.Shareable,
+			Views: category.Views, FavoritesAdded: category.FavoritesAdded,
+			PurchasesCompleted: category.PurchasesCompleted,
+		})
+	}
+
 	metrics := Metrics{
 		TotalEvents:          totalEvents,
 		Searches:             scenario.Activity.Searches,
@@ -107,6 +122,7 @@ func MetricsFromScenario(scenario SeedScenario) (Metrics, error) {
 		TopCategoryViews:     weightedCount(scenario.Activity.ListingViews, topCategory.Weight),
 		TopCategoryShareable: topCategory.Shareable,
 		MostActiveMonth:      activeMonth.Month,
+		CategoryActivities:   categoryActivities,
 	}
 
 	if err := validateMetrics(metrics); err != nil {

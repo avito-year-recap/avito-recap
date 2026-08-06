@@ -95,7 +95,6 @@ func validateAchievementSelection(values []Achievement, policy AchievementPolicy
 	for _, rule := range policy.Rules {
 		configured[rule.Code] = rule
 	}
-	seenCategories := make(map[AchievementCategory]struct{}, len(values))
 	for index, value := range values {
 		rule, ok := configured[value.Code]
 		if !ok {
@@ -104,15 +103,10 @@ func validateAchievementSelection(values []Achievement, policy AchievementPolicy
 		if value.Category != rule.Category {
 			return fmt.Errorf("achievement %q category %q differs from policy category %q", value.Code, value.Category, rule.Category)
 		}
-		if _, exists := seenCategories[value.Category]; exists {
-			return fmt.Errorf("category %q is awarded more than once", value.Category)
-		}
-		seenCategories[value.Category] = struct{}{}
 		if index > 0 {
 			previous := configured[values[index-1].Code]
-			if previous.Priority < rule.Priority ||
-				(previous.Priority == rule.Priority && values[index-1].Code > value.Code) {
-				return fmt.Errorf("achievements are not in deterministic priority/code order")
+			if previous.Priority < rule.Priority {
+				return fmt.Errorf("achievements are not in deterministic priority order")
 			}
 		}
 	}

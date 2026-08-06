@@ -149,7 +149,7 @@ func evaluateFindHunter(m Metrics, t BehaviorThresholds) behaviorCandidate {
 			fmt.Sprintf("Доля повторных просмотров: %.0f%% (порог %.0f%%).", m.RepeatRate*100, t.FindHunterMinRepeatRate*100)),
 	}
 	return behaviorCandidate{eligible: true, behavior: Behavior{
-		Code: BehaviorFindHunter, Title: "Охота за находками",
+		Code: BehaviorFindHunter, Title: "Искушенный наблюдатель",
 		Description: "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
 		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
 	}}

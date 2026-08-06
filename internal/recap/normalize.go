@@ -1,6 +1,9 @@
 package recap
 
-import "strings"
+import (
+	"sort"
+	"strings"
+)
 
 func normalizeString(value string) string { return strings.TrimSpace(value) }
 
@@ -15,6 +18,15 @@ func normalizeProfile(profile Profile) Profile {
 func normalizeMetrics(metrics Metrics) Metrics {
 	metrics.TopCategoryCode = normalizeString(metrics.TopCategoryCode)
 	metrics.TopCategory = normalizeString(metrics.TopCategory)
+	metrics.CategoryActivities = append([]CategoryActivity(nil), metrics.CategoryActivities...)
+	for index := range metrics.CategoryActivities {
+		activity := &metrics.CategoryActivities[index]
+		activity.CategoryCode = normalizeString(activity.CategoryCode)
+		activity.Category = normalizeString(activity.Category)
+	}
+	sort.Slice(metrics.CategoryActivities, func(i, j int) bool {
+		return metrics.CategoryActivities[i].CategoryCode < metrics.CategoryActivities[j].CategoryCode
+	})
 	return metrics
 }
 
