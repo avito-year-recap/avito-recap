@@ -80,6 +80,42 @@ func validateMetrics(metrics Metrics) error {
 	if metrics.MostActiveMonth > 12 {
 		return fmt.Errorf("%w: active month must be in range 0..12", ErrInvalidMetrics)
 	}
+	seenCategoryActivities := make(map[string]struct{}, len(metrics.CategoryActivities))
+	var categoryViews, categoryFavorites, categoryPurchases uint64
+	for index, activity := range metrics.CategoryActivities {
+		if activity.CategoryCode == "" || activity.Category == "" {
+			return fmt.Errorf("%w: category activity %d requires code and title", ErrInvalidMetrics, index)
+		}
+		if !isSafeCategoryCode(activity.CategoryCode) {
+			return fmt.Errorf("%w: category activity %d has unsafe code", ErrInvalidMetrics, index)
+		}
+		if _, exists := seenCategoryActivities[activity.CategoryCode]; exists {
+			return fmt.Errorf("%w: duplicate category activity %q", ErrInvalidMetrics, activity.CategoryCode)
+		}
+		seenCategoryActivities[activity.CategoryCode] = struct{}{}
+		if activity.Views == 0 && activity.FavoritesAdded == 0 && activity.PurchasesCompleted == 0 {
+			return fmt.Errorf("%w: category activity %q has no evidence", ErrInvalidMetrics, activity.CategoryCode)
+		}
+		var err error
+		categoryViews, err = sumUint64(categoryViews, activity.Views)
+		if err != nil {
+			return fmt.Errorf("%w: category views overflow", ErrInvalidMetrics)
+		}
+		categoryFavorites, err = sumUint64(categoryFavorites, activity.FavoritesAdded)
+		if err != nil {
+			return fmt.Errorf("%w: category favorites overflow", ErrInvalidMetrics)
+		}
+		categoryPurchases, err = sumUint64(categoryPurchases, activity.PurchasesCompleted)
+		if err != nil {
+			return fmt.Errorf("%w: category purchases overflow", ErrInvalidMetrics)
+		}
+	}
+	if uint64(len(metrics.CategoryActivities)) > metrics.CategoriesCount {
+		return fmt.Errorf("%w: detailed category count exceeds categories count", ErrInvalidMetrics)
+	}
+	if categoryViews > metrics.TotalViews || categoryFavorites > metrics.FavoritesAdded || categoryPurchases > metrics.PurchasesCompleted {
+		return fmt.Errorf("%w: per-category counters exceed aggregate counters", ErrInvalidMetrics)
+	}
 	return nil
 }
 
@@ -224,7 +260,6 @@ func validateAchievements(values []Achievement) error {
 		return fmt.Errorf("too many achievements: got %d, maximum is %d", len(values), maxAchievements)
 	}
 	seenCodes := make(map[AchievementCode]struct{}, len(values))
-	seenCategories := make(map[AchievementCategory]struct{}, len(values))
 	for index, value := range values {
 		if !isKnownAchievementCode(value.Code) {
 			return fmt.Errorf("achievement %d has unknown code %q", index, value.Code)
@@ -239,10 +274,6 @@ func validateAchievements(values []Achievement) error {
 			return fmt.Errorf("duplicate achievement code %q", value.Code)
 		}
 		seenCodes[value.Code] = struct{}{}
-		if _, ok := seenCategories[value.Category]; ok {
-			return fmt.Errorf("duplicate achievement category %q", value.Category)
-		}
-		seenCategories[value.Category] = struct{}{}
 	}
 	return nil
 }
@@ -520,7 +551,7 @@ func isKnownBehaviorCode(code BehaviorCode) bool {
 func isKnownAchievementCategory(category AchievementCategory) bool {
 	switch category {
 	case AchievementCategorySelling, AchievementCategoryBuying, AchievementCategoryDiscovery,
-		AchievementCategoryCollection, AchievementCategoryVersatility:
+		AchievementCategoryCollection, AchievementCategoryVersatility, AchievementCategoryInterest:
 		return true
 	default:
 		return false
@@ -528,7 +559,13 @@ func isKnownAchievementCategory(category AchievementCategory) bool {
 }
 func isKnownAchievementCode(code AchievementCode) bool {
 	switch code {
-	case AchievementSuccessfulSeller, AchievementConsistentPublisher, AchievementAttentiveResearcher, AchievementMasterOfFavorites, AchievementBroadInterests, AchievementAllRounder, AchievementFirstSellingSteps, AchievementDealCloser, AchievementQuickDecision:
+	case AchievementSuccessfulSeller, AchievementConsistentPublisher, AchievementAttentiveResearcher,
+		AchievementMasterOfFavorites, AchievementBroadInterests, AchievementAllRounder,
+		AchievementFirstSellingSteps, AchievementDealCloser, AchievementQuickDecision,
+		AchievementStyleIcon, AchievementFashionableMan, AchievementTraveler,
+		AchievementForTheSoul, AchievementBookworm, AchievementBeautyConnoisseur,
+		AchievementInTheRhythmOfMusic, AchievementWorldOfPlay, AchievementMasterCraft,
+		AchievementCaringOwner, AchievementLittleDiscoveries:
 		return true
 	default:
 		return false

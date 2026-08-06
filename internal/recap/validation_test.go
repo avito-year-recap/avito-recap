@@ -213,14 +213,14 @@ func TestValidateRecapRejectsMoreThanThreeAchievements(t *testing.T) {
 	}
 }
 
-func TestValidateRecapRejectsDuplicateAchievementCategories(t *testing.T) {
+func TestValidateRecapAllowsMultipleSellingAchievements(t *testing.T) {
 	value := validRecap()
 	value.Achievements = []Achievement{
 		{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Title: "1", Description: "D", Reason: "R"},
 		{Code: AchievementConsistentPublisher, Category: AchievementCategorySelling, Title: "2", Description: "D", Reason: "R"},
 	}
-	if err := validateRecap(value); !errors.Is(err, ErrInvalidRecap) {
-		t.Fatalf("duplicate category accepted: %v", err)
+	if err := validateRecap(value); err != nil {
+		t.Fatalf("seller portfolio with two selling achievements rejected: %v", err)
 	}
 }
 

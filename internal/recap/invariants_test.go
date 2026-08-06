@@ -104,12 +104,7 @@ func assertPipelineInvariants(t testing.TB, metrics Metrics, state ActionableSta
 	if len(achievements) > maxAchievements {
 		t.Fatalf("awarded %d achievements, maximum is %d", len(achievements), maxAchievements)
 	}
-	seenAchievementCategories := make(map[AchievementCategory]struct{}, len(achievements))
 	for index, achievement := range achievements {
-		if _, exists := seenAchievementCategories[achievement.Category]; exists {
-			t.Fatalf("achievement category %s awarded twice: %+v", achievement.Category, achievements)
-		}
-		seenAchievementCategories[achievement.Category] = struct{}{}
 		if index > 0 && !achievementLess(achievements[index-1], achievement) {
 			t.Fatalf("achievement order is not deterministic: %+v", achievements)
 		}

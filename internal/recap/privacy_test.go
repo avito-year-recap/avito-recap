@@ -53,6 +53,20 @@ func TestBuildShareCardHandlesNoPublicAchievement(t *testing.T) {
 	}
 }
 
+func TestThematicAchievementsStayPrivate(t *testing.T) {
+	achievements := BuildAchievements(Metrics{
+		TotalViews: 30, CategoriesCount: 1,
+		CategoryActivities: []CategoryActivity{{CategoryCode: CategoryBooks, Category: "Книги", Views: 30}},
+	})
+	if len(achievements) != 1 || achievements[0].Code != AchievementBookworm {
+		t.Fatalf("unexpected thematic setup: %+v", achievements)
+	}
+	actual := BuildShareCard(Recap{Achievements: achievements})
+	if actual.AchievementTitle != "" {
+		t.Fatalf("thematic achievement leaked to public card: %q", actual.AchievementTitle)
+	}
+}
+
 func TestFinalStoryCardMatchesPublicShareCard(t *testing.T) {
 	value := validRecap()
 	last := value.Cards[len(value.Cards)-1]

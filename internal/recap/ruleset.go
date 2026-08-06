@@ -13,7 +13,7 @@ import (
 
 var ErrInvalidRuleset = errors.New("invalid ruleset")
 
-const currentRulesAlgorithm = "recap-v3.3-category-awards-v2"
+const currentRulesAlgorithm = "recap-v3.4-persona-category-awards-v1"
 
 var semanticVersionPattern = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$`)
 
@@ -32,6 +32,16 @@ type BehaviorThresholds struct {
 	ResearcherMinViews           uint64
 	ResearcherMinCategories      uint64
 	ResearcherMaxChats           uint64
+}
+
+type AchievementThresholds struct {
+	BalancedMinPurchases      uint64
+	BalancedMinSales          uint64
+	BalancedMaxDifferenceRate float64
+	ThematicMinViews          uint64
+	ThematicMinFavorites      uint64
+	ThematicMinPurchases      uint64
+	ThematicMinDominanceRate  float64
 }
 
 // RecommendationPriorities makes product ordering explicit and fingerprinted.
@@ -79,6 +89,7 @@ type Ruleset struct {
 	Version                  string
 	Algorithm                string
 	Thresholds               BehaviorThresholds
+	AchievementThresholds    AchievementThresholds
 	AchievementPolicy        AchievementPolicy
 	RecommendationPriorities RecommendationPriorities
 	SharePolicy              SharePolicy
@@ -104,18 +115,38 @@ func DefaultRuleset() Ruleset {
 			ResearcherMinCategories:      5,
 			ResearcherMaxChats:           4,
 		},
+		AchievementThresholds: AchievementThresholds{
+			BalancedMinPurchases:      5,
+			BalancedMinSales:          5,
+			BalancedMaxDifferenceRate: 0.50,
+			ThematicMinViews:          30,
+			ThematicMinFavorites:      8,
+			ThematicMinPurchases:      3,
+			ThematicMinDominanceRate:  0.20,
+		},
 		AchievementPolicy: AchievementPolicy{
 			MaxAwarded: maxAchievements,
 			Rules: []AchievementRuleConfig{
-				{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Priority: 110},
-				{Code: AchievementQuickDecision, Category: AchievementCategoryBuying, Priority: 108},
-				{Code: AchievementDealCloser, Category: AchievementCategoryBuying, Priority: 105},
+				{Code: AchievementAllRounder, Category: AchievementCategoryVersatility, Priority: 130},
+				{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Priority: 120},
+				{Code: AchievementQuickDecision, Category: AchievementCategoryBuying, Priority: 115},
+				{Code: AchievementDealCloser, Category: AchievementCategoryBuying, Priority: 110},
 				{Code: AchievementConsistentPublisher, Category: AchievementCategorySelling, Priority: 100},
 				{Code: AchievementBroadInterests, Category: AchievementCategoryDiscovery, Priority: 98},
-				{Code: AchievementAllRounder, Category: AchievementCategoryVersatility, Priority: 97},
 				{Code: AchievementFirstSellingSteps, Category: AchievementCategorySelling, Priority: 96},
 				{Code: AchievementAttentiveResearcher, Category: AchievementCategoryDiscovery, Priority: 90},
 				{Code: AchievementMasterOfFavorites, Category: AchievementCategoryCollection, Priority: 80},
+				{Code: AchievementStyleIcon, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementFashionableMan, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementTraveler, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementForTheSoul, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementBookworm, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementBeautyConnoisseur, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementInTheRhythmOfMusic, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementWorldOfPlay, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementMasterCraft, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementCaringOwner, Category: AchievementCategoryInterest, Priority: 70},
+				{Code: AchievementLittleDiscoveries, Category: AchievementCategoryInterest, Priority: 70},
 			},
 		},
 		RecommendationPriorities: RecommendationPriorities{
@@ -166,6 +197,15 @@ func (r Ruleset) Validate() error {
 	if t.DecisiveBuyerMinPurchaseRate <= 0 || t.DecisiveBuyerMinPurchaseRate > 1 ||
 		t.FindHunterMinRepeatRate <= 0 || t.FindHunterMinRepeatRate > 1 {
 		return fmt.Errorf("%w: rate thresholds must be in (0,1]", ErrInvalidRuleset)
+	}
+	a := r.AchievementThresholds
+	if a.BalancedMinPurchases == 0 || a.BalancedMinSales == 0 ||
+		a.ThematicMinViews == 0 || a.ThematicMinFavorites == 0 || a.ThematicMinPurchases == 0 {
+		return fmt.Errorf("%w: achievement count thresholds must be positive", ErrInvalidRuleset)
+	}
+	if a.BalancedMaxDifferenceRate < 0 || a.BalancedMaxDifferenceRate > 1 ||
+		a.ThematicMinDominanceRate <= 0 || a.ThematicMinDominanceRate > 1 {
+		return fmt.Errorf("%w: achievement rate thresholds are outside valid ranges", ErrInvalidRuleset)
 	}
 	policy := r.AchievementPolicy
 	if policy.MaxAwarded < 1 || policy.MaxAwarded > maxAchievements {
