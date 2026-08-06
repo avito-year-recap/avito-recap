@@ -1,12 +1,12 @@
 {
-  "id": "d9a3f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
-  "shareId": "d9a2f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
+  "id": "4f07c44f-3825-58a8-8855-61f983e36462",
+  "shareId": "4f06c44f-3825-58a8-8855-61f983e36462",
   "profile": {
-    "id": "26a3f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
-    "code": "active-buyer",
-    "displayName": "Алексей",
-    "description": "Часто ищет технику, сохраняет интересные варианты и возвращается к ним",
-    "avatarUrl": "/avatars/active-buyer.png"
+    "id": "b007c44f-3825-58a8-8855-61f983e36462",
+    "code": "private-style-hunter",
+    "displayName": "Виктория",
+    "description": "Следит за модой и красотой, активно сохраняет находки, но приватные интересы не попадают в публичный recap",
+    "avatarUrl": "/avatars/private-style-hunter.png"
   },
   "year": 2025,
   "period": {
@@ -18,27 +18,53 @@
   "rulesVersion": "3.4.1",
   "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
-    "totalEvents": 257,
-    "searches": 45,
-    "totalViews": 180,
-    "uniqueListings": 120,
-    "repeatedViews": 60,
-    "favoritesAdded": 28,
-    "chatsStarted": 3,
+    "totalEvents": 185,
+    "searches": 38,
+    "totalViews": 120,
+    "uniqueListings": 80,
+    "repeatedViews": 40,
+    "favoritesAdded": 24,
+    "chatsStarted": 2,
     "listingsCreated": 0,
     "listingsPublished": 0,
     "purchasesCompleted": 1,
     "salesCompleted": 0,
-    "activeDays": 72,
-    "categoriesCount": 4,
+    "activeDays": 54,
+    "categoriesCount": 3,
     "chatsWithPurchase": 1,
-    "topCategoryCode": "electronics",
-    "topCategory": "Электроника",
-    "topCategoryViews": 108,
-    "topCategoryShareable": true,
-    "mostActiveMonth": 10,
+    "topCategoryCode": "beauty_cosmetics",
+    "topCategory": "Красота и косметика",
+    "topCategoryViews": 66,
+    "topCategoryShareable": false,
+    "mostActiveMonth": 7,
     "repeatRate": 0.3333333333333333,
-    "purchaseRate": 0.3333333333333333
+    "purchaseRate": 0.5,
+    "categoryActivities": [
+      {
+        "categoryCode": "beauty_cosmetics",
+        "category": "Красота и косметика",
+        "shareable": false,
+        "views": 66,
+        "favoritesAdded": 16,
+        "purchasesCompleted": 1
+      },
+      {
+        "categoryCode": "jewelry",
+        "category": "Украшения и ювелирные изделия",
+        "shareable": false,
+        "views": 18,
+        "favoritesAdded": 2,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "womens_fashion",
+        "category": "Женская одежда и аксессуары",
+        "shareable": true,
+        "views": 36,
+        "favoritesAdded": 6,
+        "purchasesCompleted": 0
+      }
+    ]
   },
   "actionableState": {
     "capturedAt": "2026-08-04T12:00:00Z",
@@ -48,7 +74,7 @@
     "openDialogId": "00000000-0000-0000-0000-000000000000",
     "activeListings": 0,
     "activeListingId": "00000000-0000-0000-0000-000000000000",
-    "favoritesCount": 12,
+    "favoritesCount": 10,
     "hasSavedSearchForTopCategory": false,
     "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
     "hasEverPublishedListing": false
@@ -57,22 +83,22 @@
     "code": "FIND_HUNTER",
     "title": "Искушенный наблюдатель",
     "description": "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
-    "reason": "Просмотров: 180 (порог 20). Добавлено в избранное: 28 (порог 3). Доля повторных просмотров: 33% (порог 20%).",
+    "reason": "Просмотров: 120 (порог 20). Добавлено в избранное: 24 (порог 3). Доля повторных просмотров: 33% (порог 20%).",
     "score": 100,
     "evidence": [
       {
         "metric": "total_views",
-        "actual": 180,
+        "actual": 120,
         "threshold": 20,
         "points": 25,
-        "detail": "Просмотров: 180 (порог 20)."
+        "detail": "Просмотров: 120 (порог 20)."
       },
       {
         "metric": "favorites_added",
-        "actual": 28,
+        "actual": 24,
         "threshold": 3,
         "points": 30,
-        "detail": "Добавлено в избранное: 28 (порог 3)."
+        "detail": "Добавлено в избранное: 24 (порог 3)."
       },
       {
         "metric": "repeat_rate",
@@ -85,20 +111,20 @@
   },
   "achievements": [
     {
-      "code": "ATTENTIVE_RESEARCHER",
-      "category": "DISCOVERY",
-      "title": "Стратег",
-      "description": "Перед следующим шагом было внимательно изучено много вариантов.",
-      "reason": "Просмотров объявлений: 180.",
-      "shareable": true
-    },
-    {
       "code": "MASTER_OF_FAVORITES",
       "category": "COLLECTION",
       "title": "Собиратель жемчужин",
       "description": "В избранном собралась заметная коллекция интересных находок.",
-      "reason": "В избранное добавлено: 28.",
+      "reason": "В избранное добавлено: 24.",
       "shareable": true
+    },
+    {
+      "code": "STYLE_ICON",
+      "category": "INTEREST",
+      "title": "Икона стиля",
+      "description": "Одежда, аксессуары и красота стали заметной частью твоих находок.",
+      "reason": "Категории: Женская одежда и аксессуары, Красота и косметика. Просмотров: 102. Добавлений в избранное: 22. Покупок: 1. Доля тематической активности: 89%.",
+      "shareable": false
     }
   ],
   "cards": [
@@ -106,7 +132,7 @@
       "id": "intro",
       "type": "INTRO",
       "position": 1,
-      "title": "Алексей, вот твои итоги за 2025 год",
+      "title": "Виктория, вот твои итоги за 2025 год",
       "description": "Это финальный recap за завершённый календарный год.",
       "shareable": false
     },
@@ -115,15 +141,15 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 257 действий.",
+      "description": "За завершённый год система учла 185 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 257,
-        "searches": 45,
-        "totalViews": 180,
-        "favoritesAdded": 28,
-        "chatsStarted": 3,
+        "totalEvents": 185,
+        "searches": 38,
+        "totalViews": 120,
+        "favoritesAdded": 24,
+        "chatsStarted": 2,
         "listingsPublished": 0,
         "purchasesCompleted": 1,
         "salesCompleted": 0
@@ -134,13 +160,13 @@
       "type": "TOP_CATEGORY",
       "position": 3,
       "title": "Главный интерес года",
-      "description": "Чаще всего внимание привлекала категория «Электроника».",
-      "explanation": "Просмотров в этой категории: 108.",
+      "description": "Чаще всего внимание привлекала категория «Красота и косметика».",
+      "explanation": "Просмотров в этой категории: 66.",
       "shareable": false,
       "payload": {
-        "categoryCode": "electronics",
-        "category": "Электроника",
-        "categoryViews": 108
+        "categoryCode": "beauty_cosmetics",
+        "category": "Красота и косметика",
+        "categoryViews": 66
       }
     },
     {
@@ -148,11 +174,11 @@
       "type": "ACTIVE_MONTH",
       "position": 4,
       "title": "Самый активный месяц",
-      "description": "Больше всего действий пришлось на октябрь.",
+      "description": "Больше всего действий пришлось на июль.",
       "explanation": "Месяц выбран по максимальному числу событий профиля.",
       "shareable": false,
       "payload": {
-        "month": 10
+        "month": 7
       }
     },
     {
@@ -161,7 +187,7 @@
       "position": 5,
       "title": "Искушенный наблюдатель",
       "description": "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
-      "explanation": "Просмотров: 180 (порог 20). Добавлено в избранное: 28 (порог 3). Доля повторных просмотров: 33% (порог 20%).",
+      "explanation": "Просмотров: 120 (порог 20). Добавлено в избранное: 24 (порог 3). Доля повторных просмотров: 33% (порог 20%).",
       "shareable": false,
       "payload": {
         "code": "FIND_HUNTER",
@@ -169,17 +195,17 @@
         "evidence": [
           {
             "metric": "total_views",
-            "actual": 180,
+            "actual": 120,
             "threshold": 20,
             "points": 25,
-            "detail": "Просмотров: 180 (порог 20)."
+            "detail": "Просмотров: 120 (порог 20)."
           },
           {
             "metric": "favorites_added",
-            "actual": 28,
+            "actual": 24,
             "threshold": 3,
             "points": 30,
-            "detail": "Добавлено в избранное: 28 (порог 3)."
+            "detail": "Добавлено в избранное: 24 (порог 3)."
           },
           {
             "metric": "repeat_rate",
@@ -196,13 +222,13 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Стратег • Собиратель жемчужин",
-      "explanation": "Просмотров объявлений: 180. В избранное добавлено: 28.",
+      "description": "Собиратель жемчужин • Икона стиля",
+      "explanation": "В избранное добавлено: 24. Категории: Женская одежда и аксессуары, Красота и косметика. Просмотров: 102. Добавлений в избранное: 22. Покупок: 1. Доля тематической активности: 89%.",
       "shareable": false,
       "payload": {
         "codes": [
-          "ATTENTIVE_RESEARCHER",
-          "MASTER_OF_FAVORITES"
+          "MASTER_OF_FAVORITES",
+          "STYLE_ICON"
         ]
       }
     },
@@ -212,7 +238,7 @@
       "position": 7,
       "title": "Твои фавориты всё ещё ждут",
       "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
-      "explanation": "За год добавлено в избранное: 28; сейчас доступно вариантов: 12.",
+      "explanation": "За год добавлено в избранное: 24; сейчас доступно вариантов: 10.",
       "shareable": false,
       "payload": {
         "code": "OPEN_FAVORITES",
@@ -232,12 +258,11 @@
       "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
       "shareable": true,
       "payload": {
-        "shareId": "d9a2f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
+        "shareId": "4f06c44f-3825-58a8-8855-61f983e36462",
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Искушенный наблюдатель",
-        "achievementTitle": "Стратег",
-        "topCategory": "Электроника"
+        "achievementTitle": "Собиратель жемчужин"
       }
     }
   ],
@@ -246,7 +271,7 @@
     "title": "Твои фавориты всё ещё ждут",
     "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
     "buttonText": "Открыть избранное",
-    "reason": "За год добавлено в избранное: 28; сейчас доступно вариантов: 12.",
+    "reason": "За год добавлено в избранное: 24; сейчас доступно вариантов: 10.",
     "target": {
       "route": {
         "route": "/favorites"

@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.3.0",
-  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
     "totalEvents": 95,
     "searches": 5,
@@ -80,8 +80,8 @@
     {
       "code": "SUCCESSFUL_SELLER",
       "category": "SELLING",
-      "title": "Успешные продажи",
-      "description": "Несколько сделок были уверенно доведены до результата.",
+      "title": "Мастер переговоров",
+      "description": "Сделки уверенно доходили до результата.",
       "reason": "Продаж завершено: 6.",
       "shareable": true
     }
@@ -174,7 +174,7 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Успешные продажи",
+      "description": "Мастер переговоров",
       "explanation": "Продаж завершено: 6.",
       "shareable": false,
       "payload": {
@@ -187,15 +187,15 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Усиль активное объявление",
-      "description": "Обнови фотографии или описание конкретного активного объявления.",
-      "explanation": "Сейчас активно объявлений: 4; выбран конкретный адресуемый объект.",
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 35; повторных просмотров: 5; добавлений в избранное: 3.",
       "shareable": false,
       "payload": {
-        "code": "IMPROVE_LISTINGS",
+        "code": "OPEN_TOP_CATEGORY",
         "target": {
-          "listing": {
-            "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+          "category": {
+            "categoryCode": "clothing"
           }
         }
       }
@@ -213,20 +213,20 @@
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Продажи в движении",
-        "achievementTitle": "Успешные продажи",
+        "achievementTitle": "Мастер переговоров",
         "topCategory": "Одежда, обувь и аксессуары"
       }
     }
   ],
   "nextAction": {
-    "code": "IMPROVE_LISTINGS",
-    "title": "Усиль активное объявление",
-    "description": "Обнови фотографии или описание конкретного активного объявления.",
-    "buttonText": "Открыть объявление",
-    "reason": "Сейчас активно объявлений: 4; выбран конкретный адресуемый объект.",
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 35; повторных просмотров: 5; добавлений в избранное: 3.",
     "target": {
-      "listing": {
-        "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+      "category": {
+        "categoryCode": "clothing"
       }
     }
   },

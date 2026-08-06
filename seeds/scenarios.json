@@ -403,7 +403,7 @@
       "chatsStarted": 12,
       "listingsCreated": 8,
       "listingsPublished": 7,
-      "purchasesCompleted": 4,
+      "purchasesCompleted": 5,
       "salesCompleted": 5,
       "activeDays": 80,
       "chatsWithPurchase": 4
@@ -665,6 +665,374 @@
     ],
     "actionableState": {
       "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "book-collector",
+    "year": 2025,
+    "activity": {
+      "searches": 24,
+      "listingViews": 96,
+      "uniqueListings": 68,
+      "favoritesAdded": 12,
+      "chatsStarted": 10,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 3,
+      "salesCompleted": 0,
+      "activeDays": 41,
+      "chatsWithPurchase": 3
+    },
+    "categories": [
+      {
+        "code": "books",
+        "title": "Книги",
+        "weight": 65,
+        "shareable": true,
+        "views": 62,
+        "favoritesAdded": 9,
+        "purchasesCompleted": 3
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true,
+        "views": 19,
+        "favoritesAdded": 2
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 15,
+        "shareable": true,
+        "views": 15,
+        "favoritesAdded": 1
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 9,
+        "weight": 20
+      },
+      {
+        "month": 12,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "favoritesCount": 5,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "private-style-hunter",
+    "year": 2025,
+    "activity": {
+      "searches": 38,
+      "listingViews": 120,
+      "uniqueListings": 80,
+      "favoritesAdded": 24,
+      "chatsStarted": 2,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 1,
+      "salesCompleted": 0,
+      "activeDays": 54,
+      "chatsWithPurchase": 1
+    },
+    "categories": [
+      {
+        "code": "beauty_cosmetics",
+        "title": "Красота и косметика",
+        "weight": 55,
+        "shareable": false,
+        "views": 66,
+        "favoritesAdded": 16,
+        "purchasesCompleted": 1
+      },
+      {
+        "code": "womens_fashion",
+        "title": "Женская одежда и аксессуары",
+        "weight": 30,
+        "shareable": true,
+        "views": 36,
+        "favoritesAdded": 6
+      },
+      {
+        "code": "jewelry",
+        "title": "Украшения и ювелирные изделия",
+        "weight": 15,
+        "shareable": false,
+        "views": 18,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 10
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 7,
+        "weight": 45
+      },
+      {
+        "month": 10,
+        "weight": 25
+      }
+    ],
+    "actionableState": {
+      "favoritesCount": 10,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "maker-with-draft",
+    "year": 2025,
+    "activity": {
+      "searches": 15,
+      "listingViews": 65,
+      "uniqueListings": 48,
+      "favoritesAdded": 9,
+      "chatsStarted": 4,
+      "listingsCreated": 6,
+      "listingsPublished": 1,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 30,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "tools",
+        "title": "Инструменты",
+        "weight": 70,
+        "shareable": true,
+        "views": 46,
+        "favoritesAdded": 7
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 30,
+        "shareable": true,
+        "views": 19,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 20
+      },
+      {
+        "month": 6,
+        "weight": 30
+      },
+      {
+        "month": 9,
+        "weight": 35
+      },
+      {
+        "month": 11,
+        "weight": 15
+      }
+    ],
+    "actionableState": {
+      "currentDrafts": 1,
+      "draftListingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540",
+      "favoritesCount": 8,
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "pet-threshold-buyer",
+    "year": 2025,
+    "activity": {
+      "searches": 20,
+      "listingViews": 90,
+      "uniqueListings": 70,
+      "favoritesAdded": 7,
+      "chatsStarted": 15,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 3,
+      "salesCompleted": 0,
+      "activeDays": 45,
+      "chatsWithPurchase": 3
+    },
+    "categories": [
+      {
+        "code": "pets",
+        "title": "Товары для животных",
+        "weight": 65,
+        "shareable": false,
+        "views": 59,
+        "favoritesAdded": 5,
+        "purchasesCompleted": 3
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 35,
+        "shareable": true,
+        "views": 31,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 20
+      },
+      {
+        "month": 8,
+        "weight": 25
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "music-traveler",
+    "year": 2025,
+    "activity": {
+      "searches": 42,
+      "listingViews": 130,
+      "uniqueListings": 100,
+      "favoritesAdded": 16,
+      "chatsStarted": 12,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 4,
+      "salesCompleted": 0,
+      "activeDays": 66,
+      "chatsWithPurchase": 2
+    },
+    "categories": [
+      {
+        "code": "music",
+        "title": "Музыкальные инструменты и аудио",
+        "weight": 45,
+        "shareable": true,
+        "views": 58,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      },
+      {
+        "code": "outdoor_travel",
+        "title": "Туризм и путешествия",
+        "weight": 40,
+        "shareable": true,
+        "views": 52,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 15,
+        "shareable": true,
+        "views": 20,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 15
+      },
+      {
+        "month": 6,
+        "weight": 35
+      },
+      {
+        "month": 8,
+        "weight": 30
+      },
+      {
+        "month": 12,
+        "weight": 20
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "listing-restart",
+    "year": 2025,
+    "activity": {
+      "searches": 9,
+      "listingViews": 30,
+      "uniqueListings": 25,
+      "favoritesAdded": 2,
+      "chatsStarted": 3,
+      "listingsCreated": 5,
+      "listingsPublished": 1,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 18,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 60,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 40,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 20
+      },
+      {
+        "month": 4,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 15
+      },
+      {
+        "month": 10,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "currentDrafts": 0,
+      "favoritesCount": 0,
+      "hasEverPublishedListing": true
     }
   }
 ]

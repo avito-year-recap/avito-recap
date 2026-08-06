@@ -75,5 +75,47 @@
     "displayName": "Ксения",
     "description": "Совершает покупки, но принимает решение после длительного общения",
     "avatarUrl": "/avatars/steady-buyer.png"
+  },
+  {
+    "id": "7460de46-6e74-5f40-b84a-4063bd5e5bb6",
+    "code": "book-collector",
+    "displayName": "Кирилл",
+    "description": "Выбирает книги вдумчиво, возвращается к подборкам и быстро завершает подходящие покупки",
+    "avatarUrl": "/avatars/book-collector.png"
+  },
+  {
+    "id": "b007c44f-3825-58a8-8855-61f983e36462",
+    "code": "private-style-hunter",
+    "displayName": "Виктория",
+    "description": "Следит за модой и красотой, активно сохраняет находки, но приватные интересы не попадают в публичный recap",
+    "avatarUrl": "/avatars/private-style-hunter.png"
+  },
+  {
+    "id": "916ba684-50fe-57a6-b72d-dd224f68d4c2",
+    "code": "maker-with-draft",
+    "displayName": "Роман",
+    "description": "Интересуется инструментами и начал продавать, но важный черновик ещё ждёт публикации",
+    "avatarUrl": "/avatars/maker-with-draft.png"
+  },
+  {
+    "id": "5e23b62a-f648-57e7-9dc8-6b0c26cd531d",
+    "code": "pet-threshold-buyer",
+    "displayName": "Дарья",
+    "description": "Покупает товары для питомца и ровно достигает порога решительного покупателя",
+    "avatarUrl": "/avatars/pet-threshold-buyer.png"
+  },
+  {
+    "id": "0eddaf60-ee7c-5a22-9410-41b83aad763d",
+    "code": "music-traveler",
+    "displayName": "Максим",
+    "description": "Совмещает музыку и путешествия, поэтому получает сразу несколько тематических достижений",
+    "avatarUrl": "/avatars/music-traveler.png"
+  },
+  {
+    "id": "e746eabd-169e-5df0-90a8-4ede73ee2e1d",
+    "code": "listing-restart",
+    "displayName": "София",
+    "description": "Создавала объявления, но текущего черновика уже нет — recap предлагает начать публикацию заново",
+    "avatarUrl": "/avatars/listing-restart.png"
   }
 ]
