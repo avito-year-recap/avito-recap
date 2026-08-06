@@ -100,6 +100,35 @@ func TestMetricsFromScenarioAllowsNoCategoryActivity(t *testing.T) {
 	}
 }
 
+func TestMetricsFromScenarioBuildsDetailedCategoryActivity(t *testing.T) {
+	scenario := SeedScenario{
+		ProfileCode: "book-buyer",
+		Year:        2025,
+		Activity: SeedActivity{
+			ListingViews: 30, UniqueListings: 25, FavoritesAdded: 8,
+			PurchasesCompleted: 3, ActiveDays: 10,
+		},
+		Categories: []WeightedCategory{{
+			Code: CategoryBooks, Title: "Книги", Weight: 100, Shareable: true,
+			Views: 30, FavoritesAdded: 8, PurchasesCompleted: 3,
+		}},
+		Months: []WeightedMonth{{Month: 6, Weight: 100}},
+	}
+	actual, err := MetricsFromScenario(scenario)
+	if err != nil {
+		t.Fatalf("MetricsFromScenario() error = %v", err)
+	}
+	if len(actual.CategoryActivities) != 1 {
+		t.Fatalf("category activities = %+v", actual.CategoryActivities)
+	}
+	activity := actual.CategoryActivities[0]
+	if activity.CategoryCode != CategoryBooks || activity.Views != 30 ||
+		activity.FavoritesAdded != 8 || activity.PurchasesCompleted != 3 {
+		t.Fatalf("unexpected detailed category activity: %+v", activity)
+	}
+	assertAchievementCodes(t, BuildAchievements(actual), []AchievementCode{AchievementDealCloser, AchievementBookworm})
+}
+
 func TestMetricsFromScenarioRejectsInvalidSeeds(t *testing.T) {
 	valid := SeedScenario{
 		ProfileCode: "profile",
@@ -126,6 +155,8 @@ func TestMetricsFromScenarioRejectsInvalidSeeds(t *testing.T) {
 			s.Categories[0].Weight = 50
 			s.Categories[1].Weight = 50
 		}},
+		{name: "category views exceed aggregate", mutate: func(s *SeedScenario) { s.Categories[0].Views = 11 }},
+		{name: "category purchases exceed aggregate", mutate: func(s *SeedScenario) { s.Categories[0].PurchasesCompleted = 1 }},
 		{name: "bad month", mutate: func(s *SeedScenario) { s.Months[0].Month = 13 }},
 		{name: "bad month weights", mutate: func(s *SeedScenario) { s.Months[0].Weight = 90 }},
 	}

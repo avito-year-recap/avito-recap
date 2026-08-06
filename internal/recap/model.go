@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CurrentRulesVersion = "3.3.0"
+const CurrentRulesVersion = "3.4.0"
 
 type ActivityType string
 
@@ -62,6 +62,20 @@ type Metrics struct {
 
 	RepeatRate   float64 `json:"repeatRate"`
 	PurchaseRate float64 `json:"purchaseRate"`
+
+	// CategoryActivities contains the per-category evidence used by thematic
+	// achievements. The slice is normalized into category-code order so the
+	// stored recap and its integrity digest remain deterministic.
+	CategoryActivities []CategoryActivity `json:"categoryActivities,omitempty"`
+}
+
+type CategoryActivity struct {
+	CategoryCode       string `json:"categoryCode"`
+	Category           string `json:"category"`
+	Shareable          bool   `json:"shareable"`
+	Views              uint64 `json:"views"`
+	FavoritesAdded     uint64 `json:"favoritesAdded"`
+	PurchasesCompleted uint64 `json:"purchasesCompleted"`
 }
 
 // ActionableState is a point-in-time snapshot used only to select executable CTAs.
@@ -121,6 +135,7 @@ const (
 	AchievementCategoryDiscovery   AchievementCategory = "DISCOVERY"
 	AchievementCategoryCollection  AchievementCategory = "COLLECTION"
 	AchievementCategoryVersatility AchievementCategory = "VERSATILITY"
+	AchievementCategoryInterest    AchievementCategory = "INTEREST"
 )
 
 type AchievementCode string
@@ -135,6 +150,17 @@ const (
 	AchievementFirstSellingSteps   AchievementCode = "FIRST_SELLING_STEPS"
 	AchievementDealCloser          AchievementCode = "DEAL_CLOSER"
 	AchievementQuickDecision       AchievementCode = "QUICK_DECISION"
+	AchievementStyleIcon           AchievementCode = "STYLE_ICON"
+	AchievementFashionableMan      AchievementCode = "FASHIONABLE_MAN"
+	AchievementTraveler            AchievementCode = "TRAVELER"
+	AchievementForTheSoul          AchievementCode = "FOR_THE_SOUL"
+	AchievementBookworm            AchievementCode = "BOOKWORM"
+	AchievementBeautyConnoisseur   AchievementCode = "BEAUTY_CONNOISSEUR"
+	AchievementInTheRhythmOfMusic  AchievementCode = "IN_THE_RHYTHM_OF_MUSIC"
+	AchievementWorldOfPlay         AchievementCode = "WORLD_OF_PLAY"
+	AchievementMasterCraft         AchievementCode = "MASTER_CRAFT"
+	AchievementCaringOwner         AchievementCode = "CARING_OWNER"
+	AchievementLittleDiscoveries   AchievementCode = "LITTLE_DISCOVERIES"
 )
 
 const (
@@ -150,6 +176,7 @@ type Achievement struct {
 	Description string              `json:"description"`
 	Reason      string              `json:"reason"`
 	Priority    int                 `json:"-"`
+	Strength    uint64              `json:"-"`
 	Shareable   bool                `json:"shareable"`
 }
 
