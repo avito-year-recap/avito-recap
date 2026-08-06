@@ -170,7 +170,11 @@ func TestServiceGenerateActionComesFromCurrentState(t *testing.T) {
 	state := validActionableState()
 	state.CurrentDrafts = 1
 	state.DraftListingID = testDraftListingID
-	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, &analyticsStorageStub{metrics: validMetrics()}, &actionStateStorageStub{state: state}, &recapStorageStub{},
+	metrics := validMetrics()
+	metrics.ListingsCreated = 7
+	metrics.ListingsPublished = 2
+	metrics.TotalEvents += 9
+	service := mustServiceWithState(t, &profileStorageStub{profile: validProfile()}, &analyticsStorageStub{metrics: metrics}, &actionStateStorageStub{state: state}, &recapStorageStub{},
 		WithClock(func() time.Time { return fixedClock() }), WithIDGenerator(sequenceIDGenerator(testRecapID, testShareID)))
 	value, err := service.Generate(context.Background(), testProfileID, 2025)
 	if err != nil {
