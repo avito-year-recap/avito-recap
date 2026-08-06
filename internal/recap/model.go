@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const CurrentRulesVersion = "3.4.0"
+const CurrentRulesVersion = "3.4.1"
 
 type ActivityType string
 

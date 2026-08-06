@@ -13,7 +13,7 @@ import (
 
 var ErrInvalidRuleset = errors.New("invalid ruleset")
 
-const currentRulesAlgorithm = "recap-v3.4-persona-category-awards-v1"
+const currentRulesAlgorithm = "recap-v3.4-three-next-actions-v1"
 
 var semanticVersionPattern = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$`)
 

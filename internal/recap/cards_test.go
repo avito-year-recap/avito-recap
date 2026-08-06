@@ -63,15 +63,17 @@ func TestBuildCardsFullAchievementScenario(t *testing.T) {
 
 func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 	metrics := Metrics{
-		TotalEvents:      200,
-		TotalViews:       150,
-		UniqueListings:   145,
-		ChatsStarted:     3,
-		CategoriesCount:  6,
-		TopCategoryCode:  "electronics",
-		TopCategory:      "Электроника",
-		TopCategoryViews: 40,
-		MostActiveMonth:  12,
+		TotalEvents:       209,
+		TotalViews:        150,
+		UniqueListings:    145,
+		ChatsStarted:      3,
+		ListingsCreated:   7,
+		ListingsPublished: 2,
+		CategoriesCount:   6,
+		TopCategoryCode:   "electronics",
+		TopCategory:       "Электроника",
+		TopCategoryViews:  40,
+		MostActiveMonth:   12,
 	}
 	metrics = EnrichMetrics(metrics)
 	cards := BuildCards(
@@ -81,7 +83,7 @@ func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 		metrics,
 		DetectBehavior(metrics),
 		BuildAchievements(metrics),
-		BuildNextAction(metrics, ActionableState{}),
+		BuildNextAction(metrics, ActionableState{CurrentDrafts: 1, DraftListingID: testDraftListingID}),
 	)
 
 	achievementCard := findCard(t, cards, CardAchievement)
@@ -90,7 +92,7 @@ func TestBuildCardsKeepsAchievementsWithMissedOpportunity(t *testing.T) {
 	if !ok {
 		t.Fatalf("researcher achievement card has wrong payload: %T", achievementCard.Payload)
 	}
-	wantCodes := []AchievementCode{AchievementBroadInterests}
+	wantCodes := []AchievementCode{AchievementBroadInterests, AchievementFirstSellingSteps}
 	if !reflect.DeepEqual(payload.Codes, wantCodes) {
 		t.Fatalf("researcher achievements were hidden or changed: got %v, want %v", payload.Codes, wantCodes)
 	}
