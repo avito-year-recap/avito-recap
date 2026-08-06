@@ -9,7 +9,6 @@ func TestMetricsFromScenario(t *testing.T) {
 	scenario := SeedScenario{
 		ProfileCode: "profile",
 		Year:        2025,
-		RandomSeed:  42,
 		Activity: SeedActivity{
 			Searches:           10,
 			ListingViews:       100,
@@ -78,6 +77,26 @@ func TestMetricsFromScenarioResolvesTiesDeterministically(t *testing.T) {
 	}
 	if actual.TopCategoryCode != "a" || actual.MostActiveMonth != 2 {
 		t.Fatalf("tie resolution is not deterministic: %+v", actual)
+	}
+}
+
+func TestMetricsFromScenarioAllowsNoCategoryActivity(t *testing.T) {
+	scenario := SeedScenario{
+		ProfileCode: "newcomer",
+		Year:        2025,
+		Activity: SeedActivity{
+			Searches:   5,
+			ActiveDays: 3,
+		},
+		Months: []WeightedMonth{{Month: 1, Weight: 100}},
+	}
+
+	actual, err := MetricsFromScenario(scenario)
+	if err != nil {
+		t.Fatalf("MetricsFromScenario() error = %v", err)
+	}
+	if actual.CategoriesCount != 0 || actual.TopCategoryCode != "" || actual.TopCategory != "" || actual.TopCategoryViews != 0 {
+		t.Fatalf("unexpected category metrics: %+v", actual)
 	}
 }
 
