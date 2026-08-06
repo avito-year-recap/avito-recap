@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.3.0",
-  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
     "totalEvents": 346,
     "searches": 80,
@@ -87,8 +87,8 @@
     {
       "code": "BROAD_INTERESTS",
       "category": "DISCOVERY",
-      "title": "Широкий круг интересов",
-      "description": "Активность охватила много разных направлений.",
+      "title": "Человек-оркестр",
+      "description": "За год внимание охватило множество разных направлений.",
       "reason": "Категорий с активностью: 7.",
       "shareable": true
     }
@@ -188,7 +188,7 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Широкий круг интересов",
+      "description": "Человек-оркестр",
       "explanation": "Категорий с активностью: 7.",
       "shareable": false,
       "payload": {
@@ -198,34 +198,17 @@
       }
     },
     {
-      "id": "missed-opportunity",
-      "type": "MISSED_OPPORTUNITY",
-      "position": 7,
-      "title": "Возможность, которая сэкономит время",
-      "description": "Сохранённый поиск может сам показывать новые объявления по главному интересу.",
-      "explanation": "Просмотров было 260, а сохранённого поиска по главной категории сейчас нет.",
-      "shareable": false,
-      "payload": {
-        "code": "SAVE_SEARCH",
-        "target": {
-          "search": {
-            "categoryCode": "electronics"
-          }
-        }
-      }
-    },
-    {
       "id": "next-action",
       "type": "NEXT_ACTION",
-      "position": 8,
-      "title": "Сохрани поиск",
-      "description": "Новые объявления в главной категории будет проще отслеживать без повторного поиска.",
-      "explanation": "Просмотров и категорий много, а сохранённого поиска по главному интересу сейчас нет.",
+      "position": 7,
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 260; повторных просмотров: 25; добавлений в избранное: 5.",
       "shareable": false,
       "payload": {
-        "code": "SAVE_SEARCH",
+        "code": "OPEN_TOP_CATEGORY",
         "target": {
-          "search": {
+          "category": {
             "categoryCode": "electronics"
           }
         }
@@ -234,7 +217,7 @@
     {
       "id": "share",
       "type": "SHARE",
-      "position": 9,
+      "position": 8,
       "title": "Итоги готовы — можно делиться",
       "description": "В 2025 году ты — «Глубокое исследование». Карточка содержит только данные, разрешённые для публичного показа.",
       "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
@@ -244,19 +227,19 @@
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Глубокое исследование",
-        "achievementTitle": "Широкий круг интересов",
+        "achievementTitle": "Человек-оркестр",
         "topCategory": "Электроника"
       }
     }
   ],
   "nextAction": {
-    "code": "SAVE_SEARCH",
-    "title": "Сохрани поиск",
-    "description": "Новые объявления в главной категории будет проще отслеживать без повторного поиска.",
-    "buttonText": "Сохранить поиск",
-    "reason": "Просмотров и категорий много, а сохранённого поиска по главному интересу сейчас нет.",
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 260; повторных просмотров: 25; добавлений в избранное: 5.",
     "target": {
-      "search": {
+      "category": {
         "categoryCode": "electronics"
       }
     }

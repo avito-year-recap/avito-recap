@@ -1,7 +1,7 @@
 [
   {
     "profileCode": "active-buyer",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "FIND_HUNTER",
     "expectedAchievements": [
       "ATTENTIVE_RESEARCHER",
@@ -24,12 +24,12 @@
   },
   {
     "profileCode": "active-seller",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
       "SUCCESSFUL_SELLER"
     ],
-    "expectedNextAction": "IMPROVE_LISTINGS",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "clothing",
     "expectedTopCategoryTitle": "Одежда, обувь и аксессуары",
     "expectedActiveMonth": 11,
@@ -46,12 +46,12 @@
   },
   {
     "profileCode": "researcher",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "RESEARCHER",
     "expectedAchievements": [
       "BROAD_INTERESTS"
     ],
-    "expectedNextAction": "SAVE_SEARCH",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "electronics",
     "expectedTopCategoryTitle": "Электроника",
     "expectedActiveMonth": 12,
@@ -62,19 +62,18 @@
       "ACTIVE_MONTH",
       "BEHAVIOR",
       "ACHIEVEMENT",
-      "MISSED_OPPORTUNITY",
       "NEXT_ACTION",
       "SHARE"
     ]
   },
   {
     "profileCode": "universal-user",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [
-      "ALL_ROUNDER"
+      "FIRST_SELLING_STEPS"
     ],
-    "expectedNextAction": "CONTINUE_DIALOGS",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "furniture",
     "expectedTopCategoryTitle": "Мебель и интерьер",
     "expectedActiveMonth": 9,
@@ -91,7 +90,7 @@
   },
   {
     "profileCode": "draft-seller",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "STARTING_SELLER",
     "expectedAchievements": [
       "FIRST_SELLING_STEPS"
@@ -114,12 +113,12 @@
   },
   {
     "profileCode": "decisive-buyer",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "DECISIVE_BUYER",
     "expectedAchievements": [
       "QUICK_DECISION"
     ],
-    "expectedNextAction": "VIEW_SIMILAR_LISTINGS",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "furniture",
     "expectedTopCategoryTitle": "Мебель и интерьер",
     "expectedActiveMonth": 11,
@@ -136,14 +135,14 @@
   },
   {
     "profileCode": "seller-buyer-hybrid",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
+      "ALL_ROUNDER",
       "SUCCESSFUL_SELLER",
-      "QUICK_DECISION",
-      "ALL_ROUNDER"
+      "QUICK_DECISION"
     ],
-    "expectedNextAction": "IMPROVE_LISTINGS",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "electronics",
     "expectedTopCategoryTitle": "Электроника",
     "expectedActiveMonth": 12,
@@ -160,12 +159,12 @@
   },
   {
     "profileCode": "returning-publisher",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
       "CONSISTENT_PUBLISHER"
     ],
-    "expectedNextAction": "CREATE_LISTING",
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
     "expectedTopCategoryCode": "furniture",
     "expectedTopCategoryTitle": "Мебель и интерьер",
     "expectedActiveMonth": 11,
@@ -182,7 +181,7 @@
   },
   {
     "profileCode": "category-browser",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [],
     "expectedNextAction": "OPEN_TOP_CATEGORY",
@@ -201,7 +200,7 @@
   },
   {
     "profileCode": "recommendation-newcomer",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [],
     "expectedNextAction": "EXPLORE_RECOMMENDATIONS",
@@ -219,7 +218,7 @@
   },
   {
     "profileCode": "steady-buyer",
-    "expectedRulesVersion": "3.3.0",
+    "expectedRulesVersion": "3.4.1",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [
       "DEAL_CLOSER"
@@ -228,6 +227,145 @@
     "expectedTopCategoryCode": "electronics",
     "expectedTopCategoryTitle": "Электроника",
     "expectedActiveMonth": 12,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "book-collector",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "DECISIVE_BUYER",
+    "expectedAchievements": [
+      "QUICK_DECISION",
+      "BOOKWORM"
+    ],
+    "expectedNextAction": "OPEN_FAVORITES",
+    "expectedTopCategoryCode": "books",
+    "expectedTopCategoryTitle": "Книги",
+    "expectedActiveMonth": 12,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "private-style-hunter",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "FIND_HUNTER",
+    "expectedAchievements": [
+      "MASTER_OF_FAVORITES",
+      "STYLE_ICON"
+    ],
+    "expectedNextAction": "OPEN_FAVORITES",
+    "expectedTopCategoryCode": "beauty_cosmetics",
+    "expectedTopCategoryTitle": "Красота и косметика",
+    "expectedActiveMonth": 7,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "maker-with-draft",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "STARTING_SELLER",
+    "expectedAchievements": [
+      "FIRST_SELLING_STEPS",
+      "MASTER_CRAFT"
+    ],
+    "expectedNextAction": "FINISH_DRAFT",
+    "expectedTopCategoryCode": "tools",
+    "expectedTopCategoryTitle": "Инструменты",
+    "expectedActiveMonth": 9,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "MISSED_OPPORTUNITY",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "pet-threshold-buyer",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "DECISIVE_BUYER",
+    "expectedAchievements": [
+      "QUICK_DECISION",
+      "CARING_OWNER"
+    ],
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
+    "expectedTopCategoryCode": "pets",
+    "expectedTopCategoryTitle": "Товары для животных",
+    "expectedActiveMonth": 11,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "music-traveler",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "FIND_HUNTER",
+    "expectedAchievements": [
+      "DEAL_CLOSER",
+      "IN_THE_RHYTHM_OF_MUSIC",
+      "TRAVELER"
+    ],
+    "expectedNextAction": "OPEN_TOP_CATEGORY",
+    "expectedTopCategoryCode": "music",
+    "expectedTopCategoryTitle": "Музыкальные инструменты и аудио",
+    "expectedActiveMonth": 6,
+    "requiredCards": [
+      "INTRO",
+      "YEAR_ACTIVITY",
+      "TOP_CATEGORY",
+      "ACTIVE_MONTH",
+      "BEHAVIOR",
+      "ACHIEVEMENT",
+      "NEXT_ACTION",
+      "SHARE"
+    ]
+  },
+  {
+    "profileCode": "listing-restart",
+    "expectedRulesVersion": "3.4.1",
+    "expectedBehavior": "STARTING_SELLER",
+    "expectedAchievements": [
+      "FIRST_SELLING_STEPS"
+    ],
+    "expectedNextAction": "CREATE_LISTING",
+    "expectedTopCategoryCode": "clothing",
+    "expectedTopCategoryTitle": "Одежда, обувь и аксессуары",
+    "expectedActiveMonth": 10,
     "requiredCards": [
       "INTRO",
       "YEAR_ACTIVITY",

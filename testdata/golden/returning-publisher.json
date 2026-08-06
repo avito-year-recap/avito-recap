@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.3.0",
-  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
     "totalEvents": 62,
     "searches": 4,
@@ -80,8 +80,8 @@
     {
       "code": "CONSISTENT_PUBLISHER",
       "category": "SELLING",
-      "title": "Стабильные публикации",
-      "description": "Объявления появлялись регулярно и поддерживали активный сценарий продаж.",
+      "title": "Маяк стабильности",
+      "description": "Объявления появлялись регулярно и поддерживали стабильный ритм продаж.",
       "reason": "Объявлений опубликовано: 6.",
       "shareable": true
     }
@@ -174,7 +174,7 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Стабильные публикации",
+      "description": "Маяк стабильности",
       "explanation": "Объявлений опубликовано: 6.",
       "shareable": false,
       "payload": {
@@ -187,15 +187,15 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Создай новое объявление",
-      "description": "Начни новый сценарий продажи с актуального объявления.",
-      "explanation": "Годовой сценарий продавца подтверждён, а текущих активных объявлений нет.",
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 30; повторных просмотров: 2; добавлений в избранное: 2.",
       "shareable": false,
       "payload": {
-        "code": "CREATE_LISTING",
+        "code": "OPEN_TOP_CATEGORY",
         "target": {
-          "route": {
-            "route": "/listings/new"
+          "category": {
+            "categoryCode": "furniture"
           }
         }
       }
@@ -213,20 +213,20 @@
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Продажи в движении",
-        "achievementTitle": "Стабильные публикации",
+        "achievementTitle": "Маяк стабильности",
         "topCategory": "Мебель и интерьер"
       }
     }
   ],
   "nextAction": {
-    "code": "CREATE_LISTING",
-    "title": "Создай новое объявление",
-    "description": "Начни новый сценарий продажи с актуального объявления.",
-    "buttonText": "Создать объявление",
-    "reason": "Годовой сценарий продавца подтверждён, а текущих активных объявлений нет.",
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 30; повторных просмотров: 2; добавлений в избранное: 2.",
     "target": {
-      "route": {
-        "route": "/listings/new"
+      "category": {
+        "categoryCode": "furniture"
       }
     }
   },

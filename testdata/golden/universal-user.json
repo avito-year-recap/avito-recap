@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.3.0",
-  "rulesDigest": "b48038973bd13654c71ca41ae492d35c6585df813890d007b548280920473e1e",
+  "rulesVersion": "3.4.1",
+  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
     "totalEvents": 153,
     "searches": 25,
@@ -62,11 +62,11 @@
   },
   "achievements": [
     {
-      "code": "ALL_ROUNDER",
-      "category": "VERSATILITY",
-      "title": "Всё в одном году",
-      "description": "Поиск, общение, покупки и продажи сложились в один разносторонний сценарий.",
-      "reason": "Покупок: 1. Продаж: 2. Опубликованных объявлений: 4.",
+      "code": "FIRST_SELLING_STEPS",
+      "category": "SELLING",
+      "title": "Начинающий бизнесмен",
+      "description": "Продажный сценарий уже начался и набирает первые результаты.",
+      "reason": "Продаж завершено: 2.",
       "shareable": true
     }
   ],
@@ -142,12 +142,12 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Всё в одном году",
-      "explanation": "Покупок: 1. Продаж: 2. Опубликованных объявлений: 4.",
+      "description": "Начинающий бизнесмен",
+      "explanation": "Продаж завершено: 2.",
       "shareable": false,
       "payload": {
         "codes": [
-          "ALL_ROUNDER"
+          "FIRST_SELLING_STEPS"
         ]
       }
     },
@@ -155,15 +155,15 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Продолжи актуальный диалог",
-      "description": "Вернись к открытому разговору и заверши договорённость.",
-      "explanation": "Сейчас открыто диалогов: 2.",
+      "title": "Кажется, тебе это понравилось",
+      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+      "explanation": "Просмотров: 95; повторных просмотров: 9; добавлений в избранное: 12.",
       "shareable": false,
       "payload": {
-        "code": "CONTINUE_DIALOGS",
+        "code": "OPEN_TOP_CATEGORY",
         "target": {
-          "dialog": {
-            "dialogId": "dc1a4377-ee2e-5a98-92ce-39e778a36ebe"
+          "category": {
+            "categoryCode": "furniture"
           }
         }
       }
@@ -181,20 +181,20 @@
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Разные сценарии",
-        "achievementTitle": "Всё в одном году",
+        "achievementTitle": "Начинающий бизнесмен",
         "topCategory": "Мебель и интерьер"
       }
     }
   ],
   "nextAction": {
-    "code": "CONTINUE_DIALOGS",
-    "title": "Продолжи актуальный диалог",
-    "description": "Вернись к открытому разговору и заверши договорённость.",
-    "buttonText": "Открыть диалог",
-    "reason": "Сейчас открыто диалогов: 2.",
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Кажется, тебе это понравилось",
+    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
+    "buttonText": "Смотреть объявления",
+    "reason": "Просмотров: 95; повторных просмотров: 9; добавлений в избранное: 12.",
     "target": {
-      "dialog": {
-        "dialogId": "dc1a4377-ee2e-5a98-92ce-39e778a36ebe"
+      "category": {
+        "categoryCode": "furniture"
       }
     }
   },

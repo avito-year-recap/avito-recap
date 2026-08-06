@@ -1,12 +1,12 @@
 {
-  "id": "db5a697c-53fe-5972-95c4-9505df0909bf",
-  "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
+  "id": "a123b62a-f648-57e7-9dc8-6b0c26cd531d",
+  "shareId": "a122b62a-f648-57e7-9dc8-6b0c26cd531d",
   "profile": {
-    "id": "245a697c-53fe-5972-95c4-9505df0909bf",
-    "code": "decisive-buyer",
-    "displayName": "Ольга",
-    "description": "Быстро переходит от просмотра объявлений к общению и покупке",
-    "avatarUrl": "/avatars/decisive-buyer.png"
+    "id": "5e23b62a-f648-57e7-9dc8-6b0c26cd531d",
+    "code": "pet-threshold-buyer",
+    "displayName": "Дарья",
+    "description": "Покупает товары для питомца и ровно достигает порога решительного покупателя",
+    "avatarUrl": "/avatars/pet-threshold-buyer.png"
   },
   "year": 2025,
   "period": {
@@ -18,27 +18,45 @@
   "rulesVersion": "3.4.1",
   "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
   "metrics": {
-    "totalEvents": 115,
-    "searches": 12,
-    "totalViews": 70,
-    "uniqueListings": 58,
-    "repeatedViews": 12,
-    "favoritesAdded": 14,
+    "totalEvents": 135,
+    "searches": 20,
+    "totalViews": 90,
+    "uniqueListings": 70,
+    "repeatedViews": 20,
+    "favoritesAdded": 7,
     "chatsStarted": 15,
     "listingsCreated": 0,
     "listingsPublished": 0,
-    "purchasesCompleted": 4,
+    "purchasesCompleted": 3,
     "salesCompleted": 0,
-    "activeDays": 36,
-    "categoriesCount": 3,
-    "chatsWithPurchase": 4,
-    "topCategoryCode": "furniture",
-    "topCategory": "Мебель и интерьер",
-    "topCategoryViews": 39,
-    "topCategoryShareable": true,
+    "activeDays": 45,
+    "categoriesCount": 2,
+    "chatsWithPurchase": 3,
+    "topCategoryCode": "pets",
+    "topCategory": "Товары для животных",
+    "topCategoryViews": 59,
+    "topCategoryShareable": false,
     "mostActiveMonth": 11,
-    "repeatRate": 0.17142857142857143,
-    "purchaseRate": 0.26666666666666666
+    "repeatRate": 0.2222222222222222,
+    "purchaseRate": 0.2,
+    "categoryActivities": [
+      {
+        "categoryCode": "furniture",
+        "category": "Мебель и интерьер",
+        "shareable": true,
+        "views": 31,
+        "favoritesAdded": 2,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "pets",
+        "category": "Товары для животных",
+        "shareable": false,
+        "views": 59,
+        "favoritesAdded": 5,
+        "purchasesCompleted": 3
+      }
+    ]
   },
   "actionableState": {
     "capturedAt": "2026-08-04T12:00:00Z",
@@ -50,22 +68,22 @@
     "activeListingId": "00000000-0000-0000-0000-000000000000",
     "favoritesCount": 0,
     "hasSavedSearchForTopCategory": false,
-    "lastPurchasedListingId": "af36dc82-9258-5535-8cf9-012039479787",
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
     "hasEverPublishedListing": false
   },
   "behavior": {
     "code": "DECISIVE_BUYER",
     "title": "Решительный покупатель",
     "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
-    "reason": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+    "reason": "Завершено покупок: 3 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 3 (порог 3). Покупкой завершилось 20% начатых диалогов (порог 20%).",
     "score": 100,
     "evidence": [
       {
         "metric": "purchases_completed",
-        "actual": 4,
+        "actual": 3,
         "threshold": 3,
         "points": 25,
-        "detail": "Завершено покупок: 4 (порог 3)."
+        "detail": "Завершено покупок: 3 (порог 3)."
       },
       {
         "metric": "chats_started",
@@ -76,17 +94,17 @@
       },
       {
         "metric": "chats_with_purchase",
-        "actual": 4,
+        "actual": 3,
         "threshold": 3,
         "points": 30,
-        "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+        "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
       },
       {
         "metric": "purchase_rate",
-        "actual": 0.26666666666666666,
+        "actual": 0.2,
         "threshold": 0.2,
         "points": 30,
-        "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+        "detail": "Покупкой завершилось 20% начатых диалогов (порог 20%)."
       }
     ]
   },
@@ -96,8 +114,16 @@
       "category": "BUYING",
       "title": "Молния",
       "description": "Ты быстро переходил от диалога к подходящему выбору.",
-      "reason": "Покупкой завершилось 27% начатых диалогов.",
+      "reason": "Покупкой завершилось 20% начатых диалогов.",
       "shareable": true
+    },
+    {
+      "code": "CARING_OWNER",
+      "category": "INTEREST",
+      "title": "Заботливый хозяин",
+      "description": "Товары для животных стали заметной частью твоих выборов.",
+      "reason": "Категории: Товары для животных. Просмотров: 59. Добавлений в избранное: 5. Покупок: 3. Доля тематической активности: 75%.",
+      "shareable": false
     }
   ],
   "cards": [
@@ -105,7 +131,7 @@
       "id": "intro",
       "type": "INTRO",
       "position": 1,
-      "title": "Ольга, вот твои итоги за 2025 год",
+      "title": "Дарья, вот твои итоги за 2025 год",
       "description": "Это финальный recap за завершённый календарный год.",
       "shareable": false
     },
@@ -114,17 +140,17 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 115 действий.",
+      "description": "За завершённый год система учла 135 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 115,
-        "searches": 12,
-        "totalViews": 70,
-        "favoritesAdded": 14,
+        "totalEvents": 135,
+        "searches": 20,
+        "totalViews": 90,
+        "favoritesAdded": 7,
         "chatsStarted": 15,
         "listingsPublished": 0,
-        "purchasesCompleted": 4,
+        "purchasesCompleted": 3,
         "salesCompleted": 0
       }
     },
@@ -133,13 +159,13 @@
       "type": "TOP_CATEGORY",
       "position": 3,
       "title": "Главный интерес года",
-      "description": "Чаще всего внимание привлекала категория «Мебель и интерьер».",
-      "explanation": "Просмотров в этой категории: 39.",
+      "description": "Чаще всего внимание привлекала категория «Товары для животных».",
+      "explanation": "Просмотров в этой категории: 59.",
       "shareable": false,
       "payload": {
-        "categoryCode": "furniture",
-        "category": "Мебель и интерьер",
-        "categoryViews": 39
+        "categoryCode": "pets",
+        "category": "Товары для животных",
+        "categoryViews": 59
       }
     },
     {
@@ -160,7 +186,7 @@
       "position": 5,
       "title": "Решительный покупатель",
       "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
-      "explanation": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+      "explanation": "Завершено покупок: 3 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 3 (порог 3). Покупкой завершилось 20% начатых диалогов (порог 20%).",
       "shareable": false,
       "payload": {
         "code": "DECISIVE_BUYER",
@@ -168,10 +194,10 @@
         "evidence": [
           {
             "metric": "purchases_completed",
-            "actual": 4,
+            "actual": 3,
             "threshold": 3,
             "points": 25,
-            "detail": "Завершено покупок: 4 (порог 3)."
+            "detail": "Завершено покупок: 3 (порог 3)."
           },
           {
             "metric": "chats_started",
@@ -182,17 +208,17 @@
           },
           {
             "metric": "chats_with_purchase",
-            "actual": 4,
+            "actual": 3,
             "threshold": 3,
             "points": 30,
-            "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+            "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
           },
           {
             "metric": "purchase_rate",
-            "actual": 0.26666666666666666,
+            "actual": 0.2,
             "threshold": 0.2,
             "points": 30,
-            "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+            "detail": "Покупкой завершилось 20% начатых диалогов (порог 20%)."
           }
         ]
       }
@@ -202,12 +228,13 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Молния",
-      "explanation": "Покупкой завершилось 27% начатых диалогов.",
+      "description": "Молния • Заботливый хозяин",
+      "explanation": "Покупкой завершилось 20% начатых диалогов. Категории: Товары для животных. Просмотров: 59. Добавлений в избранное: 5. Покупок: 3. Доля тематической активности: 75%.",
       "shareable": false,
       "payload": {
         "codes": [
-          "QUICK_DECISION"
+          "QUICK_DECISION",
+          "CARING_OWNER"
         ]
       }
     },
@@ -217,13 +244,13 @@
       "position": 7,
       "title": "Кажется, тебе это понравилось",
       "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-      "explanation": "Просмотров: 70; повторных просмотров: 12; добавлений в избранное: 14.",
+      "explanation": "Просмотров: 90; повторных просмотров: 20; добавлений в избранное: 7.",
       "shareable": false,
       "payload": {
         "code": "OPEN_TOP_CATEGORY",
         "target": {
           "category": {
-            "categoryCode": "furniture"
+            "categoryCode": "pets"
           }
         }
       }
@@ -237,12 +264,11 @@
       "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
       "shareable": true,
       "payload": {
-        "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
+        "shareId": "a122b62a-f648-57e7-9dc8-6b0c26cd531d",
         "year": 2025,
         "privacyVersion": "privacy-v2",
         "behaviorTitle": "Решительный покупатель",
-        "achievementTitle": "Молния",
-        "topCategory": "Мебель и интерьер"
+        "achievementTitle": "Молния"
       }
     }
   ],
@@ -251,10 +277,10 @@
     "title": "Кажется, тебе это понравилось",
     "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
     "buttonText": "Смотреть объявления",
-    "reason": "Просмотров: 70; повторных просмотров: 12; добавлений в избранное: 14.",
+    "reason": "Просмотров: 90; повторных просмотров: 20; добавлений в избранное: 7.",
     "target": {
       "category": {
-        "categoryCode": "furniture"
+        "categoryCode": "pets"
       }
     }
   },

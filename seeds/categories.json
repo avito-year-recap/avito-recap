@@ -1,0 +1,22 @@
+[
+  {"code": "electronics", "title": "Электроника", "shareable": true},
+  {"code": "auto", "title": "Авто", "shareable": true},
+  {"code": "real_estate", "title": "Недвижимость", "shareable": true},
+  {"code": "furniture", "title": "Мебель и интерьер", "shareable": true},
+  {"code": "clothing", "title": "Одежда, обувь и аксессуары", "shareable": true},
+  {"code": "hobby", "title": "Хобби и отдых", "shareable": true},
+  {"code": "sports", "title": "Спорт и отдых", "shareable": true},
+  {"code": "services", "title": "Услуги", "shareable": true},
+  {"code": "womens_fashion", "title": "Женская одежда и аксессуары", "shareable": true},
+  {"code": "beauty_cosmetics", "title": "Красота и косметика", "shareable": false},
+  {"code": "mens_fashion", "title": "Мужская одежда и аксессуары", "shareable": true},
+  {"code": "outdoor_travel", "title": "Туризм и путешествия", "shareable": true},
+  {"code": "garden", "title": "Дача и сад", "shareable": true},
+  {"code": "books", "title": "Книги", "shareable": true},
+  {"code": "jewelry", "title": "Украшения и ювелирные изделия", "shareable": false},
+  {"code": "music", "title": "Музыкальные инструменты и аудио", "shareable": true},
+  {"code": "toys_dolls", "title": "Игрушки, куклы и коллекционирование", "shareable": true},
+  {"code": "tools", "title": "Инструменты", "shareable": true},
+  {"code": "pets", "title": "Товары для животных", "shareable": false},
+  {"code": "kids", "title": "Детские товары", "shareable": false}
+]
