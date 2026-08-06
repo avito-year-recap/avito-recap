@@ -108,12 +108,12 @@ func DefaultRuleset() Ruleset {
 			MaxAwarded: maxAchievements,
 			Rules: []AchievementRuleConfig{
 				{Code: AchievementSuccessfulSeller, Category: AchievementCategorySelling, Priority: 110},
+				{Code: AchievementQuickDecision, Category: AchievementCategoryBuying, Priority: 108},
 				{Code: AchievementDealCloser, Category: AchievementCategoryBuying, Priority: 105},
 				{Code: AchievementConsistentPublisher, Category: AchievementCategorySelling, Priority: 100},
 				{Code: AchievementBroadInterests, Category: AchievementCategoryDiscovery, Priority: 98},
 				{Code: AchievementAllRounder, Category: AchievementCategoryVersatility, Priority: 97},
 				{Code: AchievementFirstSellingSteps, Category: AchievementCategorySelling, Priority: 96},
-				{Code: AchievementQuickDecision, Category: AchievementCategoryBuying, Priority: 95},
 				{Code: AchievementAttentiveResearcher, Category: AchievementCategoryDiscovery, Priority: 90},
 				{Code: AchievementMasterOfFavorites, Category: AchievementCategoryCollection, Priority: 80},
 			},
