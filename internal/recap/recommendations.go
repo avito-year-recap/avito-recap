@@ -7,7 +7,16 @@ import (
 	"github.com/google/uuid"
 )
 
-const publishedForImprove uint64 = 3
+const (
+	manyFavoritesTitle       = "Твои фавориты всё ещё ждут"
+	manyFavoritesDescription = "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий."
+
+	createdNotPublishedTitle       = "Объявления почти готовы"
+	createdNotPublishedDescription = "Часть созданных объявлений не дошла до публикации."
+
+	viewedWithoutFavoritesTitle       = "Кажется, тебе это понравилось"
+	viewedWithoutFavoritesDescription = "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте."
+)
 
 type recommendationContext struct {
 	metrics  Metrics
@@ -35,8 +44,8 @@ func BuildNextAction(metrics Metrics, states ...ActionableState) NextAction {
 	return ruleset.BuildNextAction(metrics, state, behavior)
 }
 
-// BuildNextAction evaluates an explicit priority table. Product ordering is
-// data in the Ruleset and therefore part of its digest, not slice/switch order.
+// BuildNextAction evaluates an explicit priority table. The user-facing output
+// is deliberately restricted to three product-approved variants.
 func (r Ruleset) BuildNextAction(metrics Metrics, state ActionableState, behavior Behavior) NextAction {
 	ctx := recommendationContext{
 		metrics: EnrichMetrics(metrics), state: normalizeActionableState(state), behavior: behavior,
@@ -64,120 +73,99 @@ func (r Ruleset) recommendationRules() []recommendationRule {
 	p := r.RecommendationPriorities
 	return []recommendationRule{
 		{
-			name: "finish-current-draft", code: ActionFinishDraft, priority: p.FinishDraft,
+			name: "created-not-published-current-draft", code: ActionFinishDraft, priority: p.FinishDraft,
 			match: func(c recommendationContext) bool {
-				return c.state.CurrentDrafts > 0 && c.state.DraftListingID != uuid.Nil
+				return hasCreationPublicationGap(c.metrics, r.Thresholds) &&
+					c.state.CurrentDrafts > 0 && c.state.DraftListingID != uuid.Nil
 			},
 			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionFinishDraft, Title: "Заверши начатое объявление",
-					Description: "Открой актуальный черновик и подготовь его к публикации.", ButtonText: "Открыть черновик",
-					Reason: fmt.Sprintf("Сейчас доступно черновиков: %d. Данные получены из текущего адресуемого snapshot.", c.state.CurrentDrafts),
-					Target: listingActionTarget(c.state.DraftListingID)}
+				return NextAction{
+					Code: ActionFinishDraft, Title: createdNotPublishedTitle,
+					Description: createdNotPublishedDescription, ButtonText: "Открыть черновик",
+					Reason: fmt.Sprintf("Создано объявлений: %d; опубликовано: %d; сейчас доступно черновиков: %d.",
+						c.metrics.ListingsCreated, c.metrics.ListingsPublished, c.state.CurrentDrafts),
+					Target: listingActionTarget(c.state.DraftListingID),
+				}
 			},
 		},
 		{
-			name: "continue-open-dialog", code: ActionContinueDialogs, priority: p.ContinueDialog,
-			match: func(c recommendationContext) bool { return c.state.OpenDialogs > 0 && c.state.OpenDialogID != uuid.Nil },
-			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionContinueDialogs, Title: "Продолжи актуальный диалог",
-					Description: "Вернись к открытому разговору и заверши договорённость.", ButtonText: "Открыть диалог",
-					Reason: fmt.Sprintf("Сейчас открыто диалогов: %d.", c.state.OpenDialogs), Target: dialogActionTarget(c.state.OpenDialogID)}
-			},
-		},
-		{
-			name: "improve-addressable-listing", code: ActionImproveListings, priority: p.ImproveListing,
+			name: "created-not-published", code: ActionCreateListing, priority: p.ImproveListing,
 			match: func(c recommendationContext) bool {
-				return c.state.ActiveListings >= publishedForImprove && c.state.ActiveListingID != uuid.Nil
+				return hasCreationPublicationGap(c.metrics, r.Thresholds)
 			},
 			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionImproveListings, Title: "Усиль активное объявление",
-					Description: "Обнови фотографии или описание конкретного активного объявления.", ButtonText: "Открыть объявление",
-					Reason: fmt.Sprintf("Сейчас активно объявлений: %d; выбран конкретный адресуемый объект.", c.state.ActiveListings),
-					Target: listingActionTarget(c.state.ActiveListingID)}
+				return NextAction{
+					Code: ActionCreateListing, Title: createdNotPublishedTitle,
+					Description: createdNotPublishedDescription, ButtonText: "Создать объявление",
+					Reason: fmt.Sprintf("Создано объявлений: %d; опубликовано: %d.",
+						c.metrics.ListingsCreated, c.metrics.ListingsPublished),
+					Target: routeActionTarget("/listings/new"),
+				}
 			},
 		},
 		{
-			name: "similar-to-purchase", code: ActionViewSimilarListings, priority: p.SimilarToPurchase,
+			name: "many-favorites", code: ActionOpenFavorites, priority: p.OpenFavorites,
 			match: func(c recommendationContext) bool {
-				return c.behavior.Code == BehaviorDecisiveBuyer && c.state.LastPurchasedListingID != uuid.Nil
+				return c.state.FavoritesCount > 0
 			},
 			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionViewSimilarListings, Title: "Посмотри похожие варианты",
-					Description: "Открой подборку, похожую на недавнюю покупку.", ButtonText: "Смотреть похожее",
-					Reason: "Target связан с последним завершённым сценарием покупки.",
-					Target: listingActionTarget(c.state.LastPurchasedListingID)}
+				reason := fmt.Sprintf("За год добавлено в избранное: %d.", c.metrics.FavoritesAdded)
+				if c.state.FavoritesCount > 0 {
+					reason = fmt.Sprintf("За год добавлено в избранное: %d; сейчас доступно вариантов: %d.",
+						c.metrics.FavoritesAdded, c.state.FavoritesCount)
+				}
+				return NextAction{
+					Code: ActionOpenFavorites, Title: manyFavoritesTitle,
+					Description: manyFavoritesDescription, ButtonText: "Открыть избранное",
+					Reason: reason, Target: routeActionTarget("/favorites"),
+				}
 			},
 		},
 		{
-			name: "save-research-search", code: ActionSaveSearch, priority: p.SaveSearch,
-			match: func(c recommendationContext) bool {
-				return c.behavior.Code == BehaviorResearcher && c.metrics.TopCategoryCode != "" && !c.state.HasSavedSearchForTopCategory
-			},
-			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionSaveSearch, Title: "Сохрани поиск",
-					Description: "Новые объявления в главной категории будет проще отслеживать без повторного поиска.", ButtonText: "Сохранить поиск",
-					Reason: "Просмотров и категорий много, а сохранённого поиска по главному интересу сейчас нет.",
-					Target: searchActionTarget(c.metrics.TopCategoryCode)}
-			},
-		},
-		{
-			name: "open-current-favorites", code: ActionOpenFavorites, priority: p.OpenFavorites,
-			match: func(c recommendationContext) bool {
-				return c.behavior.Code == BehaviorFindHunter && c.state.FavoritesCount > 0
-			},
-			build: func(c recommendationContext) NextAction {
-				return NextAction{Code: ActionOpenFavorites, Title: "Вернись к своим находкам",
-					Description: "В избранном есть актуальные варианты, которые можно ещё раз сравнить.", ButtonText: "Открыть избранное",
-					Reason: fmt.Sprintf("Сейчас в избранном доступно объектов: %d.", c.state.FavoritesCount), Target: routeActionTarget("/favorites")}
-			},
-		},
-		{
-			name: "create-for-starting-seller", code: ActionCreateListing, priority: p.CreateForStarter,
-			match: func(c recommendationContext) bool {
-				return c.behavior.Code == BehaviorStartingSeller && c.state.ActiveListings == 0
-			},
-			build: func(recommendationContext) NextAction {
-				return createListingAction("Исторические метрики подтверждают сценарий продавца, но актуального адресуемого черновика или активного объявления нет.")
-			},
-		},
-		{
-			name: "create-for-active-seller", code: ActionCreateListing, priority: p.CreateForSeller,
-			match: func(c recommendationContext) bool {
-				return c.behavior.Code == BehaviorActiveSeller && c.state.ActiveListings == 0
-			},
-			build: func(recommendationContext) NextAction {
-				return createListingAction("Годовой сценарий продавца подтверждён, а текущих активных объявлений нет.")
-			},
-		},
-		{
-			name: "open-top-category", code: ActionOpenTopCategory, priority: p.OpenTopCategory,
-			match: func(c recommendationContext) bool { return c.metrics.TopCategoryCode != "" },
-			build: func(c recommendationContext) NextAction {
-				return openCategoryAction(c.metrics, "Категория была самой просматриваемой за завершённый год и остаётся нейтральным продолжением сценария.")
-			},
-		},
-		{
-			name: "neutral-fallback", code: ActionExploreRecommendations, priority: p.NeutralFallback,
+			name: "viewed-without-favorites", code: ActionExploreRecommendations, priority: p.NeutralFallback,
 			match: func(recommendationContext) bool { return true },
-			build: func(recommendationContext) NextAction {
-				return NextAction{Code: ActionExploreRecommendations, Title: "Посмотри персональные рекомендации",
-					Description: "Открой подборку новых вариантов и выбери актуальный сценарий.", ButtonText: "Открыть рекомендации",
-					Reason: "Нет достаточных и адресуемых оснований для более узкого действия.", Target: routeActionTarget("/recommendations")}
+			build: func(c recommendationContext) NextAction {
+				reason := fmt.Sprintf("Просмотров: %d; повторных просмотров: %d; добавлений в избранное: %d.",
+					c.metrics.TotalViews, c.metrics.RepeatedViews, c.metrics.FavoritesAdded)
+				if c.metrics.TopCategoryCode != "" {
+					return NextAction{
+						Code: ActionOpenTopCategory, Title: viewedWithoutFavoritesTitle,
+						Description: viewedWithoutFavoritesDescription, ButtonText: "Смотреть объявления",
+						Reason: reason, Target: categoryActionTarget(c.metrics.TopCategoryCode),
+					}
+				}
+				return NextAction{
+					Code: ActionExploreRecommendations, Title: viewedWithoutFavoritesTitle,
+					Description: viewedWithoutFavoritesDescription, ButtonText: "Открыть рекомендации",
+					Reason: reason, Target: routeActionTarget("/recommendations"),
+				}
 			},
 		},
 	}
 }
 
-func createListingAction(reason string) NextAction {
-	return NextAction{Code: ActionCreateListing, Title: "Создай новое объявление",
-		Description: "Начни новый сценарий продажи с актуального объявления.", ButtonText: "Создать объявление",
-		Reason: reason, Target: routeActionTarget("/listings/new")}
+func hasCreationPublicationGap(metrics Metrics, thresholds BehaviorThresholds) bool {
+	return metrics.ListingsCreated >= thresholds.StartingSellerMinCreated &&
+		metrics.ListingsPublished <= thresholds.StartingSellerMaxPublished &&
+		metrics.ListingsCreated > metrics.ListingsPublished
 }
 
+// createListingAction is kept for compatibility with integrity and hardening tests.
+func createListingAction(reason string) NextAction {
+	return NextAction{
+		Code: ActionCreateListing, Title: createdNotPublishedTitle,
+		Description: createdNotPublishedDescription, ButtonText: "Создать объявление",
+		Reason: reason, Target: routeActionTarget("/listings/new"),
+	}
+}
+
+// openCategoryAction is kept for compatibility with callers that need a category target.
 func openCategoryAction(metrics Metrics, reason string) NextAction {
-	return NextAction{Code: ActionOpenTopCategory, Title: "Посмотри новые предложения",
-		Description: fmt.Sprintf("Вернись в категорию «%s» и проверь новые варианты.", metrics.TopCategory), ButtonText: "Открыть категорию",
-		Reason: reason, Target: categoryActionTarget(metrics.TopCategoryCode)}
+	return NextAction{
+		Code: ActionOpenTopCategory, Title: viewedWithoutFavoritesTitle,
+		Description: viewedWithoutFavoritesDescription, ButtonText: "Смотреть объявления",
+		Reason: reason, Target: categoryActionTarget(metrics.TopCategoryCode),
+	}
 }
 
 func routeActionTarget(route string) ActionTarget {

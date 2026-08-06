@@ -186,9 +186,7 @@ func TestSeedCatalogueCoversAllMVPOutcomes(t *testing.T) {
 		}
 	}
 	for _, code := range []ActionCode{
-		ActionFinishDraft, ActionOpenFavorites, ActionImproveListings,
-		ActionContinueDialogs, ActionOpenTopCategory, ActionCreateListing,
-		ActionSaveSearch, ActionViewSimilarListings, ActionExploreRecommendations,
+		ActionFinishDraft, ActionOpenFavorites, ActionOpenTopCategory, ActionExploreRecommendations,
 	} {
 		if !actions[code] {
 			t.Errorf("seed catalogue does not cover action %s", code)
