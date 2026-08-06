@@ -39,7 +39,7 @@ func TestBuildAchievementsForMVPProfiles(t *testing.T) {
 		},
 		{
 			name: "decisive buyer", metrics: Metrics{ChatsStarted: 15, ChatsWithPurchase: 4, PurchasesCompleted: 4},
-			expected:   []AchievementCode{AchievementDealCloser},
+			expected:   []AchievementCode{AchievementQuickDecision},
 			categories: []AchievementCategory{AchievementCategoryBuying},
 		},
 	}
@@ -60,12 +60,32 @@ func TestBuildAchievementsForMVPProfiles(t *testing.T) {
 	}
 }
 
+func TestBuildAchievementsBuyingGradesRemainReachable(t *testing.T) {
+	t.Run("quick decision outranks broad deal closer", func(t *testing.T) {
+		result := BuildAchievements(Metrics{
+			PurchasesCompleted: 4,
+			ChatsStarted:       15,
+			ChatsWithPurchase:  4,
+		})
+		assertAchievementCodes(t, result, []AchievementCode{AchievementQuickDecision})
+	})
+
+	t.Run("deal closer remains available without conversion evidence", func(t *testing.T) {
+		result := BuildAchievements(Metrics{
+			PurchasesCompleted: 4,
+			ChatsStarted:       20,
+			ChatsWithPurchase:  2,
+		})
+		assertAchievementCodes(t, result, []AchievementCode{AchievementDealCloser})
+	})
+}
+
 func TestBuildAchievementsAwardsAtMostThreeDifferentCategories(t *testing.T) {
 	result := BuildAchievements(allAchievementMetrics())
 
 	expected := []AchievementCode{
 		AchievementSuccessfulSeller,
-		AchievementDealCloser,
+		AchievementQuickDecision,
 		AchievementBroadInterests,
 	}
 	assertAchievementCodes(t, result, expected)

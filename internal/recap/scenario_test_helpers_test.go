@@ -13,7 +13,6 @@ var ErrInvalidScenario = errors.New("invalid seed scenario")
 type SeedScenario struct {
 	ProfileCode     string             `json:"profileCode"`
 	Year            uint32             `json:"year"`
-	RandomSeed      int64              `json:"randomSeed"`
 	Activity        SeedActivity       `json:"activity"`
 	Categories      []WeightedCategory `json:"categories"`
 	Months          []WeightedMonth    `json:"months"`
@@ -118,8 +117,11 @@ func MetricsFromScenario(scenario SeedScenario) (Metrics, error) {
 }
 
 func pickTopCategory(categories []WeightedCategory) (WeightedCategory, error) {
+	// A seed may intentionally have no category activity. This is required to
+	// exercise the neutral EXPLORE_RECOMMENDATIONS fallback without inventing a
+	// top category that the user never viewed.
 	if len(categories) == 0 {
-		return WeightedCategory{}, fmt.Errorf("%w: categories are required", ErrInvalidScenario)
+		return WeightedCategory{}, nil
 	}
 
 	items := append([]WeightedCategory(nil), categories...)

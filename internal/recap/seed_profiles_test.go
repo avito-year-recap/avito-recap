@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -38,6 +39,17 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 	readJSONFile(t, projectFile(t, "seeds", "scenarios.json"), &scenarios)
 	readJSONFile(t, projectFile(t, "testdata", "expected", "recaps.json"), &expected)
 
+	seenUUIDs := make(map[uuid.UUID]string)
+	registerUUID := func(id uuid.UUID, owner string) {
+		if id == uuid.Nil {
+			return
+		}
+		if previous, exists := seenUUIDs[id]; exists {
+			t.Fatalf("seed UUID %s is reused by %s and %s", id, previous, owner)
+		}
+		seenUUIDs[id] = owner
+	}
+
 	profilesByCode := make(map[string]Profile, len(profiles))
 	for _, profile := range profiles {
 		if err := validateProfile(profile); err != nil {
@@ -45,6 +57,14 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 		}
 		if _, exists := profilesByCode[profile.Code]; exists {
 			t.Fatalf("duplicate profile code %q", profile.Code)
+		}
+		registerUUID(profile.ID, "profile:"+profile.Code)
+		if !strings.HasPrefix(profile.AvatarURL, "/avatars/") || !strings.HasSuffix(profile.AvatarURL, ".png") {
+			t.Fatalf("profile %q avatar must be a local PNG placeholder, got %q", profile.Code, profile.AvatarURL)
+		}
+		avatarPath := projectFile(t, "static", filepath.FromSlash(strings.TrimPrefix(profile.AvatarURL, "/")))
+		if info, err := os.Stat(avatarPath); err != nil || info.IsDir() {
+			t.Fatalf("profile %q avatar placeholder is unavailable at %s: %v", profile.Code, avatarPath, err)
 		}
 		profilesByCode[profile.Code] = profile
 	}
@@ -54,6 +74,10 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 		if _, exists := scenariosByCode[scenario.ProfileCode]; exists {
 			t.Fatalf("duplicate scenario for %q", scenario.ProfileCode)
 		}
+		registerUUID(scenario.ActionableState.DraftListingID, "draftListing:"+scenario.ProfileCode)
+		registerUUID(scenario.ActionableState.OpenDialogID, "openDialog:"+scenario.ProfileCode)
+		registerUUID(scenario.ActionableState.ActiveListingID, "activeListing:"+scenario.ProfileCode)
+		registerUUID(scenario.ActionableState.LastPurchasedListingID, "lastPurchasedListing:"+scenario.ProfileCode)
 		scenariosByCode[scenario.ProfileCode] = scenario
 	}
 
@@ -124,6 +148,84 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 				t.Fatal("generated recap was not saved")
 			}
 		})
+	}
+}
+
+func TestSeedCatalogueCoversAllMVPOutcomes(t *testing.T) {
+	var expected []expectedRecap
+	readJSONFile(t, projectFile(t, "testdata", "expected", "recaps.json"), &expected)
+
+	behaviors := make(map[BehaviorCode]bool)
+	achievements := make(map[AchievementCode]bool)
+	actions := make(map[ActionCode]bool)
+	for _, recap := range expected {
+		behaviors[recap.ExpectedBehavior] = true
+		actions[recap.ExpectedNextAction] = true
+		for _, code := range recap.ExpectedAchievements {
+			achievements[code] = true
+		}
+	}
+
+	for _, code := range []BehaviorCode{
+		BehaviorActiveSeller, BehaviorStartingSeller, BehaviorDecisiveBuyer,
+		BehaviorFindHunter, BehaviorResearcher, BehaviorUniversal,
+	} {
+		if !behaviors[code] {
+			t.Errorf("seed catalogue does not cover behavior %s", code)
+		}
+	}
+	for _, code := range []AchievementCode{
+		AchievementSuccessfulSeller, AchievementConsistentPublisher,
+		AchievementAttentiveResearcher, AchievementMasterOfFavorites,
+		AchievementBroadInterests, AchievementAllRounder,
+		AchievementFirstSellingSteps, AchievementDealCloser,
+		AchievementQuickDecision,
+	} {
+		if !achievements[code] {
+			t.Errorf("seed catalogue does not cover achievement %s", code)
+		}
+	}
+	for _, code := range []ActionCode{
+		ActionFinishDraft, ActionOpenFavorites, ActionImproveListings,
+		ActionContinueDialogs, ActionOpenTopCategory, ActionCreateListing,
+		ActionSaveSearch, ActionViewSimilarListings, ActionExploreRecommendations,
+	} {
+		if !actions[code] {
+			t.Errorf("seed catalogue does not cover action %s", code)
+		}
+	}
+}
+
+func TestSellerBuyerHybridSeedQualifiesForBothBehaviorRules(t *testing.T) {
+	var scenarios []SeedScenario
+	readJSONFile(t, projectFile(t, "seeds", "scenarios.json"), &scenarios)
+
+	var hybrid SeedScenario
+	found := false
+	for _, scenario := range scenarios {
+		if scenario.ProfileCode == "seller-buyer-hybrid" {
+			hybrid = scenario
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("seller-buyer-hybrid seed not found")
+	}
+
+	metrics, err := MetricsFromScenario(hybrid)
+	if err != nil {
+		t.Fatalf("build hybrid metrics: %v", err)
+	}
+	thresholds := DefaultRuleset().Thresholds
+	if !evaluateActiveSeller(metrics, thresholds).eligible {
+		t.Fatal("hybrid seed does not qualify for ACTIVE_SELLER")
+	}
+	if !evaluateDecisiveBuyer(metrics, thresholds).eligible {
+		t.Fatal("hybrid seed does not qualify for DECISIVE_BUYER")
+	}
+	if actual := DetectBehavior(metrics).Code; actual != BehaviorActiveSeller {
+		t.Fatalf("hybrid tie-break behavior = %s, want %s", actual, BehaviorActiveSeller)
 	}
 }
 
