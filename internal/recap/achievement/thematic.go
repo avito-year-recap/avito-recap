@@ -2,6 +2,7 @@ package achievement
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -84,15 +85,15 @@ func thematicEvidence(metrics model.Metrics, categoryCodes []string, thresholds 
 	var totalSignal uint64
 	for _, activity := range metrics.CategoryActivities {
 		signal := categoryActivitySignal(activity)
-		totalSignal += signal
+		totalSignal = saturatingAdd(totalSignal, signal)
 		if _, ok := allowed[activity.CategoryCode]; !ok {
 			continue
 		}
 		evidence.Categories = append(evidence.Categories, activity.Category)
-		evidence.Views += activity.Views
-		evidence.FavoritesAdded += activity.FavoritesAdded
-		evidence.PurchasesCompleted += activity.PurchasesCompleted
-		evidence.Signal += signal
+		evidence.Views = saturatingAdd(evidence.Views, activity.Views)
+		evidence.FavoritesAdded = saturatingAdd(evidence.FavoritesAdded, activity.FavoritesAdded)
+		evidence.PurchasesCompleted = saturatingAdd(evidence.PurchasesCompleted, activity.PurchasesCompleted)
+		evidence.Signal = saturatingAdd(evidence.Signal, signal)
 	}
 	if evidence.Signal == 0 || totalSignal == 0 {
 		return thematicAchievementEvidence{}, false
@@ -109,7 +110,27 @@ func thematicEvidence(metrics model.Metrics, categoryCodes []string, thresholds 
 }
 
 func categoryActivitySignal(activity model.CategoryActivity) uint64 {
-	return activity.Views + activity.FavoritesAdded*4 + activity.PurchasesCompleted*12
+	return saturatingAdd(
+		activity.Views,
+		saturatingAdd(
+			saturatingMultiply(activity.FavoritesAdded, 4),
+			saturatingMultiply(activity.PurchasesCompleted, 12),
+		),
+	)
+}
+
+func saturatingAdd(left, right uint64) uint64 {
+	if math.MaxUint64-left < right {
+		return math.MaxUint64
+	}
+	return left + right
+}
+
+func saturatingMultiply(value, multiplier uint64) uint64 {
+	if multiplier != 0 && value > math.MaxUint64/multiplier {
+		return math.MaxUint64
+	}
+	return value * multiplier
 }
 
 func thematicReason(evidence thematicAchievementEvidence) string {
