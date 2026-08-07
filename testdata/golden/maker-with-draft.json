@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 100,
     "searches": 15,
@@ -76,27 +76,23 @@
     "title": "Старт в продажах",
     "description": "В течение года объявления создавались чаще, чем публиковались.",
     "reason": "Создано объявлений: 6 (порог 3). Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
-    "score": 100,
     "evidence": [
       {
         "metric": "listings_created",
         "actual": 6,
         "threshold": 3,
-        "points": 40,
         "detail": "Создано объявлений: 6 (порог 3)."
       },
       {
         "metric": "creation_publication_gap",
         "actual": 5,
         "threshold": 1,
-        "points": 40,
         "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
       },
       {
         "metric": "sales_completed",
         "actual": 0,
         "threshold": 0,
-        "points": 20,
         "detail": "Завершённых продаж в периоде не было."
       }
     ]
@@ -183,27 +179,23 @@
       "shareable": false,
       "payload": {
         "code": "STARTING_SELLER",
-        "score": 100,
         "evidence": [
           {
             "metric": "listings_created",
             "actual": 6,
             "threshold": 3,
-            "points": 40,
             "detail": "Создано объявлений: 6 (порог 3)."
           },
           {
             "metric": "creation_publication_gap",
             "actual": 5,
             "threshold": 1,
-            "points": 40,
             "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
           },
           {
             "metric": "sales_completed",
             "actual": 0,
             "threshold": 0,
-            "points": 20,
             "detail": "Завершённых продаж в периоде не было."
           }
         ]
@@ -245,9 +237,9 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 8,
-      "title": "Объявления почти готовы",
-      "description": "Часть созданных объявлений не дошла до публикации.",
-      "explanation": "Создано объявлений: 6; опубликовано: 1; сейчас доступно черновиков: 1.",
+      "title": "Заверши начатое объявление",
+      "description": "Открой актуальный черновик и подготовь его к публикации.",
+      "explanation": "Сейчас доступно черновиков: 1; выбран конкретный актуальный черновик.",
       "shareable": false,
       "payload": {
         "code": "FINISH_DRAFT",
@@ -278,10 +270,10 @@
   ],
   "nextAction": {
     "code": "FINISH_DRAFT",
-    "title": "Объявления почти готовы",
-    "description": "Часть созданных объявлений не дошла до публикации.",
+    "title": "Заверши начатое объявление",
+    "description": "Открой актуальный черновик и подготовь его к публикации.",
     "buttonText": "Открыть черновик",
-    "reason": "Создано объявлений: 6; опубликовано: 1; сейчас доступно черновиков: 1.",
+    "reason": "Сейчас доступно черновиков: 1; выбран конкретный актуальный черновик.",
     "target": {
       "listing": {
         "listingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540"
