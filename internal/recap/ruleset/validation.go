@@ -84,15 +84,15 @@ func (r Ruleset) Validate() error {
 			return fmt.Errorf("%w: actionable recommendation priorities must exceed fallback", ErrInvalidRuleset)
 		}
 	}
-	if !(r.RecommendationPriorities.FinishDraft > r.RecommendationPriorities.ContinueDialog &&
-		r.RecommendationPriorities.ContinueDialog > r.RecommendationPriorities.ImproveListing &&
-		r.RecommendationPriorities.ImproveListing > r.RecommendationPriorities.SimilarToPurchase &&
-		r.RecommendationPriorities.SimilarToPurchase > r.RecommendationPriorities.SaveSearch &&
-		r.RecommendationPriorities.SaveSearch > r.RecommendationPriorities.OpenFavorites &&
-		r.RecommendationPriorities.OpenFavorites > r.RecommendationPriorities.CreateForStarter &&
-		r.RecommendationPriorities.CreateForStarter > r.RecommendationPriorities.CreateForSeller &&
-		r.RecommendationPriorities.CreateForSeller > r.RecommendationPriorities.OpenTopCategory &&
-		r.RecommendationPriorities.OpenTopCategory > r.RecommendationPriorities.NeutralFallback) {
+	if r.RecommendationPriorities.FinishDraft <= r.RecommendationPriorities.ContinueDialog ||
+		r.RecommendationPriorities.ContinueDialog <= r.RecommendationPriorities.ImproveListing ||
+		r.RecommendationPriorities.ImproveListing <= r.RecommendationPriorities.SimilarToPurchase ||
+		r.RecommendationPriorities.SimilarToPurchase <= r.RecommendationPriorities.SaveSearch ||
+		r.RecommendationPriorities.SaveSearch <= r.RecommendationPriorities.OpenFavorites ||
+		r.RecommendationPriorities.OpenFavorites <= r.RecommendationPriorities.CreateForStarter ||
+		r.RecommendationPriorities.CreateForStarter <= r.RecommendationPriorities.CreateForSeller ||
+		r.RecommendationPriorities.CreateForSeller <= r.RecommendationPriorities.OpenTopCategory ||
+		r.RecommendationPriorities.OpenTopCategory <= r.RecommendationPriorities.NeutralFallback {
 		return fmt.Errorf("%w: recommendation priorities violate the executable-work-first policy", ErrInvalidRuleset)
 	}
 	p := r.SharePolicy

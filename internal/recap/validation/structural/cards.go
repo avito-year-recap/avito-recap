@@ -41,7 +41,7 @@ func ValidateCards(cards []model.Card) error {
 			return fmt.Errorf("only the final share card may be marked shareable, got %q", card.ID)
 		}
 		if err := ValidateCardPayload(card.Type, card.Payload); err != nil {
-			return fmt.Errorf("card %q: %v", card.ID, err)
+			return fmt.Errorf("card %q: %w", card.ID, err)
 		}
 	}
 	if shareCards != 1 {

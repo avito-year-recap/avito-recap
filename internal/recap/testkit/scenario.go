@@ -85,7 +85,7 @@ func MetricsFromScenario(scenario SeedScenario) (model.Metrics, error) {
 		scenario.Activity.SalesCompleted,
 	)
 	if err != nil {
-		return model.Metrics{}, fmt.Errorf("%w: %v", ErrInvalidScenario, err)
+		return model.Metrics{}, fmt.Errorf("%w: %w", ErrInvalidScenario, err)
 	}
 	if scenario.Activity.ChatsWithPurchase > scenario.Activity.ChatsStarted {
 		return model.Metrics{}, fmt.Errorf("%w: chats with purchase exceed started chats", ErrInvalidScenario)
@@ -129,7 +129,7 @@ func MetricsFromScenario(scenario SeedScenario) (model.Metrics, error) {
 		CategoryActivities:   categoryActivities,
 	}
 	if err := structural.ValidateMetrics(metrics); err != nil {
-		return model.Metrics{}, fmt.Errorf("%w: %v", ErrInvalidScenario, err)
+		return model.Metrics{}, fmt.Errorf("%w: %w", ErrInvalidScenario, err)
 	}
 	return analytics.EnrichMetrics(metrics), nil
 }

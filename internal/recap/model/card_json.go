@@ -23,11 +23,7 @@ func (card Card) MarshalJSON() ([]byte, error) {
 		Shareable   bool        `json:"shareable"`
 		Payload     CardPayload `json:"payload,omitempty"`
 	}
-	return json.Marshal(cardEnvelope{
-		ID: card.ID, Type: card.Type, Position: card.Position, Title: card.Title,
-		Description: card.Description, Explanation: card.Explanation,
-		Shareable: card.Shareable, Payload: card.Payload,
-	})
+	return json.Marshal(cardEnvelope(card))
 }
 
 // UnmarshalJSON reconstructs the closed union from Card.Type and rejects
