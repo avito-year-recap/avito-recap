@@ -9,7 +9,7 @@ import (
 
 var ErrInvalidRuleset = errors.New("invalid ruleset")
 
-const currentRulesAlgorithm = "recap-v3.4-three-next-actions-v1"
+const currentRulesAlgorithm = "recap-v3.5-full-next-actions-v1"
 
 var semanticVersionPattern = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$`)
 
@@ -42,6 +42,11 @@ type AchievementThresholds struct {
 
 // RecommendationPriorities makes product ordering explicit and fingerprinted.
 // A larger number wins; equal priorities are resolved by action code.
+
+type RecommendationThresholds struct {
+	ImproveListingsMinActive uint64
+}
+
 type RecommendationPriorities struct {
 	FinishDraft       int
 	ContinueDialog    int
@@ -87,6 +92,7 @@ type Ruleset struct {
 	Thresholds               BehaviorThresholds
 	AchievementThresholds    AchievementThresholds
 	AchievementPolicy        AchievementPolicy
+	RecommendationThresholds RecommendationThresholds
 	RecommendationPriorities RecommendationPriorities
 	SharePolicy              SharePolicy
 }

@@ -11,28 +11,30 @@ import (
 type behaviorCandidate struct {
 	behavior model.Behavior
 	eligible bool
-	tieBreak uint32
+	priority uint32
 }
 
 type behaviorRule struct {
 	code     model.BehaviorCode
-	tieBreak uint32
+	priority uint32
 	evaluate func(model.Metrics, ruleset.BehaviorThresholds) behaviorCandidate
 }
 
-// DetectBehavior is a compatibility wrapper around the explicit default ruleset.
+// Detect is a compatibility wrapper around the explicit default ruleset.
 func Detect(metrics model.Metrics) model.Behavior {
 	return DetectWithRuleset(ruleset.DefaultRuleset(), metrics)
 }
 
-// DetectBehavior evaluates every behavior rule, then selects the highest score.
-// Slice order is not business logic: ties are resolved by an explicit tie-break rank.
+// DetectWithRuleset evaluates transparent eligibility rules. If several
+// personas match the same user, an explicit product priority resolves the
+// overlap. No confidence score is calculated: this MVP is deterministic and
+// rule-based, so every decision is explained directly by its evidence.
 func DetectWithRuleset(r ruleset.Ruleset, metrics model.Metrics) model.Behavior {
 	metrics = analytics.EnrichMetrics(metrics)
 	candidates := make([]behaviorCandidate, 0, len(behaviorRules()))
 	for _, rule := range behaviorRules() {
 		candidate := rule.evaluate(metrics, r.Thresholds)
-		candidate.tieBreak = rule.tieBreak
+		candidate.priority = rule.priority
 		if candidate.eligible {
 			candidates = append(candidates, candidate)
 		}
@@ -47,18 +49,14 @@ func selectBehaviorCandidate(candidates []behaviorCandidate) model.Behavior {
 			Code:        model.BehaviorUniversal,
 			Title:       "Разные сценарии",
 			Description: "В течение года использовались разные возможности площадки без одного доминирующего сценария.",
-			Reason:      "Ни один специализированный сценарий не набрал минимальный набор доказательств.",
-			Score:       0,
+			Reason:      "Ни один специализированный сценарий не выполнил полный набор пороговых условий.",
 		}
 	}
 
 	ordered := append([]behaviorCandidate(nil), candidates...)
 	sort.SliceStable(ordered, func(i, j int) bool {
-		if ordered[i].behavior.Score != ordered[j].behavior.Score {
-			return ordered[i].behavior.Score > ordered[j].behavior.Score
-		}
-		if ordered[i].tieBreak != ordered[j].tieBreak {
-			return ordered[i].tieBreak > ordered[j].tieBreak
+		if ordered[i].priority != ordered[j].priority {
+			return ordered[i].priority > ordered[j].priority
 		}
 		return ordered[i].behavior.Code < ordered[j].behavior.Code
 	})
@@ -67,10 +65,10 @@ func selectBehaviorCandidate(candidates []behaviorCandidate) model.Behavior {
 
 func behaviorRules() []behaviorRule {
 	return []behaviorRule{
-		{code: model.BehaviorResearcher, tieBreak: 10, evaluate: evaluateResearcher},
-		{code: model.BehaviorFindHunter, tieBreak: 20, evaluate: evaluateFindHunter},
-		{code: model.BehaviorStartingSeller, tieBreak: 30, evaluate: evaluateStartingSeller},
-		{code: model.BehaviorDecisiveBuyer, tieBreak: 40, evaluate: evaluateDecisiveBuyer},
-		{code: model.BehaviorActiveSeller, tieBreak: 50, evaluate: evaluateActiveSeller},
+		{code: model.BehaviorResearcher, priority: 10, evaluate: evaluateResearcher},
+		{code: model.BehaviorFindHunter, priority: 20, evaluate: evaluateFindHunter},
+		{code: model.BehaviorStartingSeller, priority: 30, evaluate: evaluateStartingSeller},
+		{code: model.BehaviorDecisiveBuyer, priority: 40, evaluate: evaluateDecisiveBuyer},
+		{code: model.BehaviorActiveSeller, priority: 50, evaluate: evaluateActiveSeller},
 	}
 }

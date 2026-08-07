@@ -56,6 +56,9 @@ func DefaultRuleset() Ruleset {
 				{Code: model.AchievementLittleDiscoveries, Category: model.AchievementCategoryInterest, Priority: 70},
 			},
 		},
+		RecommendationThresholds: RecommendationThresholds{
+			ImproveListingsMinActive: 3,
+		},
 		RecommendationPriorities: RecommendationPriorities{
 			FinishDraft: 1000, ContinueDialog: 900, ImproveListing: 800,
 			SimilarToPurchase: 750, SaveSearch: 700, OpenFavorites: 650,

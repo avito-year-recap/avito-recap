@@ -45,7 +45,8 @@ type CategoryActivity struct {
 	PurchasesCompleted uint64 `json:"purchasesCompleted"`
 }
 
-// ActionableState is a point-in-time snapshot used only to select executable CTAs.
+// ActionableState is an internal point-in-time snapshot used only to select and
+// validate executable CTAs. It is intentionally absent from the public API.
 // Historical annual counters must not be used as a substitute for this state.
 type ActionableState struct {
 	CapturedAt time.Time `json:"capturedAt"`

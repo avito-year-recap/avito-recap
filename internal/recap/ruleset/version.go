@@ -1,6 +1,6 @@
 package ruleset
 
 const (
-	CurrentRulesVersion = "3.4.1"
+	CurrentRulesVersion = "3.5.0"
 	MaxAchievements     = 3
 )
