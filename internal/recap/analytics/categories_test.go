@@ -32,7 +32,7 @@ func TestCategoryCatalogueContainsUniqueSafeCodes(t *testing.T) {
 			t.Fatalf("invalid category: %+v", category)
 		}
 		for _, r := range category.Code {
-			if !((r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_' || r == '-') {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' {
 				t.Fatalf("unsafe category code %q", category.Code)
 			}
 		}

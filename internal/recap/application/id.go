@@ -3,7 +3,6 @@ package application
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"io"
 )
 
 func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {
@@ -18,5 +17,3 @@ func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {
 }
 
 func generateID() (uuid.UUID, error) { return uuid.NewRandom() }
-
-func generateIDFrom(reader io.Reader) (uuid.UUID, error) { return uuid.NewRandomFromReader(reader) }

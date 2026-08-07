@@ -22,13 +22,13 @@ func ValidateRecap(value model.Recap) error {
 		return fmt.Errorf("%w: internal and public ids must differ", ErrInvalidRecap)
 	}
 	if err := ValidateProfile(value.Profile); err != nil {
-		return fmt.Errorf("%w: profile: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: profile: %w", ErrInvalidRecap, err)
 	}
 	if value.Year == 0 || value.Period.Year != value.Year {
 		return fmt.Errorf("%w: year and period are inconsistent", ErrInvalidRecap)
 	}
 	if err := ValidatePeriod(value.Period); err != nil {
-		return fmt.Errorf("%w: period: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: period: %w", ErrInvalidRecap, err)
 	}
 	if !semanticVersionPattern.MatchString(strings.TrimSpace(value.RulesVersion)) {
 		return fmt.Errorf("%w: semantic rules version is required", ErrInvalidRecap)
@@ -37,31 +37,31 @@ func ValidateRecap(value model.Recap) error {
 		return fmt.Errorf("%w: rules digest is required", ErrInvalidRecap)
 	}
 	if err := ValidateMetricsForPeriod(value.Metrics, value.Period); err != nil {
-		return fmt.Errorf("%w: metrics: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: metrics: %w", ErrInvalidRecap, err)
 	}
 	if value.Metrics.TotalEvents < minEventsForRecap {
 		return fmt.Errorf("%w: total events are below recap minimum", ErrInvalidRecap)
 	}
 	if err := ValidateStoredRates(value.Metrics); err != nil {
-		return fmt.Errorf("%w: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateActionableState(value.ActionableState); err != nil {
-		return fmt.Errorf("%w: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateBehavior(value.Behavior); err != nil {
-		return fmt.Errorf("%w: behavior: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: behavior: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateAchievements(value.Achievements); err != nil {
-		return fmt.Errorf("%w: achievements: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: achievements: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateNextAction(value.NextAction); err != nil {
-		return fmt.Errorf("%w: next action: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: next action: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateCards(value.Cards); err != nil {
-		return fmt.Errorf("%w: cards: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: cards: %w", ErrInvalidRecap, err)
 	}
 	if err := ValidateShareCardConsistency(value); err != nil {
-		return fmt.Errorf("%w: share card: %v", ErrInvalidRecap, err)
+		return fmt.Errorf("%w: share card: %w", ErrInvalidRecap, err)
 	}
 	if value.GeneratedAt.IsZero() {
 		return fmt.Errorf("%w: generated time is required", ErrInvalidRecap)
