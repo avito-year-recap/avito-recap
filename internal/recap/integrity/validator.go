@@ -42,7 +42,11 @@ func ValidateRecapAt(value model.Recap, now time.Time) error {
 // is recomputed from the immutable inputs and compared with the stored value.
 func ValidateRecapAgainstRuleset(value model.Recap, configured ruleset.Ruleset, now time.Time) error {
 	if err := configured.Validate(); err != nil {
-		return fmt.Errorf("%w: stored ruleset is invalid: %v", structural.ErrInvalidRecap, err)
+		return fmt.Errorf(
+			"%w: stored ruleset is invalid: %w",
+			structural.ErrInvalidRecap,
+			err,
+		)
 	}
 	if value.RulesVersion != configured.Version || value.RulesDigest != configured.Digest() {
 		return fmt.Errorf("%w: rules identity mismatch", structural.ErrInvalidRecap)
@@ -56,7 +60,11 @@ func ValidateRecapAgainstRuleset(value model.Recap, configured ruleset.Ruleset, 
 		return fmt.Errorf("%w: stored behavior differs from ruleset result", structural.ErrInvalidRecap)
 	}
 	if err := ValidateAchievementSelection(value.Achievements, configured.AchievementPolicy); err != nil {
-		return fmt.Errorf("%w: stored achievement selection is invalid: %v", structural.ErrInvalidRecap, err)
+		return fmt.Errorf(
+			"%w: stored achievement selection is invalid: %w",
+			structural.ErrInvalidRecap,
+			err,
+		)
 	}
 	expectedAchievements := achievement.BuildWithRuleset(configured, value.Metrics)
 	if !equalAchievements(value.Achievements, expectedAchievements) {

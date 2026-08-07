@@ -14,7 +14,7 @@ func ValidateMetrics(metrics model.Metrics) error {
 		metrics.ChatsStarted, metrics.ListingsCreated, metrics.ListingsPublished,
 		metrics.PurchasesCompleted, metrics.SalesCompleted)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrInvalidMetrics, err)
+		return fmt.Errorf("%w: %w", ErrInvalidMetrics, err)
 	}
 	if knownEvents > metrics.TotalEvents {
 		return fmt.Errorf("%w: known event counters (%d) exceed total events (%d)", ErrInvalidMetrics, knownEvents, metrics.TotalEvents)

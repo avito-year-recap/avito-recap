@@ -14,7 +14,9 @@ func TestPublicRecapProtoDoesNotExposeActionableState(t *testing.T) {
 		t.Fatal("cannot resolve test path")
 	}
 	root := filepath.Clean(filepath.Join(filepath.Dir(current), "..", ".."))
-	data, err := os.ReadFile(filepath.Join(root, "proto", "recap", "v1", "recap.proto"))
+	data, err := os.ReadFile(
+		filepath.Join(root, "proto", "recap", "recap.proto"),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
