@@ -35,8 +35,8 @@ func Build(metrics model.Metrics, states ...model.ActionableState) model.NextAct
 	return BuildWithRuleset(configured, metrics, state, detected)
 }
 
-// BuildNextAction evaluates an explicit priority table. The user-facing output
-// is deliberately restricted to three product-approved variants.
+// BuildWithRuleset evaluates the complete executable CTA table. Priority is
+// explicit ruleset data, so overlaps are deterministic and part of the digest.
 func BuildWithRuleset(r ruleset.Ruleset, metrics model.Metrics, state model.ActionableState, detected model.Behavior) model.NextAction {
 	ctx := recommendationContext{
 		metrics: analytics.EnrichMetrics(metrics), state: model.NormalizeActionableState(state), behavior: detected,

@@ -68,6 +68,10 @@ func (r Ruleset) Validate() error {
 		seenAchievementCodes[rule.Code] = struct{}{}
 	}
 
+	if r.RecommendationThresholds.ImproveListingsMinActive == 0 {
+		return fmt.Errorf("%w: recommendation count thresholds must be positive", ErrInvalidRuleset)
+	}
+
 	priorities := []int{
 		r.RecommendationPriorities.FinishDraft, r.RecommendationPriorities.ContinueDialog,
 		r.RecommendationPriorities.ImproveListing, r.RecommendationPriorities.SimilarToPurchase,

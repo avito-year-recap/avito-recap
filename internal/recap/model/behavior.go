@@ -11,11 +11,13 @@ const (
 	BehaviorUniversal      BehaviorCode = "UNIVERSAL_USER"
 )
 
+// BehaviorEvidence explains why a behavior rule matched. Thresholds are
+// eligibility boundaries; the model intentionally does not expose a pseudo
+// confidence score because this MVP is rule-based, not probabilistic.
 type BehaviorEvidence struct {
 	Metric    string  `json:"metric"`
 	Actual    float64 `json:"actual"`
 	Threshold float64 `json:"threshold"`
-	Points    uint32  `json:"points"`
 	Detail    string  `json:"detail"`
 }
 
@@ -24,6 +26,5 @@ type Behavior struct {
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
 	Reason      string             `json:"reason"`
-	Score       uint32             `json:"score"`
 	Evidence    []BehaviorEvidence `json:"evidence,omitempty"`
 }

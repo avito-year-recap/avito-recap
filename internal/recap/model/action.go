@@ -10,7 +10,7 @@ const (
 	ActionImproveListings        ActionCode = "IMPROVE_LISTINGS"
 	ActionContinueDialogs        ActionCode = "CONTINUE_DIALOGS"
 	ActionOpenTopCategory        ActionCode = "OPEN_TOP_CATEGORY"
-	ActionCreateFirstListing     ActionCode = "CREATE_FIRST_LISTING" // legacy stored value
+	ActionCreateFirstListing     ActionCode = "CREATE_FIRST_LISTING"
 	ActionCreateListing          ActionCode = "CREATE_LISTING"
 	ActionSaveSearch             ActionCode = "SAVE_SEARCH"
 	ActionViewSimilarListings    ActionCode = "VIEW_SIMILAR_LISTINGS"
