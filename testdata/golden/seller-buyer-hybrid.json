@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 155,
     "searches": 20,
@@ -58,20 +58,17 @@
     "title": "Продажи в движении",
     "description": "В течение года было много публикаций и завершённых продаж.",
     "reason": "Опубликовано объявлений: 7 (порог 5). Завершено продаж: 5 (порог 3).",
-    "score": 100,
     "evidence": [
       {
         "metric": "listings_published",
         "actual": 7,
         "threshold": 5,
-        "points": 45,
         "detail": "Опубликовано объявлений: 7 (порог 5)."
       },
       {
         "metric": "sales_completed",
         "actual": 5,
         "threshold": 3,
-        "points": 55,
         "detail": "Завершено продаж: 5 (порог 3)."
       }
     ]
@@ -166,20 +163,17 @@
       "shareable": false,
       "payload": {
         "code": "ACTIVE_SELLER",
-        "score": 100,
         "evidence": [
           {
             "metric": "listings_published",
             "actual": 7,
             "threshold": 5,
-            "points": 45,
             "detail": "Опубликовано объявлений: 7 (порог 5)."
           },
           {
             "metric": "sales_completed",
             "actual": 5,
             "threshold": 3,
-            "points": 55,
             "detail": "Завершено продаж: 5 (порог 3)."
           }
         ]
@@ -205,15 +199,15 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Кажется, тебе это понравилось",
-      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-      "explanation": "Просмотров: 90; повторных просмотров: 15; добавлений в избранное: 8.",
+      "title": "Усиль активное объявление",
+      "description": "Обнови фотографии или описание конкретного активного объявления.",
+      "explanation": "Сейчас активно объявлений: 3; для улучшения выбран конкретный объект.",
       "shareable": false,
       "payload": {
-        "code": "OPEN_TOP_CATEGORY",
+        "code": "IMPROVE_LISTINGS",
         "target": {
-          "category": {
-            "categoryCode": "electronics"
+          "listing": {
+            "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
           }
         }
       }
@@ -237,14 +231,14 @@
     }
   ],
   "nextAction": {
-    "code": "OPEN_TOP_CATEGORY",
-    "title": "Кажется, тебе это понравилось",
-    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-    "buttonText": "Смотреть объявления",
-    "reason": "Просмотров: 90; повторных просмотров: 15; добавлений в избранное: 8.",
+    "code": "IMPROVE_LISTINGS",
+    "title": "Усиль активное объявление",
+    "description": "Обнови фотографии или описание конкретного активного объявления.",
+    "buttonText": "Открыть объявление",
+    "reason": "Сейчас активно объявлений: 3; для улучшения выбран конкретный объект.",
     "target": {
-      "category": {
-        "categoryCode": "electronics"
+      "listing": {
+        "listingId": "3f3972a1-b4ac-5d06-9509-f344762f906d"
       }
     }
   },

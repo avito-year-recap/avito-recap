@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 185,
     "searches": 38,
@@ -84,27 +84,23 @@
     "title": "Искушенный наблюдатель",
     "description": "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
     "reason": "Просмотров: 120 (порог 20). Добавлено в избранное: 24 (порог 3). Доля повторных просмотров: 33% (порог 20%).",
-    "score": 100,
     "evidence": [
       {
         "metric": "total_views",
         "actual": 120,
         "threshold": 20,
-        "points": 25,
         "detail": "Просмотров: 120 (порог 20)."
       },
       {
         "metric": "favorites_added",
         "actual": 24,
         "threshold": 3,
-        "points": 30,
         "detail": "Добавлено в избранное: 24 (порог 3)."
       },
       {
         "metric": "repeat_rate",
         "actual": 0.3333333333333333,
         "threshold": 0.2,
-        "points": 45,
         "detail": "Доля повторных просмотров: 33% (порог 20%)."
       }
     ]
@@ -191,27 +187,23 @@
       "shareable": false,
       "payload": {
         "code": "FIND_HUNTER",
-        "score": 100,
         "evidence": [
           {
             "metric": "total_views",
             "actual": 120,
             "threshold": 20,
-            "points": 25,
             "detail": "Просмотров: 120 (порог 20)."
           },
           {
             "metric": "favorites_added",
             "actual": 24,
             "threshold": 3,
-            "points": 30,
             "detail": "Добавлено в избранное: 24 (порог 3)."
           },
           {
             "metric": "repeat_rate",
             "actual": 0.3333333333333333,
             "threshold": 0.2,
-            "points": 45,
             "detail": "Доля повторных просмотров: 33% (порог 20%)."
           }
         ]
@@ -236,9 +228,9 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Твои фавориты всё ещё ждут",
-      "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
-      "explanation": "За год добавлено в избранное: 24; сейчас доступно вариантов: 10.",
+      "title": "Вернись к своим находкам",
+      "description": "В избранном есть актуальные варианты, которые можно ещё раз сравнить.",
+      "explanation": "Сейчас в избранном доступно объектов: 10.",
       "shareable": false,
       "payload": {
         "code": "OPEN_FAVORITES",
@@ -268,10 +260,10 @@
   ],
   "nextAction": {
     "code": "OPEN_FAVORITES",
-    "title": "Твои фавориты всё ещё ждут",
-    "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
+    "title": "Вернись к своим находкам",
+    "description": "В избранном есть актуальные варианты, которые можно ещё раз сравнить.",
     "buttonText": "Открыть избранное",
-    "reason": "За год добавлено в избранное: 24; сейчас доступно вариантов: 10.",
+    "reason": "Сейчас в избранном доступно объектов: 10.",
     "target": {
       "route": {
         "route": "/favorites"

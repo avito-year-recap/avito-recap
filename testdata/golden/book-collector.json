@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 145,
     "searches": 24,
@@ -84,34 +84,29 @@
     "title": "Решительный покупатель",
     "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
     "reason": "Завершено покупок: 3 (порог 3). Начато диалогов: 10 (порог 5). Диалогов, связанных с покупкой: 3 (порог 3). Покупкой завершилось 30% начатых диалогов (порог 20%).",
-    "score": 100,
     "evidence": [
       {
         "metric": "purchases_completed",
         "actual": 3,
         "threshold": 3,
-        "points": 25,
         "detail": "Завершено покупок: 3 (порог 3)."
       },
       {
         "metric": "chats_started",
         "actual": 10,
         "threshold": 5,
-        "points": 15,
         "detail": "Начато диалогов: 10 (порог 5)."
       },
       {
         "metric": "chats_with_purchase",
         "actual": 3,
         "threshold": 3,
-        "points": 30,
         "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
       },
       {
         "metric": "purchase_rate",
         "actual": 0.3,
         "threshold": 0.2,
-        "points": 30,
         "detail": "Покупкой завершилось 30% начатых диалогов (порог 20%)."
       }
     ]
@@ -198,34 +193,29 @@
       "shareable": false,
       "payload": {
         "code": "DECISIVE_BUYER",
-        "score": 100,
         "evidence": [
           {
             "metric": "purchases_completed",
             "actual": 3,
             "threshold": 3,
-            "points": 25,
             "detail": "Завершено покупок: 3 (порог 3)."
           },
           {
             "metric": "chats_started",
             "actual": 10,
             "threshold": 5,
-            "points": 15,
             "detail": "Начато диалогов: 10 (порог 5)."
           },
           {
             "metric": "chats_with_purchase",
             "actual": 3,
             "threshold": 3,
-            "points": 30,
             "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
           },
           {
             "metric": "purchase_rate",
             "actual": 0.3,
             "threshold": 0.2,
-            "points": 30,
             "detail": "Покупкой завершилось 30% начатых диалогов (порог 20%)."
           }
         ]
@@ -250,9 +240,9 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Твои фавориты всё ещё ждут",
-      "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
-      "explanation": "За год добавлено в избранное: 12; сейчас доступно вариантов: 5.",
+      "title": "Вернись к своим находкам",
+      "description": "В избранном есть актуальные варианты, которые можно ещё раз сравнить.",
+      "explanation": "Сейчас в избранном доступно объектов: 5.",
       "shareable": false,
       "payload": {
         "code": "OPEN_FAVORITES",
@@ -283,10 +273,10 @@
   ],
   "nextAction": {
     "code": "OPEN_FAVORITES",
-    "title": "Твои фавориты всё ещё ждут",
-    "description": "В избранном осталось несколько актуальных вариантов. Возможно, среди них всё ещё есть подходящий.",
+    "title": "Вернись к своим находкам",
+    "description": "В избранном есть актуальные варианты, которые можно ещё раз сравнить.",
     "buttonText": "Открыть избранное",
-    "reason": "За год добавлено в избранное: 12; сейчас доступно вариантов: 5.",
+    "reason": "Сейчас в избранном доступно объектов: 5.",
     "target": {
       "route": {
         "route": "/favorites"
