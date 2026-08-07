@@ -991,7 +991,7 @@
       "favoritesAdded": 2,
       "chatsStarted": 3,
       "listingsCreated": 5,
-      "listingsPublished": 1,
+      "listingsPublished": 0,
       "purchasesCompleted": 0,
       "salesCompleted": 0,
       "activeDays": 18,
@@ -1032,7 +1032,7 @@
     "actionableState": {
       "currentDrafts": 0,
       "favoritesCount": 0,
-      "hasEverPublishedListing": true
+      "hasEverPublishedListing": false
     }
   }
 ]

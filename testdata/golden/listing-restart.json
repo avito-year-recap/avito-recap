@@ -5,7 +5,7 @@
     "id": "e746eabd-169e-5df0-90a8-4ede73ee2e1d",
     "code": "listing-restart",
     "displayName": "София",
-    "description": "Создавала объявления, но текущего черновика уже нет — recap предлагает начать публикацию заново",
+    "description": "Создавала объявления, но ещё не публиковала — recap предлагает сделать первую публикацию",
     "avatarUrl": "/avatars/listing-restart.png"
   },
   "year": 2025,
@@ -15,10 +15,10 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
-    "totalEvents": 50,
+    "totalEvents": 49,
     "searches": 9,
     "totalViews": 30,
     "uniqueListings": 25,
@@ -26,7 +26,7 @@
     "favoritesAdded": 2,
     "chatsStarted": 3,
     "listingsCreated": 5,
-    "listingsPublished": 1,
+    "listingsPublished": 0,
     "purchasesCompleted": 0,
     "salesCompleted": 0,
     "activeDays": 18,
@@ -51,34 +51,30 @@
     "favoritesCount": 0,
     "hasSavedSearchForTopCategory": false,
     "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
-    "hasEverPublishedListing": true
+    "hasEverPublishedListing": false
   },
   "behavior": {
     "code": "STARTING_SELLER",
     "title": "Старт в продажах",
     "description": "В течение года объявления создавались чаще, чем публиковались.",
-    "reason": "Создано объявлений: 5 (порог 3). Созданий больше публикаций на 4; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
-    "score": 100,
+    "reason": "Создано объявлений: 5 (порог 3). Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
     "evidence": [
       {
         "metric": "listings_created",
         "actual": 5,
         "threshold": 3,
-        "points": 40,
         "detail": "Создано объявлений: 5 (порог 3)."
       },
       {
         "metric": "creation_publication_gap",
-        "actual": 4,
+        "actual": 5,
         "threshold": 1,
-        "points": 40,
-        "detail": "Созданий больше публикаций на 4; это годовой сигнал, а не число текущих черновиков."
+        "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
       },
       {
         "metric": "sales_completed",
         "actual": 0,
         "threshold": 0,
-        "points": 20,
         "detail": "Завершённых продаж в периоде не было."
       }
     ]
@@ -107,16 +103,16 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 50 действий.",
+      "description": "За завершённый год система учла 49 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 50,
+        "totalEvents": 49,
         "searches": 9,
         "totalViews": 30,
         "favoritesAdded": 2,
         "chatsStarted": 3,
-        "listingsPublished": 1,
+        "listingsPublished": 0,
         "purchasesCompleted": 0,
         "salesCompleted": 0
       }
@@ -153,31 +149,27 @@
       "position": 5,
       "title": "Старт в продажах",
       "description": "В течение года объявления создавались чаще, чем публиковались.",
-      "explanation": "Создано объявлений: 5 (порог 3). Созданий больше публикаций на 4; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
+      "explanation": "Создано объявлений: 5 (порог 3). Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
       "shareable": false,
       "payload": {
         "code": "STARTING_SELLER",
-        "score": 100,
         "evidence": [
           {
             "metric": "listings_created",
             "actual": 5,
             "threshold": 3,
-            "points": 40,
             "detail": "Создано объявлений: 5 (порог 3)."
           },
           {
             "metric": "creation_publication_gap",
-            "actual": 4,
+            "actual": 5,
             "threshold": 1,
-            "points": 40,
-            "detail": "Созданий больше публикаций на 4; это годовой сигнал, а не число текущих черновиков."
+            "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
           },
           {
             "metric": "sales_completed",
             "actual": 0,
             "threshold": 0,
-            "points": 20,
             "detail": "Завершённых продаж в периоде не было."
           }
         ]
@@ -201,12 +193,12 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Объявления почти готовы",
-      "description": "Часть созданных объявлений не дошла до публикации.",
-      "explanation": "Создано объявлений: 5; опубликовано: 1.",
+      "title": "Опубликуй первое объявление",
+      "description": "Ты уже пробовал создавать объявления — следующий шаг можно начать с новой публикации.",
+      "explanation": "Годовые данные показывают попытки начать продажу, но в текущем состоянии нет опубликованных, активных или черновых объявлений.",
       "shareable": false,
       "payload": {
-        "code": "CREATE_LISTING",
+        "code": "CREATE_FIRST_LISTING",
         "target": {
           "route": {
             "route": "/listings/new"
@@ -233,11 +225,11 @@
     }
   ],
   "nextAction": {
-    "code": "CREATE_LISTING",
-    "title": "Объявления почти готовы",
-    "description": "Часть созданных объявлений не дошла до публикации.",
+    "code": "CREATE_FIRST_LISTING",
+    "title": "Опубликуй первое объявление",
+    "description": "Ты уже пробовал создавать объявления — следующий шаг можно начать с новой публикации.",
     "buttonText": "Создать объявление",
-    "reason": "Создано объявлений: 5; опубликовано: 1.",
+    "reason": "Годовые данные показывают попытки начать продажу, но в текущем состоянии нет опубликованных, активных или черновых объявлений.",
     "target": {
       "route": {
         "route": "/listings/new"

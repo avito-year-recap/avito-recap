@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 346,
     "searches": 80,
@@ -58,27 +58,23 @@
     "title": "Глубокое исследование",
     "description": "За год было много просмотров в разных категориях и сравнительно мало начатых диалогов.",
     "reason": "Просмотров: 260 (порог 100). Категорий с активностью: 7 (порог 5). Начато диалогов: 1 (допустимый максимум 4).",
-    "score": 100,
     "evidence": [
       {
         "metric": "total_views",
         "actual": 260,
         "threshold": 100,
-        "points": 40,
         "detail": "Просмотров: 260 (порог 100)."
       },
       {
         "metric": "categories_count",
         "actual": 7,
         "threshold": 5,
-        "points": 40,
         "detail": "Категорий с активностью: 7 (порог 5)."
       },
       {
         "metric": "chats_started",
         "actual": 1,
         "threshold": 4,
-        "points": 20,
         "detail": "Начато диалогов: 1 (допустимый максимум 4)."
       }
     ]
@@ -157,27 +153,23 @@
       "shareable": false,
       "payload": {
         "code": "RESEARCHER",
-        "score": 100,
         "evidence": [
           {
             "metric": "total_views",
             "actual": 260,
             "threshold": 100,
-            "points": 40,
             "detail": "Просмотров: 260 (порог 100)."
           },
           {
             "metric": "categories_count",
             "actual": 7,
             "threshold": 5,
-            "points": 40,
             "detail": "Категорий с активностью: 7 (порог 5)."
           },
           {
             "metric": "chats_started",
             "actual": 1,
             "threshold": 4,
-            "points": 20,
             "detail": "Начато диалогов: 1 (допустимый максимум 4)."
           }
         ]
@@ -198,17 +190,34 @@
       }
     },
     {
-      "id": "next-action",
-      "type": "NEXT_ACTION",
+      "id": "missed-opportunity",
+      "type": "MISSED_OPPORTUNITY",
       "position": 7,
-      "title": "Кажется, тебе это понравилось",
-      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-      "explanation": "Просмотров: 260; повторных просмотров: 25; добавлений в избранное: 5.",
+      "title": "Возможность, которая сэкономит время",
+      "description": "Сохранённый поиск может сам показывать новые объявления по главному интересу.",
+      "explanation": "Просмотров было 260, а сохранённого поиска по главной категории сейчас нет.",
       "shareable": false,
       "payload": {
-        "code": "OPEN_TOP_CATEGORY",
+        "code": "SAVE_SEARCH",
         "target": {
-          "category": {
+          "search": {
+            "categoryCode": "electronics"
+          }
+        }
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 8,
+      "title": "Сохрани поиск",
+      "description": "Новые объявления в главной категории будет проще отслеживать без повторного поиска.",
+      "explanation": "Профиль много исследует предложения, а сохранённого поиска по главной категории сейчас нет.",
+      "shareable": false,
+      "payload": {
+        "code": "SAVE_SEARCH",
+        "target": {
+          "search": {
             "categoryCode": "electronics"
           }
         }
@@ -217,7 +226,7 @@
     {
       "id": "share",
       "type": "SHARE",
-      "position": 8,
+      "position": 9,
       "title": "Итоги готовы — можно делиться",
       "description": "В 2025 году ты — «Глубокое исследование». Карточка содержит только данные, разрешённые для публичного показа.",
       "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
@@ -233,13 +242,13 @@
     }
   ],
   "nextAction": {
-    "code": "OPEN_TOP_CATEGORY",
-    "title": "Кажется, тебе это понравилось",
-    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-    "buttonText": "Смотреть объявления",
-    "reason": "Просмотров: 260; повторных просмотров: 25; добавлений в избранное: 5.",
+    "code": "SAVE_SEARCH",
+    "title": "Сохрани поиск",
+    "description": "Новые объявления в главной категории будет проще отслеживать без повторного поиска.",
+    "buttonText": "Сохранить поиск",
+    "reason": "Профиль много исследует предложения, а сохранённого поиска по главной категории сейчас нет.",
     "target": {
-      "category": {
+      "search": {
         "categoryCode": "electronics"
       }
     }

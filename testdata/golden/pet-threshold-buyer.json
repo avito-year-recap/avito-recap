@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.4.1",
-  "rulesDigest": "c0fa825e1926e842bf4ebc4d9582b47bd559d9379d67673f28364c7669b6d720",
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
   "metrics": {
     "totalEvents": 135,
     "searches": 20,
@@ -76,34 +76,29 @@
     "title": "Решительный покупатель",
     "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
     "reason": "Завершено покупок: 3 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 3 (порог 3). Покупкой завершилось 20% начатых диалогов (порог 20%).",
-    "score": 100,
     "evidence": [
       {
         "metric": "purchases_completed",
         "actual": 3,
         "threshold": 3,
-        "points": 25,
         "detail": "Завершено покупок: 3 (порог 3)."
       },
       {
         "metric": "chats_started",
         "actual": 15,
         "threshold": 5,
-        "points": 15,
         "detail": "Начато диалогов: 15 (порог 5)."
       },
       {
         "metric": "chats_with_purchase",
         "actual": 3,
         "threshold": 3,
-        "points": 30,
         "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
       },
       {
         "metric": "purchase_rate",
         "actual": 0.2,
         "threshold": 0.2,
-        "points": 30,
         "detail": "Покупкой завершилось 20% начатых диалогов (порог 20%)."
       }
     ]
@@ -190,34 +185,29 @@
       "shareable": false,
       "payload": {
         "code": "DECISIVE_BUYER",
-        "score": 100,
         "evidence": [
           {
             "metric": "purchases_completed",
             "actual": 3,
             "threshold": 3,
-            "points": 25,
             "detail": "Завершено покупок: 3 (порог 3)."
           },
           {
             "metric": "chats_started",
             "actual": 15,
             "threshold": 5,
-            "points": 15,
             "detail": "Начато диалогов: 15 (порог 5)."
           },
           {
             "metric": "chats_with_purchase",
             "actual": 3,
             "threshold": 3,
-            "points": 30,
             "detail": "Диалогов, связанных с покупкой: 3 (порог 3)."
           },
           {
             "metric": "purchase_rate",
             "actual": 0.2,
             "threshold": 0.2,
-            "points": 30,
             "detail": "Покупкой завершилось 20% начатых диалогов (порог 20%)."
           }
         ]
@@ -242,9 +232,9 @@
       "id": "next-action",
       "type": "NEXT_ACTION",
       "position": 7,
-      "title": "Кажется, тебе это понравилось",
-      "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-      "explanation": "Просмотров: 90; повторных просмотров: 20; добавлений в избранное: 7.",
+      "title": "Посмотри новые предложения",
+      "description": "Вернись в категорию «Товары для животных» и проверь новые варианты.",
+      "explanation": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
       "shareable": false,
       "payload": {
         "code": "OPEN_TOP_CATEGORY",
@@ -274,10 +264,10 @@
   ],
   "nextAction": {
     "code": "OPEN_TOP_CATEGORY",
-    "title": "Кажется, тебе это понравилось",
-    "description": "К некоторым объявлениям ты возвращался несколько раз. Добавляй их в избранное, чтобы сравнивать в одном месте.",
-    "buttonText": "Смотреть объявления",
-    "reason": "Просмотров: 90; повторных просмотров: 20; добавлений в избранное: 7.",
+    "title": "Посмотри новые предложения",
+    "description": "Вернись в категорию «Товары для животных» и проверь новые варианты.",
+    "buttonText": "Открыть категорию",
+    "reason": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
     "target": {
       "category": {
         "categoryCode": "pets"
