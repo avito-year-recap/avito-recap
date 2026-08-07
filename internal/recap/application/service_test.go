@@ -35,7 +35,7 @@ func TestServiceGeneratesAndReusesFinalRecap(t *testing.T) {
 	if first.ID != second.ID || recaps.Creates != 1 || analytics.Calls != 1 {
 		t.Fatalf("not idempotent: first=%s second=%s creates=%d analytics=%d", first.ID, second.ID, recaps.Creates, analytics.Calls)
 	}
-	if first.NextAction.Title != "Твои фавориты всё ещё ждут" {
+	if first.NextAction.Title != "Вернись к своим находкам" {
 		t.Fatalf("unexpected action: %+v", first.NextAction)
 	}
 }

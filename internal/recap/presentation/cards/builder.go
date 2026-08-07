@@ -99,7 +99,7 @@ func BuildWithRuleset(
 		Description: behavior.Description,
 		Explanation: behavior.Reason,
 		Payload: model.BehaviorPayload{
-			Code: behavior.Code, Score: behavior.Score, Evidence: behavior.Evidence,
+			Code: behavior.Code, Evidence: behavior.Evidence,
 		},
 	})
 

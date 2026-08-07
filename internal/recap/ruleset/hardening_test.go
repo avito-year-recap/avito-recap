@@ -16,6 +16,7 @@ func TestRulesDigestBindsMaterialConfiguration(t *testing.T) {
 		func(r *Ruleset) { r.AchievementPolicy.Rules[0].Priority++ },
 		func(r *Ruleset) { r.AchievementPolicy.Rules[0].Category = model.AchievementCategoryBuying },
 		func(r *Ruleset) { r.AchievementPolicy.MaxAwarded-- },
+		func(r *Ruleset) { r.RecommendationThresholds.ImproveListingsMinActive++ },
 		func(r *Ruleset) { r.RecommendationPriorities.OpenFavorites++ },
 		func(r *Ruleset) { r.SharePolicy.MaxPublicTextRunes++ },
 	}

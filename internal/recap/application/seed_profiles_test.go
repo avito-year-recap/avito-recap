@@ -145,7 +145,7 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 	}
 }
 
-func TestSeedCatalogueCoversAllMVPOutcomes(t *testing.T) {
+func TestSeedCatalogueCoversAllBehaviorsActionsAndCoreAchievements(t *testing.T) {
 	var expected []expectedRecap
 	readJSONFile(t, projectFile(t, "testdata", "expected", "recaps.json"), &expected)
 	behaviors := make(map[model.BehaviorCode]bool)
@@ -168,7 +168,18 @@ func TestSeedCatalogueCoversAllMVPOutcomes(t *testing.T) {
 			t.Errorf("seed catalogue does not cover achievement %s", code)
 		}
 	}
-	for _, code := range []model.ActionCode{model.ActionFinishDraft, model.ActionOpenFavorites, model.ActionOpenTopCategory, model.ActionExploreRecommendations} {
+	for _, code := range []model.ActionCode{
+		model.ActionFinishDraft,
+		model.ActionContinueDialogs,
+		model.ActionImproveListings,
+		model.ActionViewSimilarListings,
+		model.ActionSaveSearch,
+		model.ActionOpenFavorites,
+		model.ActionCreateFirstListing,
+		model.ActionCreateListing,
+		model.ActionOpenTopCategory,
+		model.ActionExploreRecommendations,
+	} {
 		if !actions[code] {
 			t.Errorf("seed catalogue does not cover action %s", code)
 		}

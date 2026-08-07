@@ -95,24 +95,19 @@ func ValidateBehavior(value model.Behavior) error {
 		return errors.New("text is incomplete")
 	}
 	if value.Code == model.BehaviorUniversal {
-		if value.Score != 0 {
-			return errors.New("universal behavior must have score 0")
+		if len(value.Evidence) != 0 {
+			return errors.New("universal behavior must not contain specialized evidence")
 		}
 		return nil
 	}
-	if value.Score == 0 || len(value.Evidence) == 0 {
-		return errors.New("scored behavior requires evidence")
+	if len(value.Evidence) == 0 {
+		return errors.New("specialized behavior requires evidence")
 	}
-	var score uint64
 	for index, item := range value.Evidence {
 		if item.Metric == "" || item.Detail == "" || math.IsNaN(item.Actual) || math.IsInf(item.Actual, 0) ||
 			math.IsNaN(item.Threshold) || math.IsInf(item.Threshold, 0) {
 			return fmt.Errorf("evidence %d is invalid", index)
 		}
-		score += uint64(item.Points)
-	}
-	if score != uint64(value.Score) {
-		return fmt.Errorf("evidence score %d differs from behavior score %d", score, value.Score)
 	}
 	return nil
 }

@@ -48,7 +48,6 @@ func (ActiveMonthPayload) isCardPayload() {}
 
 type BehaviorPayload struct {
 	Code     BehaviorCode       `json:"code"`
-	Score    uint32             `json:"score"`
 	Evidence []BehaviorEvidence `json:"evidence,omitempty"`
 }
 

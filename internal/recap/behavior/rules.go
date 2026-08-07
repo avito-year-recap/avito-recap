@@ -12,15 +12,15 @@ func evaluateActiveSeller(m model.Metrics, t ruleset.BehaviorThresholds) behavio
 		return behaviorCandidate{}
 	}
 	evidence := []model.BehaviorEvidence{
-		evidenceCount("listings_published", m.ListingsPublished, t.ActiveSellerMinListings, 45,
+		evidenceCount("listings_published", m.ListingsPublished, t.ActiveSellerMinListings,
 			fmt.Sprintf("Опубликовано объявлений: %d (порог %d).", m.ListingsPublished, t.ActiveSellerMinListings)),
-		evidenceCount("sales_completed", m.SalesCompleted, t.ActiveSellerMinDeals, 55,
+		evidenceCount("sales_completed", m.SalesCompleted, t.ActiveSellerMinDeals,
 			fmt.Sprintf("Завершено продаж: %d (порог %d).", m.SalesCompleted, t.ActiveSellerMinDeals)),
 	}
 	return behaviorCandidate{eligible: true, behavior: model.Behavior{
 		Code: model.BehaviorActiveSeller, Title: "Продажи в движении",
 		Description: "В течение года было много публикаций и завершённых продаж.",
-		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
+		Evidence:    evidence, Reason: evidenceReason(evidence),
 	}}
 }
 
@@ -32,16 +32,16 @@ func evaluateStartingSeller(m model.Metrics, t ruleset.BehaviorThresholds) behav
 	}
 	gap := m.ListingsCreated - m.ListingsPublished
 	evidence := []model.BehaviorEvidence{
-		evidenceCount("listings_created", m.ListingsCreated, t.StartingSellerMinCreated, 40,
+		evidenceCount("listings_created", m.ListingsCreated, t.StartingSellerMinCreated,
 			fmt.Sprintf("Создано объявлений: %d (порог %d).", m.ListingsCreated, t.StartingSellerMinCreated)),
-		evidenceCount("creation_publication_gap", gap, 1, 40,
+		evidenceCount("creation_publication_gap", gap, 1,
 			fmt.Sprintf("Созданий больше публикаций на %d; это годовой сигнал, а не число текущих черновиков.", gap)),
-		{Metric: "sales_completed", Actual: 0, Threshold: 0, Points: 20, Detail: "Завершённых продаж в периоде не было."},
+		{Metric: "sales_completed", Actual: 0, Threshold: 0, Detail: "Завершённых продаж в периоде не было."},
 	}
 	return behaviorCandidate{eligible: true, behavior: model.Behavior{
 		Code: model.BehaviorStartingSeller, Title: "Старт в продажах",
 		Description: "В течение года объявления создавались чаще, чем публиковались.",
-		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
+		Evidence:    evidence, Reason: evidenceReason(evidence),
 	}}
 }
 
@@ -53,19 +53,19 @@ func evaluateDecisiveBuyer(m model.Metrics, t ruleset.BehaviorThresholds) behavi
 		return behaviorCandidate{}
 	}
 	evidence := []model.BehaviorEvidence{
-		evidenceCount("purchases_completed", m.PurchasesCompleted, t.DecisiveBuyerMinPurchases, 25,
+		evidenceCount("purchases_completed", m.PurchasesCompleted, t.DecisiveBuyerMinPurchases,
 			fmt.Sprintf("Завершено покупок: %d (порог %d).", m.PurchasesCompleted, t.DecisiveBuyerMinPurchases)),
-		evidenceCount("chats_started", m.ChatsStarted, t.DecisiveBuyerMinChats, 15,
+		evidenceCount("chats_started", m.ChatsStarted, t.DecisiveBuyerMinChats,
 			fmt.Sprintf("Начато диалогов: %d (порог %d).", m.ChatsStarted, t.DecisiveBuyerMinChats)),
-		evidenceCount("chats_with_purchase", m.ChatsWithPurchase, t.DecisiveBuyerMinLinkedChats, 30,
+		evidenceCount("chats_with_purchase", m.ChatsWithPurchase, t.DecisiveBuyerMinLinkedChats,
 			fmt.Sprintf("Диалогов, связанных с покупкой: %d (порог %d).", m.ChatsWithPurchase, t.DecisiveBuyerMinLinkedChats)),
-		evidenceRate("purchase_rate", m.PurchaseRate, t.DecisiveBuyerMinPurchaseRate, 30,
+		evidenceRate("purchase_rate", m.PurchaseRate, t.DecisiveBuyerMinPurchaseRate,
 			fmt.Sprintf("Покупкой завершилось %.0f%% начатых диалогов (порог %.0f%%).", m.PurchaseRate*100, t.DecisiveBuyerMinPurchaseRate*100)),
 	}
 	return behaviorCandidate{eligible: true, behavior: model.Behavior{
 		Code: model.BehaviorDecisiveBuyer, Title: "Решительный покупатель",
 		Description: "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
-		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
+		Evidence:    evidence, Reason: evidenceReason(evidence),
 	}}
 }
 
@@ -75,17 +75,17 @@ func evaluateFindHunter(m model.Metrics, t ruleset.BehaviorThresholds) behaviorC
 		return behaviorCandidate{}
 	}
 	evidence := []model.BehaviorEvidence{
-		evidenceCount("total_views", m.TotalViews, t.FindHunterMinViews, 25,
+		evidenceCount("total_views", m.TotalViews, t.FindHunterMinViews,
 			fmt.Sprintf("Просмотров: %d (порог %d).", m.TotalViews, t.FindHunterMinViews)),
-		evidenceCount("favorites_added", m.FavoritesAdded, t.FindHunterMinFavorites, 30,
+		evidenceCount("favorites_added", m.FavoritesAdded, t.FindHunterMinFavorites,
 			fmt.Sprintf("Добавлено в избранное: %d (порог %d).", m.FavoritesAdded, t.FindHunterMinFavorites)),
-		evidenceRate("repeat_rate", m.RepeatRate, t.FindHunterMinRepeatRate, 45,
+		evidenceRate("repeat_rate", m.RepeatRate, t.FindHunterMinRepeatRate,
 			fmt.Sprintf("Доля повторных просмотров: %.0f%% (порог %.0f%%).", m.RepeatRate*100, t.FindHunterMinRepeatRate*100)),
 	}
 	return behaviorCandidate{eligible: true, behavior: model.Behavior{
 		Code: model.BehaviorFindHunter, Title: "Искушенный наблюдатель",
 		Description: "В течение года объявления добавлялись в избранное и часто просматривались повторно.",
-		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
+		Evidence:    evidence, Reason: evidenceReason(evidence),
 	}}
 }
 
@@ -95,16 +95,16 @@ func evaluateResearcher(m model.Metrics, t ruleset.BehaviorThresholds) behaviorC
 		return behaviorCandidate{}
 	}
 	evidence := []model.BehaviorEvidence{
-		evidenceCount("total_views", m.TotalViews, t.ResearcherMinViews, 40,
+		evidenceCount("total_views", m.TotalViews, t.ResearcherMinViews,
 			fmt.Sprintf("Просмотров: %d (порог %d).", m.TotalViews, t.ResearcherMinViews)),
-		evidenceCount("categories_count", m.CategoriesCount, t.ResearcherMinCategories, 40,
+		evidenceCount("categories_count", m.CategoriesCount, t.ResearcherMinCategories,
 			fmt.Sprintf("Категорий с активностью: %d (порог %d).", m.CategoriesCount, t.ResearcherMinCategories)),
-		evidenceInverseCount("chats_started", m.ChatsStarted, t.ResearcherMaxChats, 20,
+		evidenceInverseCount("chats_started", m.ChatsStarted, t.ResearcherMaxChats,
 			fmt.Sprintf("Начато диалогов: %d (допустимый максимум %d).", m.ChatsStarted, t.ResearcherMaxChats)),
 	}
 	return behaviorCandidate{eligible: true, behavior: model.Behavior{
 		Code: model.BehaviorResearcher, Title: "Глубокое исследование",
 		Description: "За год было много просмотров в разных категориях и сравнительно мало начатых диалогов.",
-		Score:       evidenceScore(evidence), Evidence: evidence, Reason: evidenceReason(evidence),
+		Evidence:    evidence, Reason: evidenceReason(evidence),
 	}}
 }
