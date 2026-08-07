@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 )
@@ -48,7 +49,9 @@ func BuildFromParts(
 			break
 		}
 	}
-	categoryAllowed := policy.AllowTopCategory && isSafeCategoryCode(metrics.TopCategoryCode)
+	categoryAllowed := policy.AllowTopCategory &&
+		isSafeCategoryCode(metrics.TopCategoryCode) &&
+		analytics.IsShareableCategory(metrics.TopCategoryCode)
 	if policy.RequireCategoryShareFlag {
 		categoryAllowed = categoryAllowed && metrics.TopCategoryShareable
 	}

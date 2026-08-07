@@ -27,3 +27,30 @@ func TestBuildThematicAchievement(t *testing.T) {
 		t.Fatalf("unexpected: %+v", values)
 	}
 }
+
+func TestThematicSignalDoesNotOverflow(t *testing.T) {
+	metrics := model.Metrics{
+		FavoritesAdded:  ^uint64(0),
+		CategoriesCount: 2,
+		CategoryActivities: []model.CategoryActivity{
+			{
+				CategoryCode:   analytics.CategoryWomensFashion,
+				Category:       "Женская одежда и аксессуары",
+				FavoritesAdded: ^uint64(0)/4 + 1,
+			},
+			{
+				CategoryCode: analytics.CategoryBooks,
+				Category:     "Книги",
+				Views:        100,
+			},
+		},
+	}
+
+	values := Build(metrics)
+	for _, value := range values {
+		if value.Code == model.AchievementStyleIcon {
+			return
+		}
+	}
+	t.Fatalf("style achievement was lost after uint64 overflow: %+v", values)
+}

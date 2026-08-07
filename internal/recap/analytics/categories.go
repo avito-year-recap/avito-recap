@@ -60,3 +60,20 @@ var categoryCatalogue = []CategoryDefinition{
 func CategoryCatalogue() []CategoryDefinition {
 	return append([]CategoryDefinition(nil), categoryCatalogue...)
 }
+
+// CategoryByCode returns the trusted catalogue definition for code.
+// Unknown codes are intentionally rejected by public projections.
+func CategoryByCode(code string) (CategoryDefinition, bool) {
+	for _, category := range categoryCatalogue {
+		if category.Code == code {
+			return category, true
+		}
+	}
+	return CategoryDefinition{}, false
+}
+
+// IsShareableCategory reports whether code is explicitly allowed for public use.
+func IsShareableCategory(code string) bool {
+	category, ok := CategoryByCode(code)
+	return ok && category.Shareable
+}
