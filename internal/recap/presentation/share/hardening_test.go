@@ -20,3 +20,15 @@ func TestPrivacyProjectionRejectsUnsafeExternalText(t *testing.T) {
 		t.Fatalf("privacy policy version missing: %+v", card)
 	}
 }
+
+func TestPrivacyProjectionRejectsSensitiveCatalogueCategory(t *testing.T) {
+	value := testkit.Recap()
+	value.Metrics.TopCategoryCode = "pets"
+	value.Metrics.TopCategory = "Товары для животных"
+	value.Metrics.TopCategoryShareable = true // untrusted upstream flag
+
+	card := share.BuildWithRuleset(ruleset.DefaultRuleset(), value)
+	if card.TopCategory != "" {
+		t.Fatalf("sensitive catalogue category leaked publicly: %q", card.TopCategory)
+	}
+}
