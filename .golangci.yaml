@@ -4,12 +4,19 @@ run:
   tests: true
 
 linters:
+  default: none
   enable:
     - errcheck
     - govet
     - staticcheck
     - ineffassign
     - unused
+
     - errorlint
     - nilerr
+
+    - gocritic
+    - exhaustive
+    - revive
+
     - misspell
