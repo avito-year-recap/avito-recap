@@ -278,6 +278,7 @@ func assertGoldenRecap(t *testing.T, actual model.Recap, path string) {
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}
+	expected = bytes.ReplaceAll(expected, []byte("\r\n"), []byte("\n"))
 	if !bytes.Equal(expected, data) {
 		t.Fatalf("full golden recap mismatch for %s\n--- expected ---\n%s\n--- actual ---\n%s", path, expected, data)
 	}
