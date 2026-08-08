@@ -1,11 +1,10 @@
-package structural
+package validation
 
 import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/ruleset"
 	"strings"
 )
 
@@ -85,8 +84,8 @@ func ValidateCardPayload(cardType model.CardType, payload model.CardPayload) err
 		}
 	case model.CardAchievement:
 		value, ok := payload.(model.AchievementPayload)
-		if !ok || len(value.Codes) == 0 || len(value.Codes) > ruleset.MaxAchievements {
-			return errors.New("requires one to three achievement codes")
+		if !ok || len(value.Codes) == 0 {
+			return errors.New("requires at least one achievement code")
 		}
 		seen := make(map[model.AchievementCode]struct{}, len(value.Codes))
 		for _, code := range value.Codes {

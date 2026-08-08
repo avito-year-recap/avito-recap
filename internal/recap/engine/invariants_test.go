@@ -1,4 +1,4 @@
-package integrity_test
+package engine_test
 
 import (
 	"fmt"
@@ -8,16 +8,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/year-recap/internal/recap/achievement"
-	"github.com/year-recap/internal/recap/analytics"
-	"github.com/year-recap/internal/recap/behavior"
-	"github.com/year-recap/internal/recap/integrity"
+	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/nextaction"
-	"github.com/year-recap/internal/recap/presentation/cards"
-	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation/structural"
+	"github.com/year-recap/internal/recap/validation"
 )
 
 func TestRandomValidMetricsProperties(t *testing.T) {
@@ -28,24 +22,24 @@ func TestRandomValidMetricsProperties(t *testing.T) {
 }
 
 func TestSameRulesetAndSnapshotProduceSameResult(t *testing.T) {
-	configured := ruleset.DefaultRuleset()
-	metrics := analytics.EnrichMetrics(testkit.Metrics())
-	state := testkit.ActionableState()
-	build := func() (model.Behavior, []model.Achievement, model.NextAction, []model.Card) {
-		detected := behavior.DetectWithRuleset(configured, metrics)
-		achievements := achievement.BuildWithRuleset(configured, metrics)
-		action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
-		story := cards.BuildWithRuleset(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
-		return detected, achievements, action, story
+	core := testEngine(t)
+	build := func() model.Recap {
+		value, err := core.Build(engine.BuildInput{
+			RecapID: testkit.RecapID, ShareID: testkit.ShareID, Profile: testkit.Profile(), Year: 2025,
+			Period: testkit.Period(), Metrics: testkit.Metrics(), ActionableState: testkit.ActionableState(), GeneratedAt: testkit.Clock(),
+		})
+		if err != nil {
+			t.Fatalf("build: %v", err)
+		}
+		return value
 	}
-	b1, a1, n1, c1 := build()
-	b2, a2, n2, c2 := build()
-	if !reflect.DeepEqual(b1, b2) || !reflect.DeepEqual(a1, a2) || !reflect.DeepEqual(n1, n2) || !reflect.DeepEqual(c1, c2) {
+	first, second := build(), build()
+	if !reflect.DeepEqual(first, second) {
 		t.Fatal("same ruleset and snapshot produced different derived data")
 	}
 }
 
-func TestGeneratedUserFacingTextHasNoBoundaryWhitespace(t *testing.T) {
+func TestBuildNormalizesBoundaryStringsOnce(t *testing.T) {
 	profile := testkit.Profile()
 	profile.Code = "\tactive-buyer  "
 	profile.DisplayName = "  Алексей\n"
@@ -54,56 +48,35 @@ func TestGeneratedUserFacingTextHasNoBoundaryWhitespace(t *testing.T) {
 	metrics := testkit.Metrics()
 	metrics.TopCategoryCode = "\telectronics "
 	metrics.TopCategory = "  Электроника\n"
-	metrics = analytics.EnrichMetrics(metrics)
-	state := testkit.ActionableState()
-	configured := ruleset.DefaultRuleset()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	achievements := achievement.BuildWithRuleset(configured, metrics)
-	action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
-	value := model.Recap{
-		ID: testkit.RecapID, ShareID: testkit.ShareID, Profile: profile, Year: 2025, Period: testkit.Period(),
-		RulesVersion: "  " + configured.Version + "\n", RulesDigest: "  " + configured.Digest() + "\n",
-		Metrics: metrics, ActionableState: state, Behavior: detected, Achievements: achievements,
-		Cards:      cards.BuildWithRuleset(configured, profile, 2025, testkit.ShareID, metrics, detected, achievements, action),
-		NextAction: action, GeneratedAt: testkit.Clock(),
+	value, err := testEngine(t).Build(engine.BuildInput{
+		RecapID: testkit.RecapID, ShareID: testkit.ShareID, Profile: profile, Year: 2025,
+		Period: testkit.Period(), Metrics: metrics, ActionableState: testkit.ActionableState(), GeneratedAt: testkit.Clock(),
+	})
+	if err != nil {
+		t.Fatalf("build: %v", err)
 	}
-	value = model.NormalizeRecap(value)
 	assertRecapStringsNormalized(t, value)
-	if err := structural.ValidateRecap(value); err != nil {
+	if err := validation.ValidateRecap(value); err != nil {
 		t.Fatalf("normalized recap must remain valid: %v", err)
 	}
 }
 
 func assertPipelineInvariants(t testing.TB, metrics model.Metrics, state model.ActionableState) {
 	t.Helper()
-	if err := structural.ValidateMetricsForPeriod(metrics, testkit.Period()); err != nil {
-		t.Fatalf("generated metrics are invalid: %+v: %v", metrics, err)
+	core := testEngine(t)
+	value, err := core.Build(engine.BuildInput{
+		RecapID: testkit.RecapID, ShareID: testkit.ShareID, Profile: testkit.Profile(), Year: 2025,
+		Period: testkit.Period(), Metrics: metrics, ActionableState: state, GeneratedAt: testkit.Clock(),
+	})
+	if err != nil {
+		t.Fatalf("engine rejected generated input: %+v: %v", metrics, err)
 	}
-	assertRateInUnitInterval(t, "repeat rate", metrics.RepeatRate)
-	assertRateInUnitInterval(t, "purchase rate", metrics.PurchaseRate)
-	configured := ruleset.DefaultRuleset()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	achievements := achievement.BuildWithRuleset(configured, metrics)
-	if len(achievements) > ruleset.MaxAchievements {
-		t.Fatalf("awarded %d achievements, maximum is %d", len(achievements), ruleset.MaxAchievements)
-	}
-	if err := integrity.ValidateAchievementSelection(achievements, configured.AchievementPolicy); err != nil {
-		t.Fatalf("achievement selection is invalid: %v", err)
-	}
-	action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
-	if err := structural.ValidateNextAction(action); err != nil {
-		t.Fatalf("action does not contain a valid required target: %+v: %v", action, err)
-	}
-	story := cards.BuildWithRuleset(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
-	if err := structural.ValidateCards(story); err != nil {
+	assertRateInUnitInterval(t, "repeat rate", value.Metrics.RepeatRate)
+	assertRateInUnitInterval(t, "purchase rate", value.Metrics.PurchaseRate)
+	if err := validation.ValidateCards(value.Cards); err != nil {
 		t.Fatalf("cards violate invariants: %v", err)
 	}
-	value := model.Recap{
-		ID: testkit.RecapID, ShareID: testkit.ShareID, Profile: testkit.Profile(), Year: 2025, Period: testkit.Period(),
-		RulesVersion: configured.Version, RulesDigest: configured.Digest(), Metrics: metrics, ActionableState: state,
-		Behavior: detected, Achievements: achievements, Cards: story, NextAction: action, GeneratedAt: testkit.Clock(),
-	}
-	if err := integrity.ValidateRecapAgainstRuleset(value, configured, testkit.Clock()); err != nil {
+	if _, err := core.ValidateStored(value, testkit.Clock()); err != nil {
 		t.Fatalf("full recap pipeline produced invalid data: %+v: %v", value, err)
 	}
 	assertRecapStringsNormalized(t, value)
@@ -180,7 +153,7 @@ func randomValidMetrics(random *rand.Rand) model.Metrics {
 		metrics.TopCategoryViews = 1 + uint64(random.Intn(int(views)))
 		metrics.TopCategoryShareable = random.Intn(2) == 1
 	}
-	return analytics.EnrichMetrics(metrics)
+	return metrics
 }
 
 func randomValidActionableState(random *rand.Rand) model.ActionableState {

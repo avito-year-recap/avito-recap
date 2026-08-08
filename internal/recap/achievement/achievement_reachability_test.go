@@ -49,7 +49,7 @@ func TestAuditEveryConfiguredAchievementIsReachable(t *testing.T) {
 			continue
 		}
 		t.Run(string(rule.Code), func(t *testing.T) {
-			result := Build(metrics)
+			result := buildAchievements(metrics)
 			if _, found := findAchievement(result, rule.Code); !found {
 				t.Fatalf("achievement %s was not selected; got %+v", rule.Code, result)
 			}
@@ -61,7 +61,7 @@ func TestAuditPortfolioBoundaryRules(t *testing.T) {
 	t.Run("seller dominant always includes seller achievement", func(t *testing.T) {
 		for sales := uint64(1); sales <= 20; sales++ {
 			for purchases := uint64(0); purchases < sales; purchases++ {
-				result := Build(model.Metrics{SalesCompleted: sales, PurchasesCompleted: purchases})
+				result := buildAchievements(model.Metrics{SalesCompleted: sales, PurchasesCompleted: purchases})
 				foundSeller := false
 				for _, item := range result {
 					if item.Category == model.AchievementCategorySelling {
@@ -77,14 +77,14 @@ func TestAuditPortfolioBoundaryRules(t *testing.T) {
 	})
 	t.Run("seller only gets exactly one", func(t *testing.T) {
 		for sales := uint64(1); sales <= 20; sales++ {
-			result := Build(model.Metrics{SalesCompleted: sales, ListingsPublished: 20})
+			result := buildAchievements(model.Metrics{SalesCompleted: sales, ListingsPublished: 20})
 			if len(result) != 1 || result[0].Category != model.AchievementCategorySelling {
 				t.Fatalf("sales=%d: got %+v", sales, result)
 			}
 		}
 	})
 	t.Run("buyer only can get three purchase-backed themes", func(t *testing.T) {
-		result := Build(model.Metrics{
+		result := buildAchievements(model.Metrics{
 			PurchasesCompleted: 9, CategoriesCount: 3,
 			CategoryActivities: []model.CategoryActivity{
 				{CategoryCode: analytics.CategoryBooks, Category: "Книги", PurchasesCompleted: 3},
@@ -102,7 +102,7 @@ func TestAuditPortfolioBoundaryRules(t *testing.T) {
 		}
 	})
 	t.Run("four buyer themes are capped at three", func(t *testing.T) {
-		result := Build(model.Metrics{
+		result := buildAchievements(model.Metrics{
 			TotalViews: 120, PurchasesCompleted: 1, CategoriesCount: 4,
 			CategoryActivities: []model.CategoryActivity{
 				{CategoryCode: analytics.CategoryBooks, Category: "Книги", Views: 30},

@@ -3,8 +3,6 @@ package nextaction
 import (
 	"sort"
 
-	"github.com/year-recap/internal/recap/analytics"
-	"github.com/year-recap/internal/recap/behavior"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 )
@@ -23,23 +21,11 @@ type recommendationRule struct {
 	build    func(recommendationContext) model.NextAction
 }
 
-// BuildNextAction is a compatibility wrapper. New code should pass an explicit
-// model.ActionableState to Ruleset.BuildNextAction.
-func Build(metrics model.Metrics, states ...model.ActionableState) model.NextAction {
-	state := model.ActionableState{}
-	if len(states) > 0 {
-		state = states[0]
-	}
-	configured := ruleset.DefaultRuleset()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	return BuildWithRuleset(configured, metrics, state, detected)
-}
-
-// BuildWithRuleset evaluates the complete executable CTA table. Priority is
-// explicit ruleset data, so overlaps are deterministic and part of the digest.
-func BuildWithRuleset(r ruleset.Ruleset, metrics model.Metrics, state model.ActionableState, detected model.Behavior) model.NextAction {
+// Build evaluates the executable CTA table against canonical metrics/state.
+// Ruleset selection and input normalization belong to the engine.
+func Build(r ruleset.Ruleset, metrics model.Metrics, state model.ActionableState, detected model.Behavior) model.NextAction {
 	ctx := recommendationContext{
-		metrics: analytics.EnrichMetrics(metrics), state: model.NormalizeActionableState(state), behavior: detected,
+		metrics: metrics, state: state, behavior: detected,
 	}
 	rules := recommendationRules(r)
 	matched := make([]recommendationRule, 0, len(rules))

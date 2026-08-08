@@ -3,7 +3,6 @@ package behavior
 import (
 	"sort"
 
-	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 )
@@ -20,17 +19,9 @@ type behaviorRule struct {
 	evaluate func(model.Metrics, ruleset.BehaviorThresholds) behaviorCandidate
 }
 
-// Detect is a compatibility wrapper around the explicit default ruleset.
-func Detect(metrics model.Metrics) model.Behavior {
-	return DetectWithRuleset(ruleset.DefaultRuleset(), metrics)
-}
-
-// DetectWithRuleset evaluates transparent eligibility rules. If several
-// personas match the same user, an explicit product priority resolves the
-// overlap. No confidence score is calculated: this MVP is deterministic and
-// rule-based, so every decision is explained directly by its evidence.
-func DetectWithRuleset(r ruleset.Ruleset, metrics model.Metrics) model.Behavior {
-	metrics = analytics.EnrichMetrics(metrics)
+// Detect evaluates transparent eligibility rules against canonical, enriched
+// metrics. Ruleset selection belongs to the engine/composition root.
+func Detect(r ruleset.Ruleset, metrics model.Metrics) model.Behavior {
 	candidates := make([]behaviorCandidate, 0, len(behaviorRules()))
 	for _, rule := range behaviorRules() {
 		candidate := rule.evaluate(metrics, r.Thresholds)

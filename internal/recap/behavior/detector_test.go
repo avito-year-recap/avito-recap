@@ -3,6 +3,7 @@ package behavior
 import (
 	"testing"
 
+	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 )
@@ -22,7 +23,7 @@ func TestDetectSelectsExpectedPersonas(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Detect(tc.metrics)
+			got := detectDefault(tc.metrics)
 			if got.Code != tc.want {
 				t.Fatalf("got %s want %s", got.Code, tc.want)
 			}
@@ -31,4 +32,9 @@ func TestDetectSelectsExpectedPersonas(t *testing.T) {
 			}
 		})
 	}
+}
+
+func detectDefault(metrics model.Metrics) model.Behavior {
+	configured := ruleset.DefaultRuleset()
+	return Detect(configured, analytics.EnrichMetrics(metrics))
 }

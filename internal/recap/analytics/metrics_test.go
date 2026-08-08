@@ -7,13 +7,13 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-func TestEnrichMetricsRecalculatesRatesAndNormalizes(t *testing.T) {
+func TestEnrichMetricsOnlyRecalculatesDerivedRates(t *testing.T) {
 	actual := EnrichMetrics(model.Metrics{TotalViews: 10, RepeatedViews: 2, ChatsStarted: 4, ChatsWithPurchase: 1, RepeatRate: .99, TopCategoryCode: " electronics ", TopCategory: " Электроника "})
 	if math.Abs(actual.RepeatRate-.2) > 1e-9 || math.Abs(actual.PurchaseRate-.25) > 1e-9 {
 		t.Fatalf("unexpected rates: %+v", actual)
 	}
-	if actual.TopCategoryCode != "electronics" || actual.TopCategory != "Электроника" {
-		t.Fatalf("not normalized: %+v", actual)
+	if actual.TopCategoryCode != " electronics " || actual.TopCategory != " Электроника " {
+		t.Fatalf("enrichment unexpectedly normalized boundary data: %+v", actual)
 	}
 }
 

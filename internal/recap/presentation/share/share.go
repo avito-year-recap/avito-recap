@@ -1,7 +1,10 @@
 package share
 
 import (
+	"regexp"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/analytics"
@@ -9,24 +12,9 @@ import (
 	"github.com/year-recap/internal/recap/ruleset"
 )
 
-func Build(value model.Recap) model.ShareCard {
-	return BuildWithRuleset(ruleset.DefaultRuleset(), value)
-}
-
-func BuildWithRuleset(configured ruleset.Ruleset, value model.Recap) model.ShareCard {
-	return BuildFromParts(
-		configured.SharePolicy,
-		value.ShareID,
-		value.Year,
-		value.Metrics,
-		value.Behavior,
-		value.Achievements,
-	)
-}
-
 // buildShareCard is the only public projection. It uses an explicit allow-list
 // policy and rejects unsafe externally supplied text instead of trusting a flag.
-func BuildFromParts(
+func Build(
 	policy ruleset.SharePolicy,
 	shareID uuid.UUID,
 	year uint32,
@@ -59,4 +47,23 @@ func BuildFromParts(
 		result.TopCategory = metrics.TopCategory
 	}
 	return result
+}
+
+func isSafePublicText(value string, maxRunes int) bool {
+	value = strings.TrimSpace(value)
+	if value == "" || !utf8.ValidString(value) || utf8.RuneCountInString(value) > maxRunes {
+		return false
+	}
+	for _, r := range value {
+		if unicode.IsControl(r) || unicode.Is(unicode.Bidi_Control, r) {
+			return false
+		}
+	}
+	return true
+}
+
+var categoryCodePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{0,63}$`)
+
+func isSafeCategoryCode(code string) bool {
+	return categoryCodePattern.MatchString(strings.TrimSpace(code))
 }

@@ -12,7 +12,7 @@ func TestPrivacyProjectionRejectsUnsafeExternalText(t *testing.T) {
 	value := testkit.Recap()
 	value.Metrics.TopCategory = "Электроника\nprivate-token"
 	value.Metrics.TopCategoryShareable = true
-	card := share.BuildWithRuleset(ruleset.DefaultRuleset(), value)
+	card := share.Build(ruleset.DefaultRuleset().SharePolicy, value.ShareID, value.Year, value.Metrics, value.Behavior, value.Achievements)
 	if card.TopCategory != "" {
 		t.Fatalf("unsafe category leaked: %q", card.TopCategory)
 	}
@@ -27,7 +27,7 @@ func TestPrivacyProjectionRejectsSensitiveCatalogueCategory(t *testing.T) {
 	value.Metrics.TopCategory = "Товары для животных"
 	value.Metrics.TopCategoryShareable = true // untrusted upstream flag
 
-	card := share.BuildWithRuleset(ruleset.DefaultRuleset(), value)
+	card := share.Build(ruleset.DefaultRuleset().SharePolicy, value.ShareID, value.Year, value.Metrics, value.Behavior, value.Achievements)
 	if card.TopCategory != "" {
 		t.Fatalf("sensitive catalogue category leaked publicly: %q", card.TopCategory)
 	}

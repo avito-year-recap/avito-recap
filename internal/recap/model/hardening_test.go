@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/year-recap/internal/recap/integrity"
+	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
@@ -21,7 +21,11 @@ func TestRecapJSONRoundTripRestoresClosedCardUnion(t *testing.T) {
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatal(err)
 	}
-	if err := integrity.ValidateRecapAgainstRuleset(decoded, ruleset.DefaultRuleset(), testkit.Clock()); err != nil {
+	core, err := engine.New(ruleset.DefaultRuleset())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := core.ValidateStored(decoded, testkit.Clock()); err != nil {
 		t.Fatalf("round-tripped recap is invalid: %v", err)
 	}
 	for index := range original.Cards {
