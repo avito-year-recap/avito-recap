@@ -1,0 +1,10 @@
+.git
+.github
+.cursor
+*.md
+testdata
+Dockerfile
+docker-compose.yml
+.dockerignore
+.gitignore
+.golangci.yaml
