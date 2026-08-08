@@ -8,6 +8,7 @@ import (
 	"github.com/year-recap/internal/recap/achievement"
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
+	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
 )
 
@@ -94,7 +95,7 @@ func TestMetricsFromScenarioBuildsDetailedCategoryActivity(t *testing.T) {
 	if activity.CategoryCode != analytics.CategoryBooks || activity.Views != 30 || activity.FavoritesAdded != 8 || activity.PurchasesCompleted != 3 {
 		t.Fatalf("unexpected detailed category activity: %+v", activity)
 	}
-	assertAchievementCodes(t, achievement.Build(actual), []model.AchievementCode{model.AchievementDealCloser, model.AchievementBookworm})
+	assertAchievementCodes(t, achievement.Build(ruleset.DefaultRuleset(), actual), []model.AchievementCode{model.AchievementDealCloser, model.AchievementBookworm})
 }
 
 func TestMetricsFromScenarioRejectsInvalidSeeds(t *testing.T) {

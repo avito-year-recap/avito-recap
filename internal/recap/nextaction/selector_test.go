@@ -4,7 +4,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
+	"github.com/year-recap/internal/recap/behavior"
 	"github.com/year-recap/internal/recap/model"
+	"github.com/year-recap/internal/recap/ruleset"
 )
 
 func TestEveryActionCodeIsReachable(t *testing.T) {
@@ -87,7 +90,7 @@ func TestEveryActionCodeIsReachable(t *testing.T) {
 	seen := make(map[model.ActionCode]bool, len(tests))
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Build(tc.metrics, tc.state)
+			got := buildDefaultAction(tc.metrics, tc.state)
 			if got.Code != tc.want {
 				t.Fatalf("action = %s, want %s; reason=%s", got.Code, tc.want, got.Reason)
 			}
@@ -119,7 +122,7 @@ func TestEveryActionCodeIsReachable(t *testing.T) {
 func TestHigherPriorityExecutableWorkWins(t *testing.T) {
 	listingID := uuid.MustParse("33333333-3333-4333-8333-333333333333")
 	dialogID := uuid.MustParse("44444444-4444-4444-8444-444444444444")
-	got := Build(
+	got := buildDefaultAction(
 		model.Metrics{TopCategoryCode: "auto", TopCategory: "Авто", TopCategoryViews: 1},
 		model.ActionableState{
 			CurrentDrafts: 1, DraftListingID: listingID,
@@ -130,4 +133,11 @@ func TestHigherPriorityExecutableWorkWins(t *testing.T) {
 	if got.Code != model.ActionFinishDraft {
 		t.Fatalf("action = %s, want %s", got.Code, model.ActionFinishDraft)
 	}
+}
+
+func buildDefaultAction(metrics model.Metrics, state model.ActionableState) model.NextAction {
+	configured := ruleset.DefaultRuleset()
+	metrics = analytics.EnrichMetrics(metrics)
+	detected := behavior.Detect(configured, metrics)
+	return Build(configured, metrics, state, detected)
 }

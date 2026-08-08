@@ -2,12 +2,16 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
+	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
-	"github.com/year-recap/internal/recap/validation/structural"
-	"time"
+	"github.com/year-recap/internal/recap/validation"
 )
 
 type IDGenerator func() (uuid.UUID, error)
@@ -17,13 +21,19 @@ type Service struct {
 	analytics    AnalyticsStorage
 	actionStates ActionStateStorage
 	recaps       RecapStorage
-	ruleset      ruleset.Ruleset
+	engine       *engine.Engine
 
 	now   func() time.Time
 	newID IDGenerator
 }
 
-type Option func(*Service)
+type serviceConfig struct {
+	rules ruleset.Ruleset
+	now   func() time.Time
+	newID IDGenerator
+}
+
+type Option func(*serviceConfig)
 
 func NewService(
 	profiles ProfileStorage,
@@ -45,22 +55,20 @@ func NewService(
 		return nil, fmt.Errorf("%w: recap storage", ErrMissingDependency)
 	}
 
-	service := &Service{
-		profiles: profiles, analytics: analytics, actionStates: actionStates, recaps: recaps,
-		ruleset: ruleset.DefaultRuleset(), now: time.Now, newID: generateID,
-	}
+	config := serviceConfig{rules: ruleset.DefaultRuleset(), now: time.Now, newID: generateID}
 	for _, option := range options {
 		if option != nil {
-			option(service)
+			option(&config)
 		}
 	}
-	service.ruleset.Version = model.NormalizeString(service.ruleset.Version)
-	service.ruleset.Algorithm = model.NormalizeString(service.ruleset.Algorithm)
-	service.ruleset.SharePolicy.Version = model.NormalizeString(service.ruleset.SharePolicy.Version)
-	if err := service.ruleset.Validate(); err != nil {
+	core, err := engine.New(config.rules)
+	if err != nil {
 		return nil, err
 	}
-	return service, nil
+	return &Service{
+		profiles: profiles, analytics: analytics, actionStates: actionStates, recaps: recaps,
+		engine: core, now: config.now, newID: config.newID,
+	}, nil
 }
 
 func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
@@ -70,10 +78,64 @@ func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	}
 	for index, profile := range profiles {
 		profile = model.NormalizeProfile(profile)
-		if err := structural.ValidateProfile(profile); err != nil {
+		if err := validation.ValidateProfile(profile); err != nil {
 			return nil, fmt.Errorf("validate profile at index %d: %w", index, err)
 		}
 		profiles[index] = profile
 	}
 	return profiles, nil
 }
+
+var (
+	ErrInvalidProfileID  = errors.New("invalid profile id")
+	ErrInvalidRecapID    = errors.New("invalid recap id")
+	ErrInvalidShareID    = errors.New("invalid share id")
+	ErrNotEnoughActivity = engine.ErrNotEnoughActivity
+	ErrMissingDependency = errors.New("missing service dependency")
+	ErrGenerateID        = errors.New("generate recap id")
+	ErrProfileIDMismatch = errors.New("profile storage returned another profile")
+	ErrRecapIDMismatch   = errors.New("recap storage returned another recap")
+	ErrShareIDMismatch   = errors.New("recap storage returned another share id")
+	ErrRecapKeyMismatch  = errors.New("recap storage returned another idempotency key")
+	ErrRecapNotFound     = errors.New("recap not found")
+
+	ErrInvalidYear            = analytics.ErrInvalidYear
+	ErrYearNotComplete        = analytics.ErrYearNotComplete
+	ErrInvalidProfile         = validation.ErrInvalidProfile
+	ErrInvalidMetrics         = validation.ErrInvalidMetrics
+	ErrInvalidActionableState = validation.ErrInvalidActionableState
+	ErrInvalidRecap           = validation.ErrInvalidRecap
+)
+
+func WithClock(clock func() time.Time) Option {
+	return func(config *serviceConfig) {
+		if clock != nil {
+			config.now = clock
+		}
+	}
+}
+
+func WithIDGenerator(generator IDGenerator) Option {
+	return func(config *serviceConfig) {
+		if generator != nil {
+			config.newID = generator
+		}
+	}
+}
+
+func WithRuleset(configured ruleset.Ruleset) Option {
+	return func(config *serviceConfig) { config.rules = configured }
+}
+
+func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {
+	value, err := s.newID()
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("%w: %s: %w", ErrGenerateID, kind, err)
+	}
+	if value == uuid.Nil {
+		return uuid.Nil, fmt.Errorf("%w: %s: generated nil UUID", ErrGenerateID, kind)
+	}
+	return value, nil
+}
+
+func generateID() (uuid.UUID, error) { return uuid.NewRandom() }

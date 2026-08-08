@@ -1,11 +1,10 @@
-package structural
+package validation
 
 import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/ruleset"
 	"math"
 	"strings"
 	"time"
@@ -38,9 +37,6 @@ func ValidateRecap(value model.Recap) error {
 	}
 	if err := ValidateMetricsForPeriod(value.Metrics, value.Period); err != nil {
 		return fmt.Errorf("%w: metrics: %w", ErrInvalidRecap, err)
-	}
-	if value.Metrics.TotalEvents < minEventsForRecap {
-		return fmt.Errorf("%w: total events are below recap minimum", ErrInvalidRecap)
 	}
 	if err := ValidateStoredRates(value.Metrics); err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidRecap, err)
@@ -113,9 +109,6 @@ func ValidateBehavior(value model.Behavior) error {
 }
 
 func ValidateAchievements(values []model.Achievement) error {
-	if len(values) > ruleset.MaxAchievements {
-		return fmt.Errorf("too many achievements: got %d, maximum is %d", len(values), ruleset.MaxAchievements)
-	}
 	seenCodes := make(map[model.AchievementCode]struct{}, len(values))
 	for index, value := range values {
 		if !model.IsKnownAchievementCode(value.Code) {

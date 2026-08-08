@@ -9,7 +9,7 @@ import (
 
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/validation/structural"
+	"github.com/year-recap/internal/recap/validation"
 )
 
 var ErrInvalidScenario = errors.New("invalid seed scenario")
@@ -128,7 +128,7 @@ func MetricsFromScenario(scenario SeedScenario) (model.Metrics, error) {
 		MostActiveMonth:      activeMonth.Month,
 		CategoryActivities:   categoryActivities,
 	}
-	if err := structural.ValidateMetrics(metrics); err != nil {
+	if err := validation.ValidateMetrics(metrics); err != nil {
 		return model.Metrics{}, fmt.Errorf("%w: %w", ErrInvalidScenario, err)
 	}
 	return analytics.EnrichMetrics(metrics), nil

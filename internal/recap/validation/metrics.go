@@ -1,8 +1,7 @@
-package structural
+package validation
 
 import (
 	"fmt"
-	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
 	"math"
 	"time"
@@ -10,11 +9,11 @@ import (
 
 func ValidateMetrics(metrics model.Metrics) error {
 	metrics = model.NormalizeMetrics(metrics)
-	knownEvents, err := analytics.SumUint64(metrics.Searches, metrics.TotalViews, metrics.FavoritesAdded,
+	knownEvents, ok := sumUint64(metrics.Searches, metrics.TotalViews, metrics.FavoritesAdded,
 		metrics.ChatsStarted, metrics.ListingsCreated, metrics.ListingsPublished,
 		metrics.PurchasesCompleted, metrics.SalesCompleted)
-	if err != nil {
-		return fmt.Errorf("%w: %w", ErrInvalidMetrics, err)
+	if !ok {
+		return fmt.Errorf("%w: event counters overflow uint64", ErrInvalidMetrics)
 	}
 	if knownEvents > metrics.TotalEvents {
 		return fmt.Errorf("%w: known event counters (%d) exceed total events (%d)", ErrInvalidMetrics, knownEvents, metrics.TotalEvents)
@@ -71,17 +70,17 @@ func ValidateMetrics(metrics model.Metrics) error {
 		if activity.Views == 0 && activity.FavoritesAdded == 0 && activity.PurchasesCompleted == 0 {
 			return fmt.Errorf("%w: category activity %q has no evidence", ErrInvalidMetrics, activity.CategoryCode)
 		}
-		var err error
-		categoryViews, err = analytics.SumUint64(categoryViews, activity.Views)
-		if err != nil {
+		var ok bool
+		categoryViews, ok = sumUint64(categoryViews, activity.Views)
+		if !ok {
 			return fmt.Errorf("%w: category views overflow", ErrInvalidMetrics)
 		}
-		categoryFavorites, err = analytics.SumUint64(categoryFavorites, activity.FavoritesAdded)
-		if err != nil {
+		categoryFavorites, ok = sumUint64(categoryFavorites, activity.FavoritesAdded)
+		if !ok {
 			return fmt.Errorf("%w: category favorites overflow", ErrInvalidMetrics)
 		}
-		categoryPurchases, err = analytics.SumUint64(categoryPurchases, activity.PurchasesCompleted)
-		if err != nil {
+		categoryPurchases, ok = sumUint64(categoryPurchases, activity.PurchasesCompleted)
+		if !ok {
 			return fmt.Errorf("%w: category purchases overflow", ErrInvalidMetrics)
 		}
 	}
@@ -109,13 +108,14 @@ func ValidateMetricsForPeriod(metrics model.Metrics, period model.RecapPeriod) e
 }
 
 func ValidateStoredRates(metrics model.Metrics) error {
-	expected := analytics.EnrichMetrics(metrics)
+	expectedRepeatRate := rate(metrics.RepeatedViews, metrics.TotalViews)
+	expectedPurchaseRate := rate(metrics.ChatsWithPurchase, metrics.ChatsStarted)
 	checks := []struct {
 		name             string
 		actual, expected float64
 	}{
-		{name: "repeat rate", actual: metrics.RepeatRate, expected: expected.RepeatRate},
-		{name: "purchase rate", actual: metrics.PurchaseRate, expected: expected.PurchaseRate},
+		{name: "repeat rate", actual: metrics.RepeatRate, expected: expectedRepeatRate},
+		{name: "purchase rate", actual: metrics.PurchaseRate, expected: expectedPurchaseRate},
 	}
 	for _, check := range checks {
 		if math.IsNaN(check.actual) || math.IsInf(check.actual, 0) || math.Abs(check.actual-check.expected) > 1e-12 {

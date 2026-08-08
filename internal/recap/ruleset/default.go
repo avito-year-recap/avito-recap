@@ -4,8 +4,9 @@ import "github.com/year-recap/internal/recap/model"
 
 func DefaultRuleset() Ruleset {
 	return Ruleset{
-		Version:   CurrentRulesVersion,
-		Algorithm: currentRulesAlgorithm,
+		Version:     CurrentRulesVersion,
+		Algorithm:   currentRulesAlgorithm,
+		Eligibility: EligibilityPolicy{MinEvents: 5},
 		Thresholds: BehaviorThresholds{
 			ActiveSellerMinListings:      5,
 			ActiveSellerMinDeals:         3,

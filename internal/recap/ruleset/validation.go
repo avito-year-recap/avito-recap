@@ -16,6 +16,9 @@ func (r Ruleset) Validate() error {
 	if r.Algorithm != currentRulesAlgorithm {
 		return fmt.Errorf("%w: unsupported algorithm %q", ErrInvalidRuleset, r.Algorithm)
 	}
+	if r.Eligibility.MinEvents == 0 {
+		return fmt.Errorf("%w: minimum event count must be positive", ErrInvalidRuleset)
+	}
 	t := r.Thresholds
 	if t.ActiveSellerMinListings == 0 || t.ActiveSellerMinDeals == 0 ||
 		t.StartingSellerMinCreated == 0 || t.DecisiveBuyerMinPurchases == 0 ||

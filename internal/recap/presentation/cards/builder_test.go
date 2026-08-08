@@ -9,14 +9,19 @@ import (
 	"github.com/year-recap/internal/recap/behavior"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/nextaction"
+	"github.com/year-recap/internal/recap/presentation/share"
+	"github.com/year-recap/internal/recap/ruleset"
 )
 
 func TestBuildCreatesOrderedStory(t *testing.T) {
+	configured := ruleset.DefaultRuleset()
 	metrics := analytics.EnrichMetrics(model.Metrics{TotalEvents: 243, Searches: 20, TotalViews: 180, UniqueListings: 130, RepeatedViews: 50, FavoritesAdded: 30, ChatsStarted: 3, ChatsWithPurchase: 1, PurchasesCompleted: 1, ActiveDays: 45, CategoriesCount: 4, TopCategoryCode: "electronics", TopCategory: "Электроника", TopCategoryViews: 80, TopCategoryShareable: true, MostActiveMonth: 10})
-	detected := behavior.Detect(metrics)
-	achievements := achievement.Build(metrics)
-	action := nextaction.Build(metrics, model.ActionableState{FavoritesCount: 5, HasEverPublishedListing: true})
-	values := Build(model.Profile{ID: uuid.MustParse("11111111-1111-4111-8111-111111111111"), Code: "buyer", DisplayName: "Алексей", Description: "Тест"}, 2025, uuid.MustParse("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"), metrics, detected, achievements, action)
+	detected := behavior.Detect(configured, metrics)
+	achievements := achievement.Build(configured, metrics)
+	action := nextaction.Build(configured, metrics, model.ActionableState{FavoritesCount: 5, HasEverPublishedListing: true}, detected)
+	shareID := uuid.MustParse("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
+	public := share.Build(configured.SharePolicy, shareID, 2025, metrics, detected, achievements)
+	values := Build(model.Profile{ID: uuid.MustParse("11111111-1111-4111-8111-111111111111"), Code: "buyer", DisplayName: "Алексей", Description: "Тест"}, 2025, metrics, detected, achievements, action, public)
 	if len(values) < 7 {
 		t.Fatalf("too few cards: %+v", values)
 	}

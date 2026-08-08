@@ -10,7 +10,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation/structural"
+	"github.com/year-recap/internal/recap/validation"
 )
 
 func TestAuditEveryConfiguredAchievementIsReachableThroughService(t *testing.T) {
@@ -42,7 +42,7 @@ func TestAuditEveryConfiguredAchievementIsReachableThroughService(t *testing.T) 
 	for _, rule := range ruleset.DefaultRuleset().AchievementPolicy.Rules {
 		metrics := finalizeAuditMetrics(witnesses[rule.Code])
 		t.Run(string(rule.Code), func(t *testing.T) {
-			if err := structural.ValidateMetricsForPeriod(metrics, testkit.Period()); err != nil {
+			if err := validation.ValidateMetricsForPeriod(metrics, testkit.Period()); err != nil {
 				t.Fatalf("witness metrics are invalid: %v\n%+v", err, metrics)
 			}
 			recaps := &testkit.RecapStorage{}
@@ -90,7 +90,7 @@ func finalizeAuditMetrics(metrics model.Metrics) model.Metrics {
 	metrics.UniqueListings = metrics.TotalViews
 	metrics.RepeatedViews = 0
 	known := metrics.Searches + metrics.TotalViews + metrics.FavoritesAdded + metrics.ChatsStarted + metrics.ListingsCreated + metrics.ListingsPublished + metrics.PurchasesCompleted + metrics.SalesCompleted
-	required := application.MinEventsForRecap
+	required := ruleset.DefaultRuleset().Eligibility.MinEvents
 	if metrics.CategoriesCount > required {
 		required = metrics.CategoriesCount
 	}

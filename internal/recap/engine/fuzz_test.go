@@ -1,4 +1,4 @@
-package integrity_test
+package engine_test
 
 import (
 	"encoding/binary"
