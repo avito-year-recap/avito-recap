@@ -1,10 +1,18 @@
-.PHONY: test seed fmt
+
+.PHONY: test fmt docker-build up down
 
 test:
 	go test ./...
 
-seed:
-	go run ./cmd/seed
-
 fmt:
 	gofmt -w ./cmd ./internal
+
+docker-build:
+	docker compose build
+
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
