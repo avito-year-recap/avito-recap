@@ -11,12 +11,13 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/application"
 	"github.com/year-recap/internal/recap/behavior"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation/structural"
+	"github.com/year-recap/internal/recap/validation"
 )
 
 type expectedRecap struct {
@@ -57,7 +58,7 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 	}
 	profilesByCode := make(map[string]model.Profile, len(profiles))
 	for _, profile := range profiles {
-		if err := structural.ValidateProfile(profile); err != nil {
+		if err := validation.ValidateProfile(profile); err != nil {
 			t.Fatalf("invalid seed profile %q: %v", profile.Code, err)
 		}
 		if _, exists := profilesByCode[profile.Code]; exists {
@@ -204,7 +205,7 @@ func TestSellerBuyerHybridSeedUsesDeterministicTieBreak(t *testing.T) {
 		if metrics.PurchasesCompleted < thresholds.DecisiveBuyerMinPurchases || metrics.ChatsStarted < thresholds.DecisiveBuyerMinChats || metrics.ChatsWithPurchase < thresholds.DecisiveBuyerMinLinkedChats || metrics.PurchaseRate < thresholds.DecisiveBuyerMinPurchaseRate {
 			t.Fatal("hybrid seed does not qualify for DECISIVE_BUYER")
 		}
-		if actual := behavior.Detect(metrics).Code; actual != model.BehaviorActiveSeller {
+		if actual := behavior.Detect(ruleset.DefaultRuleset(), analytics.EnrichMetrics(metrics)).Code; actual != model.BehaviorActiveSeller {
 			t.Fatalf("hybrid tie-break behavior = %s, want %s", actual, model.BehaviorActiveSeller)
 		}
 		return
@@ -220,7 +221,7 @@ func TestBehaviorCasesJSONMatchesRules(t *testing.T) {
 	}
 	for _, test := range cases {
 		t.Run(test.Name, func(t *testing.T) {
-			if actual := behavior.Detect(test.Metrics).Code; actual != test.ExpectedBehavior {
+			if actual := behavior.Detect(ruleset.DefaultRuleset(), analytics.EnrichMetrics(test.Metrics)).Code; actual != test.ExpectedBehavior {
 				t.Fatalf("behavior = %s, want %s", actual, test.ExpectedBehavior)
 			}
 		})
@@ -278,7 +279,6 @@ func assertGoldenRecap(t *testing.T, actual model.Recap, path string) {
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}
-	expected = bytes.ReplaceAll(expected, []byte("\r\n"), []byte("\n"))
 	if !bytes.Equal(expected, data) {
 		t.Fatalf("full golden recap mismatch for %s\n--- expected ---\n%s\n--- actual ---\n%s", path, expected, data)
 	}

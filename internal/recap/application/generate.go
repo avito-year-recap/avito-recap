@@ -4,18 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/year-recap/internal/recap/achievement"
-	"github.com/year-recap/internal/recap/analytics"
-	"github.com/year-recap/internal/recap/behavior"
-	"github.com/year-recap/internal/recap/integrity"
-	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/nextaction"
-	"github.com/year-recap/internal/recap/presentation/cards"
-	"github.com/year-recap/internal/recap/validation/structural"
-)
 
-const MinEventsForRecap uint64 = 5
+	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
+	"github.com/year-recap/internal/recap/engine"
+	"github.com/year-recap/internal/recap/model"
+)
 
 func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32) (model.Recap, error) {
 	if profileID == uuid.Nil {
@@ -26,7 +20,7 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return model.Recap{}, err
 	}
-	key := model.RecapKey{ProfileID: profileID, Year: year, RulesVersion: s.ruleset.Version, RulesDigest: s.ruleset.Digest()}
+	key := s.engine.RecapKey(profileID, year)
 
 	if existing, err := s.recaps.GetRecapByKey(ctx, key); err == nil {
 		return s.validateStoredByKey(existing, key)
@@ -39,9 +33,6 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 		return model.Recap{}, fmt.Errorf("get profile: %w", err)
 	}
 	profile = model.NormalizeProfile(profile)
-	if err := structural.ValidateProfile(profile); err != nil {
-		return model.Recap{}, err
-	}
 	if profile.ID != profileID {
 		return model.Recap{}, fmt.Errorf("%w: requested %s, got %s", ErrProfileIDMismatch, profileID, profile.ID)
 	}
@@ -50,30 +41,11 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("calculate metrics: %w", err)
 	}
-	metrics = model.NormalizeMetrics(metrics)
-	if err := structural.ValidateMetricsForPeriod(metrics, period); err != nil {
-		return model.Recap{}, err
-	}
-	if metrics.TotalEvents < MinEventsForRecap {
-		return model.Recap{}, ErrNotEnoughActivity
-	}
-	metrics = analytics.EnrichMetrics(metrics)
 
 	state, err := s.actionStates.GetActionableState(ctx, profileID, now)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("get actionable state: %w", err)
 	}
-	state = model.NormalizeActionableState(state)
-	if err := structural.ValidateActionableState(state); err != nil {
-		return model.Recap{}, err
-	}
-	if !state.CapturedAt.Equal(now) {
-		return model.Recap{}, fmt.Errorf("%w: snapshot captured at %s, requested %s", structural.ErrInvalidActionableState, state.CapturedAt, now)
-	}
-
-	detectedBehavior := behavior.DetectWithRuleset(s.ruleset, metrics)
-	achievements := achievement.BuildWithRuleset(s.ruleset, metrics)
-	nextAction := nextaction.BuildWithRuleset(s.ruleset, metrics, state, detectedBehavior)
 
 	recapID, err := s.generateNonNilID("internal recap")
 	if err != nil {
@@ -86,20 +58,23 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	if recapID == shareID {
 		return model.Recap{}, fmt.Errorf("%w: internal and public ids must differ", ErrGenerateID)
 	}
-	cards := cards.BuildWithRuleset(s.ruleset, profile, year, shareID, metrics, detectedBehavior, achievements, nextAction)
 
-	candidate := model.Recap{
-		ID: recapID, ShareID: shareID, Profile: profile, Year: year, Period: period,
-		RulesVersion: s.ruleset.Version, RulesDigest: s.ruleset.Digest(), Metrics: metrics, ActionableState: state,
-		Behavior: detectedBehavior, Achievements: achievements, Cards: cards, NextAction: nextAction,
-		GeneratedAt: now,
-	}
-	if err := integrity.ValidateRecapAgainstRuleset(candidate, s.ruleset, now); err != nil {
-		return model.Recap{}, fmt.Errorf("validate generated recap: %w", err)
+	candidate, err := s.engine.Build(engine.BuildInput{
+		RecapID:         recapID,
+		ShareID:         shareID,
+		Profile:         profile,
+		Year:            year,
+		Period:          period,
+		Metrics:         metrics,
+		ActionableState: state,
+		GeneratedAt:     now,
+	})
+	if err != nil {
+		return model.Recap{}, err
 	}
 
-	// The storage operation is the concurrency boundary. It must insert candidate or
-	// atomically return the already stored value for the same unique key.
+	// Persistence remains the concurrency/idempotency boundary. Business
+	// derivation is already complete before the storage call.
 	stored, err := s.recaps.CreateRecapIfAbsent(ctx, key, candidate)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("create recap if absent: %w", err)

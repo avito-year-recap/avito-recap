@@ -3,37 +3,18 @@ package cards
 import (
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/presentation/share"
-	"github.com/year-recap/internal/recap/ruleset"
 )
 
 func Build(
 	profile model.Profile,
 	year uint32,
-	shareID uuid.UUID,
 	metrics model.Metrics,
 	behavior model.Behavior,
 	achievements []model.Achievement,
 	nextAction model.NextAction,
+	shareCard model.ShareCard,
 ) []model.Card {
-	return BuildWithRuleset(ruleset.DefaultRuleset(), profile, year, shareID, metrics, behavior, achievements, nextAction)
-}
-
-func BuildWithRuleset(
-	configured ruleset.Ruleset,
-	profile model.Profile,
-	year uint32,
-	shareID uuid.UUID,
-	metrics model.Metrics,
-	behavior model.Behavior,
-	achievements []model.Achievement,
-	nextAction model.NextAction,
-) []model.Card {
-	profile = model.NormalizeProfile(profile)
-	metrics = model.NormalizeMetrics(metrics)
-	shareCard := share.BuildFromParts(configured.SharePolicy, shareID, year, metrics, behavior, achievements)
 	cards := make([]model.Card, 0, 9)
 
 	appendCard := func(card model.Card) {

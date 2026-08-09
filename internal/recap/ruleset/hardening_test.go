@@ -12,6 +12,7 @@ func TestRulesDigestBindsMaterialConfiguration(t *testing.T) {
 	baseDigest := base.Digest()
 	mutations := []func(*Ruleset){
 		func(r *Ruleset) { r.Algorithm += "-changed" },
+		func(r *Ruleset) { r.Eligibility.MinEvents++ },
 		func(r *Ruleset) { r.Thresholds.FindHunterMinViews++ },
 		func(r *Ruleset) { r.AchievementPolicy.Rules[0].Priority++ },
 		func(r *Ruleset) { r.AchievementPolicy.Rules[0].Category = model.AchievementCategoryBuying },
@@ -36,6 +37,11 @@ func TestRulesetRejectsLabelsWithoutImplementedContract(t *testing.T) {
 	invalidAlgorithm.Algorithm = "unimplemented"
 	if err := invalidAlgorithm.Validate(); !errors.Is(err, ErrInvalidRuleset) {
 		t.Fatalf("unknown algorithm error = %v", err)
+	}
+	invalidEligibility := DefaultRuleset()
+	invalidEligibility.Eligibility.MinEvents = 0
+	if err := invalidEligibility.Validate(); !errors.Is(err, ErrInvalidRuleset) {
+		t.Fatalf("invalid eligibility error = %v", err)
 	}
 	invalidThresholds := DefaultRuleset()
 	invalidThresholds.Thresholds.StartingSellerMaxPublished = invalidThresholds.Thresholds.StartingSellerMinCreated

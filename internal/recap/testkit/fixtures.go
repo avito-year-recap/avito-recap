@@ -4,12 +4,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/year-recap/internal/recap/achievement"
 	"github.com/year-recap/internal/recap/analytics"
-	"github.com/year-recap/internal/recap/behavior"
+	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/nextaction"
-	"github.com/year-recap/internal/recap/presentation/cards"
 	"github.com/year-recap/internal/recap/ruleset"
 )
 
@@ -48,17 +45,16 @@ func Period() model.RecapPeriod {
 }
 
 func Recap() model.Recap {
-	configured := ruleset.DefaultRuleset()
-	metrics := analytics.EnrichMetrics(Metrics())
-	state := ActionableState()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	achievements := achievement.BuildWithRuleset(configured, metrics)
-	action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
-	return model.Recap{
-		ID: RecapID, ShareID: ShareID, Profile: Profile(), Year: 2025, Period: Period(),
-		RulesVersion: configured.Version, RulesDigest: configured.Digest(), Metrics: metrics,
-		ActionableState: state, Behavior: detected, Achievements: achievements,
-		Cards:      cards.BuildWithRuleset(configured, Profile(), 2025, ShareID, metrics, detected, achievements, action),
-		NextAction: action, GeneratedAt: Clock(),
+	core, err := engine.New(ruleset.DefaultRuleset())
+	if err != nil {
+		panic(err)
 	}
+	value, err := core.Build(engine.BuildInput{
+		RecapID: RecapID, ShareID: ShareID, Profile: Profile(), Year: 2025,
+		Period: Period(), Metrics: Metrics(), ActionableState: ActionableState(), GeneratedAt: Clock(),
+	})
+	if err != nil {
+		panic(err)
+	}
+	return value
 }

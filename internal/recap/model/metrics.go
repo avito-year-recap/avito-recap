@@ -32,7 +32,7 @@ type Metrics struct {
 
 	// CategoryActivities contains the per-category evidence used by thematic
 	// achievements. The slice is normalized into category-code order so the
-	// stored recap and its integrity digest remain deterministic.
+	// stored recap and deterministic engine projections remain stable.
 	CategoryActivities []CategoryActivity `json:"categoryActivities,omitempty"`
 }
 

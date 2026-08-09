@@ -5,10 +5,11 @@ import (
 
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
+	"github.com/year-recap/internal/recap/ruleset"
 )
 
 func TestBuildBalancedPortfolio(t *testing.T) {
-	values := Build(model.Metrics{ListingsPublished: 5, SalesCompleted: 5, PurchasesCompleted: 5, ChatsStarted: 5, ChatsWithPurchase: 3})
+	values := buildAchievements(model.Metrics{ListingsPublished: 5, SalesCompleted: 5, PurchasesCompleted: 5, ChatsStarted: 5, ChatsWithPurchase: 3})
 	if len(values) != 3 {
 		t.Fatalf("got %d: %+v", len(values), values)
 	}
@@ -22,7 +23,7 @@ func TestBuildBalancedPortfolio(t *testing.T) {
 }
 
 func TestBuildThematicAchievement(t *testing.T) {
-	values := Build(model.Metrics{TotalViews: 30, CategoriesCount: 1, CategoryActivities: []model.CategoryActivity{{CategoryCode: analytics.CategoryBooks, Category: "Книги", Views: 30}}})
+	values := buildAchievements(model.Metrics{TotalViews: 30, CategoriesCount: 1, CategoryActivities: []model.CategoryActivity{{CategoryCode: analytics.CategoryBooks, Category: "Книги", Views: 30}}})
 	if len(values) != 1 || values[0].Code != model.AchievementBookworm {
 		t.Fatalf("unexpected: %+v", values)
 	}
@@ -46,11 +47,15 @@ func TestThematicSignalDoesNotOverflow(t *testing.T) {
 		},
 	}
 
-	values := Build(metrics)
+	values := buildAchievements(metrics)
 	for _, value := range values {
 		if value.Code == model.AchievementStyleIcon {
 			return
 		}
 	}
 	t.Fatalf("style achievement was lost after uint64 overflow: %+v", values)
+}
+
+func buildAchievements(metrics model.Metrics) []model.Achievement {
+	return Build(ruleset.DefaultRuleset(), analytics.EnrichMetrics(metrics))
 }
