@@ -34,51 +34,53 @@ func TestHTTPHandlerSupportsCompleteConnectFlow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(profiles.Msg.Profiles) != 1 || profiles.Msg.Profiles[0].Id != testkit.ProfileID.String() {
+	if len(profiles.Msg.Profiles) != 1 || profiles.Msg.Profiles[0].ProfileCode != testkit.Profile().Code {
 		t.Fatalf("unexpected profiles: %+v", profiles.Msg.Profiles)
 	}
 
 	generated, err := client.GenerateRecap(
 		ctx,
 		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileId: testkit.ProfileID.String(),
-			Year:      2025,
+			ProfileCode: testkit.Profile().Code,
+			Year:        2025,
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if generated.Msg.Recap.InternalId != testkit.RecapID.String() {
-		t.Fatalf("recap id = %q, want %q", generated.Msg.Recap.InternalId, testkit.RecapID)
+	if generated.Msg.Recap.Id != testkit.RecapID.String() {
+		t.Fatalf("recap id = %q, want %q", generated.Msg.Recap.Id, testkit.RecapID)
 	}
 
 	fetched, err := client.GetRecap(
 		ctx,
 		connectrpc.NewRequest(&recapv1.GetRecapRequest{
-			InternalRecapId: generated.Msg.Recap.InternalId,
+			ProfileCode: testkit.Profile().Code,
+			Year:        2025,
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if fetched.Msg.Recap.InternalId != generated.Msg.Recap.InternalId {
-		t.Fatalf("fetched recap id = %q", fetched.Msg.Recap.InternalId)
+	if fetched.Msg.Recap.Id != generated.Msg.Recap.Id {
+		t.Fatalf("fetched recap id = %q", fetched.Msg.Recap.Id)
 	}
 
-	shared, err := client.GetShareCard(
+	shareCard := findCard(t, generated.Msg.Recap.Cards, recapv1.CardType_CARD_TYPE_SHARE).GetShare()
+	shared, err := client.GetPublicShare(
 		ctx,
-		connectrpc.NewRequest(&recapv1.GetShareCardRequest{
-			ShareId: generated.Msg.Recap.ShareId,
+		connectrpc.NewRequest(&recapv1.GetPublicShareRequest{
+			ShareId: shareCard.ShareId,
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := protojson.Marshal(shared.Msg.ShareCard)
+	data, err := protojson.Marshal(shared.Msg.Share)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, forbidden := range []string{"internalId", "profile", "metrics", "nextAction"} {
+	for _, forbidden := range []string{"profile", "metrics", "nextAction"} {
 		if strings.Contains(string(data), forbidden) {
 			t.Fatalf("public share contains %q: %s", forbidden, data)
 		}
@@ -91,8 +93,8 @@ func TestHTTPHandlerMapsInvalidRequestToConnectError(t *testing.T) {
 	_, err := client.GenerateRecap(
 		context.Background(),
 		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileId: "not-a-uuid",
-			Year:      2025,
+			ProfileCode: "",
+			Year:        2025,
 		}),
 	)
 	if code := connectrpc.CodeOf(err); code != connectrpc.CodeInvalidArgument {
@@ -138,15 +140,15 @@ func TestHTTPHandlerServesSeedCatalogueEndToEnd(t *testing.T) {
 		t.Fatalf("profile count = %d, want 17", len(profiles.Msg.Profiles))
 	}
 	profile := profiles.Msg.Profiles[0]
-	if profile.Code != "active-buyer" || profile.GetAvatarUrl() == "" {
+	if profile.ProfileCode != "active-buyer" || profile.GetAvatarUrl() == "" {
 		t.Fatalf("unexpected first profile: %+v", profile)
 	}
 
 	first, err := client.GenerateRecap(
 		ctx,
 		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileId: profile.Id,
-			Year:      2025,
+			ProfileCode: profile.ProfileCode,
+			Year:        2025,
 		}),
 	)
 	if err != nil {
@@ -155,40 +157,42 @@ func TestHTTPHandlerServesSeedCatalogueEndToEnd(t *testing.T) {
 	second, err := client.GenerateRecap(
 		ctx,
 		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileId: profile.Id,
-			Year:      2025,
+			ProfileCode: profile.ProfileCode,
+			Year:        2025,
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if first.Msg.Recap.InternalId != second.Msg.Recap.InternalId {
+	if first.Msg.Recap.Id != second.Msg.Recap.Id {
 		t.Fatalf(
 			"idempotent ids differ: %s and %s",
-			first.Msg.Recap.InternalId,
-			second.Msg.Recap.InternalId,
+			first.Msg.Recap.Id,
+			second.Msg.Recap.Id,
 		)
 	}
-	if first.Msg.Recap.Behavior.Code != recapv1.BehaviorCode_BEHAVIOR_CODE_FIND_HUNTER {
-		t.Fatalf("behavior = %v", first.Msg.Recap.Behavior.Code)
+	behaviorCard := findCard(t, first.Msg.Recap.Cards, recapv1.CardType_CARD_TYPE_BEHAVIOR)
+	if behaviorCard.GetBehavior().Code != recapv1.BehaviorCode_BEHAVIOR_CODE_FIND_HUNTER {
+		t.Fatalf("behavior = %v", behaviorCard.GetBehavior().Code)
 	}
 	if len(first.Msg.Recap.Cards) == 0 ||
 		first.Msg.Recap.Cards[len(first.Msg.Recap.Cards)-1].Type != recapv1.CardType_CARD_TYPE_SHARE {
 		t.Fatalf("story must end with SHARE: %+v", first.Msg.Recap.Cards)
 	}
 
-	shared, err := client.GetShareCard(
+	shareCard := findCard(t, first.Msg.Recap.Cards, recapv1.CardType_CARD_TYPE_SHARE).GetShare()
+	shared, err := client.GetPublicShare(
 		ctx,
-		connectrpc.NewRequest(&recapv1.GetShareCardRequest{
-			ShareId: first.Msg.Recap.ShareId,
+		connectrpc.NewRequest(&recapv1.GetPublicShareRequest{
+			ShareId: shareCard.ShareId,
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if shared.Msg.ShareCard.ShareId != first.Msg.Recap.ShareId ||
-		shared.Msg.ShareCard.BehaviorTitle != first.Msg.Recap.Behavior.Title {
-		t.Fatalf("unexpected share card: %+v", shared.Msg.ShareCard)
+	if shared.Msg.Share.ShareId != shareCard.ShareId ||
+		shared.Msg.Share.BehaviorTitle != behaviorCard.Title {
+		t.Fatalf("unexpected share card: %+v", shared.Msg.Share)
 	}
 
 	avatar, err := httpServer.Client().Get(httpServer.URL + profile.GetAvatarUrl())
@@ -272,6 +276,17 @@ func closeResponseBody(t *testing.T, response *http.Response) {
 	if err := response.Body.Close(); err != nil {
 		t.Errorf("close response body: %v", err)
 	}
+}
+
+func findCard(t *testing.T, cards []*recapv1.RecapCard, cardType recapv1.CardType) *recapv1.RecapCard {
+	t.Helper()
+	for _, card := range cards {
+		if card.Type == cardType {
+			return card
+		}
+	}
+	t.Fatalf("no card of type %v", cardType)
+	return nil
 }
 
 func newTestServer(t *testing.T) *httptest.Server {

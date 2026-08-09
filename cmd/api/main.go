@@ -10,12 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/year-recap/gen/go/recap/v1/recapv1connect"
 	"github.com/year-recap/internal/bootstrap"
 	"github.com/year-recap/internal/config"
 	"github.com/year-recap/internal/recap/application"
+	"github.com/year-recap/internal/server"
 	"github.com/year-recap/internal/storage/clickhouse"
-	transportconnect "github.com/year-recap/internal/transport/connect"
 )
 
 func main() {
@@ -65,23 +64,17 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("build application: %w", err)
 	}
-	rpc, err := transportconnect.NewHandler(app)
+	handler, err := server.NewHandler(app, server.Options{
+		StaticDir:      cfg.StaticDir,
+		AllowedOrigins: cfg.AllowedOrigins,
+	})
 	if err != nil {
-		return fmt.Errorf("build connect handler: %w", err)
+		return fmt.Errorf("build http handler: %w", err)
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
-	connectPath, connectHandler := recapv1connect.NewRecapServiceHandler(rpc)
-	mux.Handle(connectPath, cors(cfg.AllowedOrigins, connectHandler))
-
-	server := &http.Server{
+	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
@@ -90,15 +83,15 @@ func run() error {
 
 	serverErr := make(chan error, 1)
 	go func() {
-		log.Printf("starting api server on %s; connect path %s", cfg.HTTPAddr, connectPath)
-		serverErr <- server.ListenAndServe()
+		log.Printf("starting api server on %s", cfg.HTTPAddr)
+		serverErr <- httpServer.ListenAndServe()
 	}()
 
 	select {
 	case <-rootCtx.Done():
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 		defer cancel()
-		if err := server.Shutdown(shutdownCtx); err != nil {
+		if err := httpServer.Shutdown(shutdownCtx); err != nil {
 			return fmt.Errorf("graceful shutdown: %w", err)
 		}
 		return nil
@@ -108,25 +101,4 @@ func run() error {
 		}
 		return nil
 	}
-}
-
-func cors(allowedOrigins []string, next http.Handler) http.Handler {
-	allowed := make(map[string]struct{}, len(allowedOrigins))
-	for _, origin := range allowedOrigins {
-		allowed[origin] = struct{}{}
-	}
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		if _, ok := allowed[origin]; ok {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Vary", "Origin")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Connect-Protocol-Version, Connect-Timeout-Ms")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		}
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
 }

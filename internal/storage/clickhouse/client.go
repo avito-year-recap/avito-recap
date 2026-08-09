@@ -1,6 +1,5 @@
 package clickhouse
 
-
 import (
 	"context"
 	"fmt"
@@ -8,14 +7,21 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 
-	"github.com/year-recap/internal/recap"
+	"github.com/year-recap/internal/bootstrap"
+	"github.com/year-recap/internal/recap/application"
 )
 
 type Repo struct {
 	conn driver.Conn
 }
 
-var _ recap.Repository = (*Repo)(nil)
+var (
+	_ application.ProfileStorage     = (*Repo)(nil)
+	_ application.AnalyticsStorage   = (*Repo)(nil)
+	_ application.ActionStateStorage = (*Repo)(nil)
+	_ application.RecapStorage       = (*Repo)(nil)
+	_ bootstrap.SeedStorage          = (*Repo)(nil)
+)
 
 func Connect(ctx context.Context, dsn string) (*Repo, error) {
 	opts, err := clickhouse.ParseDSN(dsn)
@@ -36,4 +42,77 @@ func Connect(ctx context.Context, dsn string) (*Repo, error) {
 
 func (r *Repo) Close() error {
 	return r.conn.Close()
+}
+
+// schemaStatements are executed in order on every startup. Every statement is
+// idempotent (CREATE ... IF NOT EXISTS) so re-running them against an already
+// provisioned database is a no-op. The database itself ("recap") is created by
+// the ClickHouse container from CLICKHOUSE_DB, not here.
+//
+// Tables store the domain structs (model.Metrics/model.ActionableState/
+// model.Recap) as JSON rather than as individually typed columns. All three
+// already round-trip through encoding/json (model.Recap even carries custom
+// Card.MarshalJSON/UnmarshalJSON for its closed-union payloads), and the
+// application layer is the only writer, so there is no independent SQL-level
+// consumer that would need typed columns. This keeps the schema stable while
+// the domain model evolves.
+var schemaStatements = []string{
+	`CREATE TABLE IF NOT EXISTS profiles
+	(
+		id           UUID,
+		code         String,
+		display_name String,
+		description  String,
+		avatar_url   String,
+		updated_at   DateTime DEFAULT now()
+	)
+	ENGINE = ReplacingMergeTree(updated_at)
+	ORDER BY id`,
+
+	`CREATE TABLE IF NOT EXISTS annual_metrics
+	(
+		profile_id UUID,
+		year       UInt16,
+		metrics    String,
+		updated_at DateTime DEFAULT now()
+	)
+	ENGINE = ReplacingMergeTree(updated_at)
+	ORDER BY (profile_id, year)`,
+
+	`CREATE TABLE IF NOT EXISTS actionable_state
+	(
+		profile_id UUID,
+		state      String,
+		updated_at DateTime DEFAULT now()
+	)
+	ENGINE = ReplacingMergeTree(updated_at)
+	ORDER BY profile_id`,
+
+	// Recaps are immutable once generated (see application.Service.Generate),
+	// so this table is a plain MergeTree, not a ReplacingMergeTree: nothing
+	// should ever overwrite a stored row, only CreateRecapIfAbsent's
+	// check-then-insert semantics decide whether a new one is written.
+	`CREATE TABLE IF NOT EXISTS recaps
+	(
+		id            UUID,
+		share_id      UUID,
+		profile_id    UUID,
+		year          UInt16,
+		rules_version String,
+		rules_digest  String,
+		recap         String,
+		created_at    DateTime DEFAULT now()
+	)
+	ENGINE = MergeTree
+	ORDER BY (profile_id, year, rules_version, rules_digest)`,
+}
+
+// EnsureSchema provisions every table the application layer depends on.
+func (r *Repo) EnsureSchema(ctx context.Context) error {
+	for _, statement := range schemaStatements {
+		if err := r.conn.Exec(ctx, statement); err != nil {
+			return fmt.Errorf("ensure schema: %w", err)
+		}
+	}
+	return nil
 }
