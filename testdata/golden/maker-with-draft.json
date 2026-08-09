@@ -1,0 +1,284 @@
+{
+  "id": "6e6ba684-50fe-57a6-b72d-dd224f68d4c2",
+  "shareId": "6e6aa684-50fe-57a6-b72d-dd224f68d4c2",
+  "profile": {
+    "id": "916ba684-50fe-57a6-b72d-dd224f68d4c2",
+    "code": "maker-with-draft",
+    "displayName": "Роман",
+    "description": "Интересуется инструментами и начал продавать, но важный черновик ещё ждёт публикации",
+    "avatarUrl": "/avatars/maker-with-draft.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 100,
+    "searches": 15,
+    "totalViews": 65,
+    "uniqueListings": 48,
+    "repeatedViews": 17,
+    "favoritesAdded": 9,
+    "chatsStarted": 4,
+    "listingsCreated": 6,
+    "listingsPublished": 1,
+    "purchasesCompleted": 0,
+    "salesCompleted": 0,
+    "activeDays": 30,
+    "categoriesCount": 2,
+    "chatsWithPurchase": 0,
+    "topCategoryCode": "tools",
+    "topCategory": "Инструменты",
+    "topCategoryViews": 46,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 9,
+    "repeatRate": 0.26153846153846155,
+    "purchaseRate": 0,
+    "categoryActivities": [
+      {
+        "categoryCode": "electronics",
+        "category": "Электроника",
+        "shareable": true,
+        "views": 19,
+        "favoritesAdded": 2,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "tools",
+        "category": "Инструменты",
+        "shareable": true,
+        "views": 46,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 0
+      }
+    ]
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 1,
+    "draftListingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 8,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": true
+  },
+  "behavior": {
+    "code": "STARTING_SELLER",
+    "title": "Старт в продажах",
+    "description": "В течение года объявления создавались чаще, чем публиковались.",
+    "reason": "Создано объявлений: 6 (порог 3). Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
+    "evidence": [
+      {
+        "metric": "listings_created",
+        "actual": 6,
+        "threshold": 3,
+        "detail": "Создано объявлений: 6 (порог 3)."
+      },
+      {
+        "metric": "creation_publication_gap",
+        "actual": 5,
+        "threshold": 1,
+        "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
+      },
+      {
+        "metric": "sales_completed",
+        "actual": 0,
+        "threshold": 0,
+        "detail": "Завершённых продаж в периоде не было."
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "code": "FIRST_SELLING_STEPS",
+      "category": "SELLING",
+      "title": "Начинающий бизнесмен",
+      "description": "Продажный сценарий уже начался и набирает первые результаты.",
+      "reason": "Объявлений создано: 6.",
+      "shareable": true
+    },
+    {
+      "code": "MASTER_CRAFT",
+      "category": "INTEREST",
+      "title": "Дело мастера",
+      "description": "Инструменты и полезное оборудование часто становились частью планов.",
+      "reason": "Категории: Инструменты. Просмотров: 46. Добавлений в избранное: 7. Покупок: 0. Доля тематической активности: 73%.",
+      "shareable": false
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Роман, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 100 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 100,
+        "searches": 15,
+        "totalViews": 65,
+        "favoritesAdded": 9,
+        "chatsStarted": 4,
+        "listingsPublished": 1,
+        "purchasesCompleted": 0,
+        "salesCompleted": 0
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Инструменты».",
+      "explanation": "Просмотров в этой категории: 46.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "tools",
+        "category": "Инструменты",
+        "categoryViews": 46
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на сентябрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 9
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Старт в продажах",
+      "description": "В течение года объявления создавались чаще, чем публиковались.",
+      "explanation": "Создано объявлений: 6 (порог 3). Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков. Завершённых продаж в периоде не было.",
+      "shareable": false,
+      "payload": {
+        "code": "STARTING_SELLER",
+        "evidence": [
+          {
+            "metric": "listings_created",
+            "actual": 6,
+            "threshold": 3,
+            "detail": "Создано объявлений: 6 (порог 3)."
+          },
+          {
+            "metric": "creation_publication_gap",
+            "actual": 5,
+            "threshold": 1,
+            "detail": "Созданий больше публикаций на 5; это годовой сигнал, а не число текущих черновиков."
+          },
+          {
+            "metric": "sales_completed",
+            "actual": 0,
+            "threshold": 0,
+            "detail": "Завершённых продаж в периоде не было."
+          }
+        ]
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Начинающий бизнесмен • Дело мастера",
+      "explanation": "Объявлений создано: 6. Категории: Инструменты. Просмотров: 46. Добавлений в избранное: 7. Покупок: 0. Доля тематической активности: 73%.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "FIRST_SELLING_STEPS",
+          "MASTER_CRAFT"
+        ]
+      }
+    },
+    {
+      "id": "missed-opportunity",
+      "type": "MISSED_OPPORTUNITY",
+      "position": 7,
+      "title": "Шанс довести актуальный черновик до публикации",
+      "description": "Текущий черновик можно открыть напрямую.",
+      "explanation": "Карточка опирается на актуальное состояние объявлений, а не на разницу годовых счётчиков.",
+      "shareable": false,
+      "payload": {
+        "code": "FINISH_DRAFT",
+        "target": {
+          "listing": {
+            "listingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540"
+          }
+        }
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 8,
+      "title": "Заверши начатое объявление",
+      "description": "Открой актуальный черновик и подготовь его к публикации.",
+      "explanation": "Сейчас доступно черновиков: 1; выбран конкретный актуальный черновик.",
+      "shareable": false,
+      "payload": {
+        "code": "FINISH_DRAFT",
+        "target": {
+          "listing": {
+            "listingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 9,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Старт в продажах». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "6e6aa684-50fe-57a6-b72d-dd224f68d4c2",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Старт в продажах",
+        "achievementTitle": "Начинающий бизнесмен",
+        "topCategory": "Инструменты"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "FINISH_DRAFT",
+    "title": "Заверши начатое объявление",
+    "description": "Открой актуальный черновик и подготовь его к публикации.",
+    "buttonText": "Открыть черновик",
+    "reason": "Сейчас доступно черновиков: 1; выбран конкретный актуальный черновик.",
+    "target": {
+      "listing": {
+        "listingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

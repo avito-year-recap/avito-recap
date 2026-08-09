@@ -1,0 +1,59 @@
+[
+  {
+    "name": "active seller exact threshold",
+    "metrics": {
+      "listingsCreated": 5,
+      "listingsPublished": 5,
+      "salesCompleted": 3
+    },
+    "expectedBehavior": "ACTIVE_SELLER"
+  },
+  {
+    "name": "not active seller below deal threshold",
+    "metrics": {
+      "listingsCreated": 5,
+      "listingsPublished": 5,
+      "salesCompleted": 2
+    },
+    "expectedBehavior": "UNIVERSAL_USER"
+  },
+  {
+    "name": "researcher exact threshold",
+    "metrics": {
+      "totalViews": 100,
+      "uniqueListings": 100,
+      "chatsStarted": 4,
+      "categoriesCount": 5
+    },
+    "expectedBehavior": "RESEARCHER"
+  },
+  {
+    "name": "find hunter exact threshold",
+    "metrics": {
+      "totalViews": 20,
+      "uniqueListings": 16,
+      "repeatedViews": 4,
+      "favoritesAdded": 3
+    },
+    "expectedBehavior": "FIND_HUNTER"
+  },
+  {
+    "name": "starting seller with unfinished listings",
+    "metrics": {
+      "listingsCreated": 6,
+      "listingsPublished": 2
+    },
+    "expectedBehavior": "STARTING_SELLER"
+  },
+  {
+    "name": "decisive buyer with high conversion",
+    "metrics": {
+      "totalViews": 60,
+      "uniqueListings": 50,
+      "chatsStarted": 12,
+      "purchasesCompleted": 3,
+      "chatsWithPurchase": 3
+    },
+    "expectedBehavior": "DECISIVE_BUYER"
+  }
+]

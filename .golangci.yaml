@@ -1,0 +1,31 @@
+version: "2"
+
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  default: none
+
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+    - errorlint
+    - nilerr
+    - misspell
+    - gocritic
+    - exhaustive
+    - revive
+
+  settings:
+    revive:
+      enable-default-rules: true
+      rules:
+        - name: exported
+          disabled: true
+
+        - name: package-comments
+          disabled: true

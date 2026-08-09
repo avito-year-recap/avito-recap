@@ -1,0 +1,252 @@
+{
+  "id": "db5a697c-53fe-5972-95c4-9505df0909bf",
+  "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
+  "profile": {
+    "id": "245a697c-53fe-5972-95c4-9505df0909bf",
+    "code": "decisive-buyer",
+    "displayName": "Ольга",
+    "description": "Быстро переходит от просмотра объявлений к общению и покупке",
+    "avatarUrl": "/avatars/decisive-buyer.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 115,
+    "searches": 12,
+    "totalViews": 70,
+    "uniqueListings": 58,
+    "repeatedViews": 12,
+    "favoritesAdded": 14,
+    "chatsStarted": 15,
+    "listingsCreated": 0,
+    "listingsPublished": 0,
+    "purchasesCompleted": 4,
+    "salesCompleted": 0,
+    "activeDays": 36,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 4,
+    "topCategoryCode": "furniture",
+    "topCategory": "Мебель и интерьер",
+    "topCategoryViews": 39,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 11,
+    "repeatRate": 0.17142857142857143,
+    "purchaseRate": 0.26666666666666666
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "af36dc82-9258-5535-8cf9-012039479787",
+    "hasEverPublishedListing": false
+  },
+  "behavior": {
+    "code": "DECISIVE_BUYER",
+    "title": "Решительный покупатель",
+    "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
+    "reason": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+    "evidence": [
+      {
+        "metric": "purchases_completed",
+        "actual": 4,
+        "threshold": 3,
+        "detail": "Завершено покупок: 4 (порог 3)."
+      },
+      {
+        "metric": "chats_started",
+        "actual": 15,
+        "threshold": 5,
+        "detail": "Начато диалогов: 15 (порог 5)."
+      },
+      {
+        "metric": "chats_with_purchase",
+        "actual": 4,
+        "threshold": 3,
+        "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+      },
+      {
+        "metric": "purchase_rate",
+        "actual": 0.26666666666666666,
+        "threshold": 0.2,
+        "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "code": "QUICK_DECISION",
+      "category": "BUYING",
+      "title": "Молния",
+      "description": "Ты быстро переходил от диалога к подходящему выбору.",
+      "reason": "Покупкой завершилось 27% начатых диалогов.",
+      "shareable": true
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Ольга, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 115 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 115,
+        "searches": 12,
+        "totalViews": 70,
+        "favoritesAdded": 14,
+        "chatsStarted": 15,
+        "listingsPublished": 0,
+        "purchasesCompleted": 4,
+        "salesCompleted": 0
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Мебель и интерьер».",
+      "explanation": "Просмотров в этой категории: 39.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "furniture",
+        "category": "Мебель и интерьер",
+        "categoryViews": 39
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на ноябрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 11
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Решительный покупатель",
+      "description": "Несколько диалогов из выбранного периода были связаны с завершёнными покупками.",
+      "explanation": "Завершено покупок: 4 (порог 3). Начато диалогов: 15 (порог 5). Диалогов, связанных с покупкой: 4 (порог 3). Покупкой завершилось 27% начатых диалогов (порог 20%).",
+      "shareable": false,
+      "payload": {
+        "code": "DECISIVE_BUYER",
+        "evidence": [
+          {
+            "metric": "purchases_completed",
+            "actual": 4,
+            "threshold": 3,
+            "detail": "Завершено покупок: 4 (порог 3)."
+          },
+          {
+            "metric": "chats_started",
+            "actual": 15,
+            "threshold": 5,
+            "detail": "Начато диалогов: 15 (порог 5)."
+          },
+          {
+            "metric": "chats_with_purchase",
+            "actual": 4,
+            "threshold": 3,
+            "detail": "Диалогов, связанных с покупкой: 4 (порог 3)."
+          },
+          {
+            "metric": "purchase_rate",
+            "actual": 0.26666666666666666,
+            "threshold": 0.2,
+            "detail": "Покупкой завершилось 27% начатых диалогов (порог 20%)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Молния",
+      "explanation": "Покупкой завершилось 27% начатых диалогов.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "QUICK_DECISION"
+        ]
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 7,
+      "title": "Посмотри похожие варианты",
+      "description": "Открой подборку, похожую на недавнюю покупку.",
+      "explanation": "Поведение соответствует решительному покупателю, а текущий snapshot содержит адресуемую последнюю покупку.",
+      "shareable": false,
+      "payload": {
+        "code": "VIEW_SIMILAR_LISTINGS",
+        "target": {
+          "listing": {
+            "listingId": "af36dc82-9258-5535-8cf9-012039479787"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Решительный покупатель». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "db5b697c-53fe-5972-95c4-9505df0909bf",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Решительный покупатель",
+        "achievementTitle": "Молния",
+        "topCategory": "Мебель и интерьер"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "VIEW_SIMILAR_LISTINGS",
+    "title": "Посмотри похожие варианты",
+    "description": "Открой подборку, похожую на недавнюю покупку.",
+    "buttonText": "Смотреть похожее",
+    "reason": "Поведение соответствует решительному покупателю, а текущий snapshot содержит адресуемую последнюю покупку.",
+    "target": {
+      "listing": {
+        "listingId": "af36dc82-9258-5535-8cf9-012039479787"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

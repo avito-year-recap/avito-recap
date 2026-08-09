@@ -1,0 +1,1038 @@
+[
+  {
+    "profileCode": "active-buyer",
+    "year": 2025,
+    "activity": {
+      "searches": 45,
+      "listingViews": 180,
+      "uniqueListings": 120,
+      "favoritesAdded": 28,
+      "chatsStarted": 3,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 1,
+      "salesCompleted": 0,
+      "activeDays": 72,
+      "chatsWithPurchase": 1
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 60,
+        "shareable": true
+      },
+      {
+        "code": "auto",
+        "title": "Авто",
+        "weight": 15,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 15,
+        "shareable": true
+      },
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 10,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 15
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 9,
+        "weight": 25
+      },
+      {
+        "month": 10,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "favoritesCount": 12,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "active-seller",
+    "year": 2025,
+    "activity": {
+      "searches": 5,
+      "listingViews": 35,
+      "uniqueListings": 30,
+      "favoritesAdded": 3,
+      "chatsStarted": 26,
+      "listingsCreated": 11,
+      "listingsPublished": 9,
+      "purchasesCompleted": 0,
+      "salesCompleted": 6,
+      "activeDays": 64,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 45,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 35,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 20
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "activeListings": 4,
+      "activeListingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb",
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "researcher",
+    "year": 2025,
+    "activity": {
+      "searches": 80,
+      "listingViews": 260,
+      "uniqueListings": 235,
+      "favoritesAdded": 5,
+      "chatsStarted": 1,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 88,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 22,
+        "shareable": true
+      },
+      {
+        "code": "auto",
+        "title": "Авто",
+        "weight": 18,
+        "shareable": true
+      },
+      {
+        "code": "real_estate",
+        "title": "Недвижимость",
+        "weight": 17,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 14,
+        "shareable": true
+      },
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 10,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 10,
+        "shareable": true
+      },
+      {
+        "code": "services",
+        "title": "Услуги",
+        "weight": 9,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 10
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 7,
+        "weight": 30
+      },
+      {
+        "month": 12,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "hasSavedSearchForTopCategory": false,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "universal-user",
+    "year": 2025,
+    "activity": {
+      "searches": 25,
+      "listingViews": 95,
+      "uniqueListings": 86,
+      "favoritesAdded": 12,
+      "chatsStarted": 9,
+      "listingsCreated": 5,
+      "listingsPublished": 4,
+      "purchasesCompleted": 1,
+      "salesCompleted": 2,
+      "activeDays": 70,
+      "chatsWithPurchase": 1
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 35,
+        "shareable": true
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 30,
+        "shareable": true
+      },
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 20,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 15,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 20
+      },
+      {
+        "month": 6,
+        "weight": 20
+      },
+      {
+        "month": 9,
+        "weight": 35
+      },
+      {
+        "month": 12,
+        "weight": 25
+      }
+    ],
+    "actionableState": {
+      "openDialogs": 2,
+      "openDialogId": "dc1a4377-ee2e-5a98-92ce-39e778a36ebe",
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "draft-seller",
+    "year": 2025,
+    "activity": {
+      "searches": 8,
+      "listingViews": 40,
+      "uniqueListings": 35,
+      "favoritesAdded": 4,
+      "chatsStarted": 6,
+      "listingsCreated": 7,
+      "listingsPublished": 2,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 24,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 50,
+        "shareable": true
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 30,
+        "shareable": true
+      },
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 20,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 35
+      },
+      {
+        "month": 10,
+        "weight": 25
+      }
+    ],
+    "actionableState": {
+      "currentDrafts": 2,
+      "draftListingId": "981a4c04-8057-537f-afac-794c49192178",
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "decisive-buyer",
+    "year": 2025,
+    "activity": {
+      "searches": 12,
+      "listingViews": 70,
+      "uniqueListings": 58,
+      "favoritesAdded": 14,
+      "chatsStarted": 15,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 4,
+      "salesCompleted": 0,
+      "activeDays": 36,
+      "chatsWithPurchase": 4
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 55,
+        "shareable": true
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 25,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 4,
+        "weight": 15
+      },
+      {
+        "month": 6,
+        "weight": 25
+      },
+      {
+        "month": 9,
+        "weight": 20
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "lastPurchasedListingId": "af36dc82-9258-5535-8cf9-012039479787",
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "seller-buyer-hybrid",
+    "year": 2025,
+    "activity": {
+      "searches": 20,
+      "listingViews": 90,
+      "uniqueListings": 75,
+      "favoritesAdded": 8,
+      "chatsStarted": 12,
+      "listingsCreated": 8,
+      "listingsPublished": 7,
+      "purchasesCompleted": 5,
+      "salesCompleted": 5,
+      "activeDays": 80,
+      "chatsWithPurchase": 4
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 35,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 30,
+        "shareable": true
+      },
+      {
+        "code": "auto",
+        "title": "Авто",
+        "weight": 20,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 15,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 20
+      },
+      {
+        "month": 9,
+        "weight": 25
+      },
+      {
+        "month": 12,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "activeListings": 3,
+      "activeListingId": "3f3972a1-b4ac-5d06-9509-f344762f906d",
+      "lastPurchasedListingId": "95887d47-6da7-5162-81b1-aaa3b741620e",
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "returning-publisher",
+    "year": 2025,
+    "activity": {
+      "searches": 4,
+      "listingViews": 30,
+      "uniqueListings": 28,
+      "favoritesAdded": 2,
+      "chatsStarted": 10,
+      "listingsCreated": 7,
+      "listingsPublished": 6,
+      "purchasesCompleted": 0,
+      "salesCompleted": 3,
+      "activeDays": 50,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 50,
+        "shareable": true
+      },
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 30,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 10
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 8,
+        "weight": 30
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "activeListings": 0,
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "category-browser",
+    "year": 2025,
+    "activity": {
+      "searches": 15,
+      "listingViews": 60,
+      "uniqueListings": 55,
+      "favoritesAdded": 2,
+      "chatsStarted": 2,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 20,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "auto",
+        "title": "Авто",
+        "weight": 40,
+        "shareable": true
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 30,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 20,
+        "shareable": true
+      },
+      {
+        "code": "sports",
+        "title": "Спорт и отдых",
+        "weight": 10,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 20
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 35
+      },
+      {
+        "month": 10,
+        "weight": 20
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "recommendation-newcomer",
+    "year": 2025,
+    "activity": {
+      "searches": 5,
+      "listingViews": 0,
+      "uniqueListings": 0,
+      "favoritesAdded": 0,
+      "chatsStarted": 0,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 3,
+      "chatsWithPurchase": 0
+    },
+    "categories": [],
+    "months": [
+      {
+        "month": 1,
+        "weight": 100
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "steady-buyer",
+    "year": 2025,
+    "activity": {
+      "searches": 10,
+      "listingViews": 45,
+      "uniqueListings": 42,
+      "favoritesAdded": 2,
+      "chatsStarted": 20,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 4,
+      "salesCompleted": 0,
+      "activeDays": 35,
+      "chatsWithPurchase": 2
+    },
+    "categories": [
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 45,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 35,
+        "shareable": true
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 15
+      },
+      {
+        "month": 6,
+        "weight": 25
+      },
+      {
+        "month": 9,
+        "weight": 25
+      },
+      {
+        "month": 12,
+        "weight": 35
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "book-collector",
+    "year": 2025,
+    "activity": {
+      "searches": 24,
+      "listingViews": 96,
+      "uniqueListings": 68,
+      "favoritesAdded": 12,
+      "chatsStarted": 10,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 3,
+      "salesCompleted": 0,
+      "activeDays": 41,
+      "chatsWithPurchase": 3
+    },
+    "categories": [
+      {
+        "code": "books",
+        "title": "Книги",
+        "weight": 65,
+        "shareable": true,
+        "views": 62,
+        "favoritesAdded": 9,
+        "purchasesCompleted": 3
+      },
+      {
+        "code": "hobby",
+        "title": "Хобби и отдых",
+        "weight": 20,
+        "shareable": true,
+        "views": 19,
+        "favoritesAdded": 2
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 15,
+        "shareable": true,
+        "views": 15,
+        "favoritesAdded": 1
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 25
+      },
+      {
+        "month": 9,
+        "weight": 20
+      },
+      {
+        "month": 12,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "favoritesCount": 5,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "private-style-hunter",
+    "year": 2025,
+    "activity": {
+      "searches": 38,
+      "listingViews": 120,
+      "uniqueListings": 80,
+      "favoritesAdded": 24,
+      "chatsStarted": 2,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 1,
+      "salesCompleted": 0,
+      "activeDays": 54,
+      "chatsWithPurchase": 1
+    },
+    "categories": [
+      {
+        "code": "beauty_cosmetics",
+        "title": "Красота и косметика",
+        "weight": 55,
+        "shareable": false,
+        "views": 66,
+        "favoritesAdded": 16,
+        "purchasesCompleted": 1
+      },
+      {
+        "code": "womens_fashion",
+        "title": "Женская одежда и аксессуары",
+        "weight": 30,
+        "shareable": true,
+        "views": 36,
+        "favoritesAdded": 6
+      },
+      {
+        "code": "jewelry",
+        "title": "Украшения и ювелирные изделия",
+        "weight": 15,
+        "shareable": false,
+        "views": 18,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 10
+      },
+      {
+        "month": 4,
+        "weight": 20
+      },
+      {
+        "month": 7,
+        "weight": 45
+      },
+      {
+        "month": 10,
+        "weight": 25
+      }
+    ],
+    "actionableState": {
+      "favoritesCount": 10,
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "maker-with-draft",
+    "year": 2025,
+    "activity": {
+      "searches": 15,
+      "listingViews": 65,
+      "uniqueListings": 48,
+      "favoritesAdded": 9,
+      "chatsStarted": 4,
+      "listingsCreated": 6,
+      "listingsPublished": 1,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 30,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "tools",
+        "title": "Инструменты",
+        "weight": 70,
+        "shareable": true,
+        "views": 46,
+        "favoritesAdded": 7
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 30,
+        "shareable": true,
+        "views": 19,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 3,
+        "weight": 20
+      },
+      {
+        "month": 6,
+        "weight": 30
+      },
+      {
+        "month": 9,
+        "weight": 35
+      },
+      {
+        "month": 11,
+        "weight": 15
+      }
+    ],
+    "actionableState": {
+      "currentDrafts": 1,
+      "draftListingId": "fb26ca67-687b-58de-bc3e-73cc63ca3540",
+      "favoritesCount": 8,
+      "hasEverPublishedListing": true
+    }
+  },
+  {
+    "profileCode": "pet-threshold-buyer",
+    "year": 2025,
+    "activity": {
+      "searches": 20,
+      "listingViews": 90,
+      "uniqueListings": 70,
+      "favoritesAdded": 7,
+      "chatsStarted": 15,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 3,
+      "salesCompleted": 0,
+      "activeDays": 45,
+      "chatsWithPurchase": 3
+    },
+    "categories": [
+      {
+        "code": "pets",
+        "title": "Товары для животных",
+        "weight": 65,
+        "shareable": false,
+        "views": 59,
+        "favoritesAdded": 5,
+        "purchasesCompleted": 3
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 35,
+        "shareable": true,
+        "views": 31,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 15
+      },
+      {
+        "month": 5,
+        "weight": 20
+      },
+      {
+        "month": 8,
+        "weight": 25
+      },
+      {
+        "month": 11,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "music-traveler",
+    "year": 2025,
+    "activity": {
+      "searches": 42,
+      "listingViews": 130,
+      "uniqueListings": 100,
+      "favoritesAdded": 16,
+      "chatsStarted": 12,
+      "listingsCreated": 0,
+      "listingsPublished": 0,
+      "purchasesCompleted": 4,
+      "salesCompleted": 0,
+      "activeDays": 66,
+      "chatsWithPurchase": 2
+    },
+    "categories": [
+      {
+        "code": "music",
+        "title": "Музыкальные инструменты и аудио",
+        "weight": 45,
+        "shareable": true,
+        "views": 58,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      },
+      {
+        "code": "outdoor_travel",
+        "title": "Туризм и путешествия",
+        "weight": 40,
+        "shareable": true,
+        "views": 52,
+        "favoritesAdded": 7,
+        "purchasesCompleted": 2
+      },
+      {
+        "code": "electronics",
+        "title": "Электроника",
+        "weight": 15,
+        "shareable": true,
+        "views": 20,
+        "favoritesAdded": 2
+      }
+    ],
+    "months": [
+      {
+        "month": 1,
+        "weight": 15
+      },
+      {
+        "month": 6,
+        "weight": 35
+      },
+      {
+        "month": 8,
+        "weight": 30
+      },
+      {
+        "month": 12,
+        "weight": 20
+      }
+    ],
+    "actionableState": {
+      "hasEverPublishedListing": false
+    }
+  },
+  {
+    "profileCode": "listing-restart",
+    "year": 2025,
+    "activity": {
+      "searches": 9,
+      "listingViews": 30,
+      "uniqueListings": 25,
+      "favoritesAdded": 2,
+      "chatsStarted": 3,
+      "listingsCreated": 5,
+      "listingsPublished": 0,
+      "purchasesCompleted": 0,
+      "salesCompleted": 0,
+      "activeDays": 18,
+      "chatsWithPurchase": 0
+    },
+    "categories": [
+      {
+        "code": "clothing",
+        "title": "Одежда, обувь и аксессуары",
+        "weight": 60,
+        "shareable": true
+      },
+      {
+        "code": "furniture",
+        "title": "Мебель и интерьер",
+        "weight": 40,
+        "shareable": true
+      }
+    ],
+    "months": [
+      {
+        "month": 2,
+        "weight": 20
+      },
+      {
+        "month": 4,
+        "weight": 25
+      },
+      {
+        "month": 8,
+        "weight": 15
+      },
+      {
+        "month": 10,
+        "weight": 40
+      }
+    ],
+    "actionableState": {
+      "currentDrafts": 0,
+      "favoritesCount": 0,
+      "hasEverPublishedListing": false
+    }
+  }
+]

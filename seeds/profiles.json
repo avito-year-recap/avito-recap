@@ -1,0 +1,121 @@
+[
+  {
+    "id": "26a3f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
+    "code": "active-buyer",
+    "displayName": "Алексей",
+    "description": "Часто ищет технику, сохраняет интересные варианты и возвращается к ним",
+    "avatarUrl": "/avatars/active-buyer.png"
+  },
+  {
+    "id": "8f6ec9ae-b217-529d-9292-a592ce97cc09",
+    "code": "active-seller",
+    "displayName": "Мария",
+    "description": "Регулярно публикует объявления и общается с покупателями",
+    "avatarUrl": "/avatars/active-seller.png"
+  },
+  {
+    "id": "b3638f27-6f21-5b64-b41e-8dbae31a901e",
+    "code": "researcher",
+    "displayName": "Илья",
+    "description": "Сравнивает множество вариантов и изучает разные категории",
+    "avatarUrl": "/avatars/researcher.png"
+  },
+  {
+    "id": "9c96ed33-c53a-5d73-aa80-06a2026f5043",
+    "code": "universal-user",
+    "displayName": "Анна",
+    "description": "Покупает, продаёт и использует разные возможности площадки",
+    "avatarUrl": "/avatars/universal-user.png"
+  },
+  {
+    "id": "5d5228e4-d868-504f-90fa-aed5678c38f4",
+    "code": "draft-seller",
+    "displayName": "Сергей",
+    "description": "Начинает создавать объявления, но не всегда завершает публикацию",
+    "avatarUrl": "/avatars/draft-seller.png"
+  },
+  {
+    "id": "245a697c-53fe-5972-95c4-9505df0909bf",
+    "code": "decisive-buyer",
+    "displayName": "Ольга",
+    "description": "Быстро переходит от просмотра объявлений к общению и покупке",
+    "avatarUrl": "/avatars/decisive-buyer.png"
+  },
+  {
+    "id": "135f8ec8-95a5-522a-b26e-71c20c79d338",
+    "code": "seller-buyer-hybrid",
+    "displayName": "Дмитрий",
+    "description": "Одновременно активно продаёт и уверенно завершает покупки",
+    "avatarUrl": "/avatars/seller-buyer-hybrid.png"
+  },
+  {
+    "id": "9e4c8047-21cb-5faa-8abd-04d2a049e1a6",
+    "code": "returning-publisher",
+    "displayName": "Елена",
+    "description": "Регулярно публиковала объявления и готова начать новый цикл продаж",
+    "avatarUrl": "/avatars/returning-publisher.png"
+  },
+  {
+    "id": "1eda1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+    "code": "category-browser",
+    "displayName": "Павел",
+    "description": "Просматривает предложения в нескольких категориях без доминирующего сценария",
+    "avatarUrl": "/avatars/category-browser.png"
+  },
+  {
+    "id": "2bde02e7-fdee-5c87-b42c-7fc2cc0d0158",
+    "code": "recommendation-newcomer",
+    "displayName": "Никита",
+    "description": "Только начинает пользоваться площадкой и ещё не сформировал устойчивый интерес",
+    "avatarUrl": "/avatars/recommendation-newcomer.png"
+  },
+  {
+    "id": "c53d6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+    "code": "steady-buyer",
+    "displayName": "Ксения",
+    "description": "Совершает покупки, но принимает решение после длительного общения",
+    "avatarUrl": "/avatars/steady-buyer.png"
+  },
+  {
+    "id": "7460de46-6e74-5f40-b84a-4063bd5e5bb6",
+    "code": "book-collector",
+    "displayName": "Кирилл",
+    "description": "Выбирает книги вдумчиво, возвращается к подборкам и быстро завершает подходящие покупки",
+    "avatarUrl": "/avatars/book-collector.png"
+  },
+  {
+    "id": "b007c44f-3825-58a8-8855-61f983e36462",
+    "code": "private-style-hunter",
+    "displayName": "Виктория",
+    "description": "Следит за модой и красотой, активно сохраняет находки, но приватные интересы не попадают в публичный recap",
+    "avatarUrl": "/avatars/private-style-hunter.png"
+  },
+  {
+    "id": "916ba684-50fe-57a6-b72d-dd224f68d4c2",
+    "code": "maker-with-draft",
+    "displayName": "Роман",
+    "description": "Интересуется инструментами и начал продавать, но важный черновик ещё ждёт публикации",
+    "avatarUrl": "/avatars/maker-with-draft.png"
+  },
+  {
+    "id": "5e23b62a-f648-57e7-9dc8-6b0c26cd531d",
+    "code": "pet-threshold-buyer",
+    "displayName": "Дарья",
+    "description": "Покупает товары для питомца и ровно достигает порога решительного покупателя",
+    "avatarUrl": "/avatars/pet-threshold-buyer.png"
+  },
+  {
+    "id": "0eddaf60-ee7c-5a22-9410-41b83aad763d",
+    "code": "music-traveler",
+    "displayName": "Максим",
+    "description": "Совмещает музыку и путешествия, поэтому получает сразу несколько тематических достижений",
+    "avatarUrl": "/avatars/music-traveler.png"
+  },
+  {
+    "id": "e746eabd-169e-5df0-90a8-4ede73ee2e1d",
+    "code": "listing-restart",
+    "displayName": "София",
+    "description": "Создавала объявления, но ещё не публиковала — recap предлагает сделать первую публикацию",
+    "avatarUrl": "/avatars/listing-restart.png"
+  }
+]

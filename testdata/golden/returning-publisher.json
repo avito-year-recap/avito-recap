@@ -1,0 +1,228 @@
+{
+  "id": "614c8047-21cb-5faa-8abd-04d2a049e1a6",
+  "shareId": "614d8047-21cb-5faa-8abd-04d2a049e1a6",
+  "profile": {
+    "id": "9e4c8047-21cb-5faa-8abd-04d2a049e1a6",
+    "code": "returning-publisher",
+    "displayName": "Елена",
+    "description": "Регулярно публиковала объявления и готова начать новый цикл продаж",
+    "avatarUrl": "/avatars/returning-publisher.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 62,
+    "searches": 4,
+    "totalViews": 30,
+    "uniqueListings": 28,
+    "repeatedViews": 2,
+    "favoritesAdded": 2,
+    "chatsStarted": 10,
+    "listingsCreated": 7,
+    "listingsPublished": 6,
+    "purchasesCompleted": 0,
+    "salesCompleted": 3,
+    "activeDays": 50,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 0,
+    "topCategoryCode": "furniture",
+    "topCategory": "Мебель и интерьер",
+    "topCategoryViews": 15,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 11,
+    "repeatRate": 0.06666666666666667,
+    "purchaseRate": 0
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": true
+  },
+  "behavior": {
+    "code": "ACTIVE_SELLER",
+    "title": "Продажи в движении",
+    "description": "В течение года было много публикаций и завершённых продаж.",
+    "reason": "Опубликовано объявлений: 6 (порог 5). Завершено продаж: 3 (порог 3).",
+    "evidence": [
+      {
+        "metric": "listings_published",
+        "actual": 6,
+        "threshold": 5,
+        "detail": "Опубликовано объявлений: 6 (порог 5)."
+      },
+      {
+        "metric": "sales_completed",
+        "actual": 3,
+        "threshold": 3,
+        "detail": "Завершено продаж: 3 (порог 3)."
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "code": "CONSISTENT_PUBLISHER",
+      "category": "SELLING",
+      "title": "Маяк стабильности",
+      "description": "Объявления появлялись регулярно и поддерживали стабильный ритм продаж.",
+      "reason": "Объявлений опубликовано: 6.",
+      "shareable": true
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Елена, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 62 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 62,
+        "searches": 4,
+        "totalViews": 30,
+        "favoritesAdded": 2,
+        "chatsStarted": 10,
+        "listingsPublished": 6,
+        "purchasesCompleted": 0,
+        "salesCompleted": 3
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Мебель и интерьер».",
+      "explanation": "Просмотров в этой категории: 15.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "furniture",
+        "category": "Мебель и интерьер",
+        "categoryViews": 15
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на ноябрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 11
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Продажи в движении",
+      "description": "В течение года было много публикаций и завершённых продаж.",
+      "explanation": "Опубликовано объявлений: 6 (порог 5). Завершено продаж: 3 (порог 3).",
+      "shareable": false,
+      "payload": {
+        "code": "ACTIVE_SELLER",
+        "evidence": [
+          {
+            "metric": "listings_published",
+            "actual": 6,
+            "threshold": 5,
+            "detail": "Опубликовано объявлений: 6 (порог 5)."
+          },
+          {
+            "metric": "sales_completed",
+            "actual": 3,
+            "threshold": 3,
+            "detail": "Завершено продаж: 3 (порог 3)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Маяк стабильности",
+      "explanation": "Объявлений опубликовано: 6.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "CONSISTENT_PUBLISHER"
+        ]
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 7,
+      "title": "Создай новое объявление",
+      "description": "Начни новый сценарий продажи с актуального объявления.",
+      "explanation": "Сценарий продавца подтверждён, но сейчас нет активного объявления или черновика для продолжения.",
+      "shareable": false,
+      "payload": {
+        "code": "CREATE_LISTING",
+        "target": {
+          "route": {
+            "route": "/listings/new"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Продажи в движении». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "614d8047-21cb-5faa-8abd-04d2a049e1a6",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Продажи в движении",
+        "achievementTitle": "Маяк стабильности",
+        "topCategory": "Мебель и интерьер"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "CREATE_LISTING",
+    "title": "Создай новое объявление",
+    "description": "Начни новый сценарий продажи с актуального объявления.",
+    "buttonText": "Создать объявление",
+    "reason": "Сценарий продавца подтверждён, но сейчас нет активного объявления или черновика для продолжения.",
+    "target": {
+      "route": {
+        "route": "/listings/new"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

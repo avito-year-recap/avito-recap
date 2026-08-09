@@ -1,0 +1,176 @@
+{
+  "id": "e1da1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+  "shareId": "e1db1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+  "profile": {
+    "id": "1eda1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+    "code": "category-browser",
+    "displayName": "Павел",
+    "description": "Просматривает предложения в нескольких категориях без доминирующего сценария",
+    "avatarUrl": "/avatars/category-browser.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 79,
+    "searches": 15,
+    "totalViews": 60,
+    "uniqueListings": 55,
+    "repeatedViews": 5,
+    "favoritesAdded": 2,
+    "chatsStarted": 2,
+    "listingsCreated": 0,
+    "listingsPublished": 0,
+    "purchasesCompleted": 0,
+    "salesCompleted": 0,
+    "activeDays": 20,
+    "categoriesCount": 4,
+    "chatsWithPurchase": 0,
+    "topCategoryCode": "auto",
+    "topCategory": "Авто",
+    "topCategoryViews": 24,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 8,
+    "repeatRate": 0.08333333333333333,
+    "purchaseRate": 0
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": false
+  },
+  "behavior": {
+    "code": "UNIVERSAL_USER",
+    "title": "Разные сценарии",
+    "description": "В течение года использовались разные возможности площадки без одного доминирующего сценария.",
+    "reason": "Ни один специализированный сценарий не выполнил полный набор пороговых условий."
+  },
+  "achievements": null,
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Павел, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 79 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 79,
+        "searches": 15,
+        "totalViews": 60,
+        "favoritesAdded": 2,
+        "chatsStarted": 2,
+        "listingsPublished": 0,
+        "purchasesCompleted": 0,
+        "salesCompleted": 0
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Авто».",
+      "explanation": "Просмотров в этой категории: 24.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "auto",
+        "category": "Авто",
+        "categoryViews": 24
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на август.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 8
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Разные сценарии",
+      "description": "В течение года использовались разные возможности площадки без одного доминирующего сценария.",
+      "explanation": "Ни один специализированный сценарий не выполнил полный набор пороговых условий.",
+      "shareable": false,
+      "payload": {
+        "code": "UNIVERSAL_USER"
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 6,
+      "title": "Посмотри новые предложения",
+      "description": "Вернись в категорию «Авто» и проверь новые варианты.",
+      "explanation": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
+      "shareable": false,
+      "payload": {
+        "code": "OPEN_TOP_CATEGORY",
+        "target": {
+          "category": {
+            "categoryCode": "auto"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 7,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Разные сценарии». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "e1db1b11-6ecf-5c9c-b8f8-e92d580d54cf",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Разные сценарии",
+        "topCategory": "Авто"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Посмотри новые предложения",
+    "description": "Вернись в категорию «Авто» и проверь новые варианты.",
+    "buttonText": "Открыть категорию",
+    "reason": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
+    "target": {
+      "category": {
+        "categoryCode": "auto"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

@@ -1,0 +1,200 @@
+{
+  "id": "3a3d6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+  "shareId": "3a3c6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+  "profile": {
+    "id": "c53d6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+    "code": "steady-buyer",
+    "displayName": "Ксения",
+    "description": "Совершает покупки, но принимает решение после длительного общения",
+    "avatarUrl": "/avatars/steady-buyer.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 81,
+    "searches": 10,
+    "totalViews": 45,
+    "uniqueListings": 42,
+    "repeatedViews": 3,
+    "favoritesAdded": 2,
+    "chatsStarted": 20,
+    "listingsCreated": 0,
+    "listingsPublished": 0,
+    "purchasesCompleted": 4,
+    "salesCompleted": 0,
+    "activeDays": 35,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 2,
+    "topCategoryCode": "electronics",
+    "topCategory": "Электроника",
+    "topCategoryViews": 20,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 12,
+    "repeatRate": 0.06666666666666667,
+    "purchaseRate": 0.1
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 0,
+    "activeListingId": "00000000-0000-0000-0000-000000000000",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": false
+  },
+  "behavior": {
+    "code": "UNIVERSAL_USER",
+    "title": "Разные сценарии",
+    "description": "В течение года использовались разные возможности площадки без одного доминирующего сценария.",
+    "reason": "Ни один специализированный сценарий не выполнил полный набор пороговых условий."
+  },
+  "achievements": [
+    {
+      "code": "DEAL_CLOSER",
+      "category": "BUYING",
+      "title": "Сделка состоялась",
+      "description": "Выбранные варианты несколько раз превращались в завершённые покупки.",
+      "reason": "Покупок завершено: 4.",
+      "shareable": true
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Ксения, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 81 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 81,
+        "searches": 10,
+        "totalViews": 45,
+        "favoritesAdded": 2,
+        "chatsStarted": 20,
+        "listingsPublished": 0,
+        "purchasesCompleted": 4,
+        "salesCompleted": 0
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Электроника».",
+      "explanation": "Просмотров в этой категории: 20.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "electronics",
+        "category": "Электроника",
+        "categoryViews": 20
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на декабрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 12
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Разные сценарии",
+      "description": "В течение года использовались разные возможности площадки без одного доминирующего сценария.",
+      "explanation": "Ни один специализированный сценарий не выполнил полный набор пороговых условий.",
+      "shareable": false,
+      "payload": {
+        "code": "UNIVERSAL_USER"
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Сделка состоялась",
+      "explanation": "Покупок завершено: 4.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "DEAL_CLOSER"
+        ]
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 7,
+      "title": "Посмотри новые предложения",
+      "description": "Вернись в категорию «Электроника» и проверь новые варианты.",
+      "explanation": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
+      "shareable": false,
+      "payload": {
+        "code": "OPEN_TOP_CATEGORY",
+        "target": {
+          "category": {
+            "categoryCode": "electronics"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Разные сценарии». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "3a3c6ffe-22b6-5cf0-a4de-05eb06fe1d19",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Разные сценарии",
+        "achievementTitle": "Сделка состоялась",
+        "topCategory": "Электроника"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "OPEN_TOP_CATEGORY",
+    "title": "Посмотри новые предложения",
+    "description": "Вернись в категорию «Электроника» и проверь новые варианты.",
+    "buttonText": "Открыть категорию",
+    "reason": "Главная категория года остаётся безопасным и понятным продолжением сценария.",
+    "target": {
+      "category": {
+        "categoryCode": "electronics"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}

@@ -1,0 +1,228 @@
+{
+  "id": "706ec9ae-b217-529d-9292-a592ce97cc09",
+  "shareId": "706fc9ae-b217-529d-9292-a592ce97cc09",
+  "profile": {
+    "id": "8f6ec9ae-b217-529d-9292-a592ce97cc09",
+    "code": "active-seller",
+    "displayName": "Мария",
+    "description": "Регулярно публикует объявления и общается с покупателями",
+    "avatarUrl": "/avatars/active-seller.png"
+  },
+  "year": 2025,
+  "period": {
+    "year": 2025,
+    "startAt": "2025-01-01T00:00:00Z",
+    "endAt": "2026-01-01T00:00:00Z",
+    "final": true
+  },
+  "rulesVersion": "3.5.0",
+  "rulesDigest": "7f0591eb3afe6971ca22beda7d0c7f089c8076ffff40792e42bad00601b3cd53",
+  "metrics": {
+    "totalEvents": 95,
+    "searches": 5,
+    "totalViews": 35,
+    "uniqueListings": 30,
+    "repeatedViews": 5,
+    "favoritesAdded": 3,
+    "chatsStarted": 26,
+    "listingsCreated": 11,
+    "listingsPublished": 9,
+    "purchasesCompleted": 0,
+    "salesCompleted": 6,
+    "activeDays": 64,
+    "categoriesCount": 3,
+    "chatsWithPurchase": 0,
+    "topCategoryCode": "clothing",
+    "topCategory": "Одежда, обувь и аксессуары",
+    "topCategoryViews": 16,
+    "topCategoryShareable": true,
+    "mostActiveMonth": 11,
+    "repeatRate": 0.14285714285714285,
+    "purchaseRate": 0
+  },
+  "actionableState": {
+    "capturedAt": "2026-08-04T12:00:00Z",
+    "currentDrafts": 0,
+    "draftListingId": "00000000-0000-0000-0000-000000000000",
+    "openDialogs": 0,
+    "openDialogId": "00000000-0000-0000-0000-000000000000",
+    "activeListings": 4,
+    "activeListingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb",
+    "favoritesCount": 0,
+    "hasSavedSearchForTopCategory": false,
+    "lastPurchasedListingId": "00000000-0000-0000-0000-000000000000",
+    "hasEverPublishedListing": true
+  },
+  "behavior": {
+    "code": "ACTIVE_SELLER",
+    "title": "Продажи в движении",
+    "description": "В течение года было много публикаций и завершённых продаж.",
+    "reason": "Опубликовано объявлений: 9 (порог 5). Завершено продаж: 6 (порог 3).",
+    "evidence": [
+      {
+        "metric": "listings_published",
+        "actual": 9,
+        "threshold": 5,
+        "detail": "Опубликовано объявлений: 9 (порог 5)."
+      },
+      {
+        "metric": "sales_completed",
+        "actual": 6,
+        "threshold": 3,
+        "detail": "Завершено продаж: 6 (порог 3)."
+      }
+    ]
+  },
+  "achievements": [
+    {
+      "code": "SUCCESSFUL_SELLER",
+      "category": "SELLING",
+      "title": "Мастер переговоров",
+      "description": "Сделки уверенно доходили до результата.",
+      "reason": "Продаж завершено: 6.",
+      "shareable": true
+    }
+  ],
+  "cards": [
+    {
+      "id": "intro",
+      "type": "INTRO",
+      "position": 1,
+      "title": "Мария, вот твои итоги за 2025 год",
+      "description": "Это финальный recap за завершённый календарный год.",
+      "shareable": false
+    },
+    {
+      "id": "year-activity",
+      "type": "YEAR_ACTIVITY",
+      "position": 2,
+      "title": "Год в цифрах",
+      "description": "За завершённый год система учла 95 действий.",
+      "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
+      "shareable": false,
+      "payload": {
+        "totalEvents": 95,
+        "searches": 5,
+        "totalViews": 35,
+        "favoritesAdded": 3,
+        "chatsStarted": 26,
+        "listingsPublished": 9,
+        "purchasesCompleted": 0,
+        "salesCompleted": 6
+      }
+    },
+    {
+      "id": "top-category",
+      "type": "TOP_CATEGORY",
+      "position": 3,
+      "title": "Главный интерес года",
+      "description": "Чаще всего внимание привлекала категория «Одежда, обувь и аксессуары».",
+      "explanation": "Просмотров в этой категории: 16.",
+      "shareable": false,
+      "payload": {
+        "categoryCode": "clothing",
+        "category": "Одежда, обувь и аксессуары",
+        "categoryViews": 16
+      }
+    },
+    {
+      "id": "active-month",
+      "type": "ACTIVE_MONTH",
+      "position": 4,
+      "title": "Самый активный месяц",
+      "description": "Больше всего действий пришлось на ноябрь.",
+      "explanation": "Месяц выбран по максимальному числу событий профиля.",
+      "shareable": false,
+      "payload": {
+        "month": 11
+      }
+    },
+    {
+      "id": "behavior",
+      "type": "BEHAVIOR",
+      "position": 5,
+      "title": "Продажи в движении",
+      "description": "В течение года было много публикаций и завершённых продаж.",
+      "explanation": "Опубликовано объявлений: 9 (порог 5). Завершено продаж: 6 (порог 3).",
+      "shareable": false,
+      "payload": {
+        "code": "ACTIVE_SELLER",
+        "evidence": [
+          {
+            "metric": "listings_published",
+            "actual": 9,
+            "threshold": 5,
+            "detail": "Опубликовано объявлений: 9 (порог 5)."
+          },
+          {
+            "metric": "sales_completed",
+            "actual": 6,
+            "threshold": 3,
+            "detail": "Завершено продаж: 6 (порог 3)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "achievements",
+      "type": "ACHIEVEMENT",
+      "position": 6,
+      "title": "Ачивки года",
+      "description": "Мастер переговоров",
+      "explanation": "Продаж завершено: 6.",
+      "shareable": false,
+      "payload": {
+        "codes": [
+          "SUCCESSFUL_SELLER"
+        ]
+      }
+    },
+    {
+      "id": "next-action",
+      "type": "NEXT_ACTION",
+      "position": 7,
+      "title": "Усиль активное объявление",
+      "description": "Обнови фотографии или описание конкретного активного объявления.",
+      "explanation": "Сейчас активно объявлений: 4; для улучшения выбран конкретный объект.",
+      "shareable": false,
+      "payload": {
+        "code": "IMPROVE_LISTINGS",
+        "target": {
+          "listing": {
+            "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+          }
+        }
+      }
+    },
+    {
+      "id": "share",
+      "type": "SHARE",
+      "position": 8,
+      "title": "Итоги готовы — можно делиться",
+      "description": "В 2025 году ты — «Продажи в движении». Карточка содержит только данные, разрешённые для публичного показа.",
+      "explanation": "Годовой recap сохранён как неизменяемый снимок состояния на момент генерации.",
+      "shareable": true,
+      "payload": {
+        "shareId": "706fc9ae-b217-529d-9292-a592ce97cc09",
+        "year": 2025,
+        "privacyVersion": "privacy-v2",
+        "behaviorTitle": "Продажи в движении",
+        "achievementTitle": "Мастер переговоров",
+        "topCategory": "Одежда, обувь и аксессуары"
+      }
+    }
+  ],
+  "nextAction": {
+    "code": "IMPROVE_LISTINGS",
+    "title": "Усиль активное объявление",
+    "description": "Обнови фотографии или описание конкретного активного объявления.",
+    "buttonText": "Открыть объявление",
+    "reason": "Сейчас активно объявлений: 4; для улучшения выбран конкретный объект.",
+    "target": {
+      "listing": {
+        "listingId": "6a1035fb-c848-5e53-8796-7d0aa65df7eb"
+      }
+    }
+  },
+  "generatedAt": "2026-08-04T12:00:00Z"
+}
