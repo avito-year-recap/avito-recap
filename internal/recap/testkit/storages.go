@@ -20,6 +20,12 @@ func (s *ProfileStorage) ListProfiles(context.Context) ([]model.Profile, error) 
 func (s *ProfileStorage) GetProfile(context.Context, uuid.UUID) (model.Profile, error) {
 	return s.Profile, nil
 }
+func (s *ProfileStorage) GetProfileByCode(_ context.Context, code string) (model.Profile, error) {
+	if code != s.Profile.Code {
+		return model.Profile{}, application.ErrProfileNotFound
+	}
+	return s.Profile, nil
+}
 
 type AnalyticsStorage struct {
 	Metrics model.Metrics

@@ -30,6 +30,18 @@ func (f *fakeApplication) ListProfiles(context.Context) ([]model.Profile, error)
 	return f.profiles, f.err
 }
 
+func (f *fakeApplication) GetProfileByCode(_ context.Context, code string) (model.Profile, error) {
+	if f.err != nil {
+		return model.Profile{}, f.err
+	}
+	for _, profile := range f.profiles {
+		if profile.Code == code {
+			return profile, nil
+		}
+	}
+	return model.Profile{}, application.ErrProfileNotFound
+}
+
 func (f *fakeApplication) Generate(
 	_ context.Context,
 	profileID uuid.UUID,

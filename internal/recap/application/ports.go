@@ -11,6 +11,7 @@ import (
 type ProfileStorage interface {
 	ListProfiles(ctx context.Context) ([]model.Profile, error)
 	GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profile, error)
+	GetProfileByCode(ctx context.Context, code string) (model.Profile, error)
 }
 
 type AnalyticsStorage interface {

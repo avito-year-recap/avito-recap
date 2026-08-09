@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	recapv1 "github.com/year-recap/gen/go/recap/v1"
 	"github.com/year-recap/gen/go/recap/v1/recapv1connect"
+	"github.com/year-recap/internal/recap/application"
 	"github.com/year-recap/internal/recap/model"
 )
 
@@ -116,28 +117,21 @@ func recapResponse(value model.Recap) (*connectrpc.Response[recapv1.RecapRespons
 	return connectrpc.NewResponse(&recapv1.RecapResponse{Profile: profile, Recap: recap}), nil
 }
 
-// resolveProfileByCode is transport-layer glue: the wire contract addresses
-// profiles by their human-readable code, but the application/storage layer
-// only knows how to look profiles up by internal UUID. Until the service
-// layer grows a ProfileStorage.GetProfileByCode port, this scans
-// ListProfiles, which is fine at demo/seed scale but not the long-term shape.
 func (h *Handler) resolveProfileByCode(ctx context.Context, code string) (model.Profile, error) {
 	if code == "" {
 		return model.Profile{}, invalidArgumentError("profile_code is required")
 	}
-	profiles, err := h.application.ListProfiles(ctx)
+	profile, err := h.application.GetProfileByCode(ctx, code)
 	if err != nil {
+		if errors.Is(err, application.ErrProfileNotFound) {
+			return model.Profile{}, connectrpc.NewError(
+				connectrpc.CodeNotFound,
+				fmt.Errorf("%w: %q", ErrProfileCodeNotFound, code),
+			)
+		}
 		return model.Profile{}, transportError(err)
 	}
-	for _, profile := range profiles {
-		if profile.Code == code {
-			return profile, nil
-		}
-	}
-	return model.Profile{}, connectrpc.NewError(
-		connectrpc.CodeNotFound,
-		fmt.Errorf("%w: %q", ErrProfileCodeNotFound, code),
-	)
+	return profile, nil
 }
 
 func parseCanonicalUUID(field, value string) (uuid.UUID, error) {

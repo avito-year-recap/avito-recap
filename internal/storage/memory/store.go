@@ -30,13 +30,14 @@ type scenarioKey struct {
 type Store struct {
 	mu sync.RWMutex
 
-	profiles      []model.Profile
-	profilesByID  map[uuid.UUID]model.Profile
-	metrics       map[scenarioKey]model.Metrics
-	actionStates  map[uuid.UUID]model.ActionableState
-	recapsByKey   map[model.RecapKey]model.Recap
-	recapsByID    map[uuid.UUID]model.Recap
-	recapsByShare map[uuid.UUID]model.Recap
+	profiles       []model.Profile
+	profilesByID   map[uuid.UUID]model.Profile
+	profilesByCode map[string]model.Profile
+	metrics        map[scenarioKey]model.Metrics
+	actionStates   map[uuid.UUID]model.ActionableState
+	recapsByKey    map[model.RecapKey]model.Recap
+	recapsByID     map[uuid.UUID]model.Recap
+	recapsByShare  map[uuid.UUID]model.Recap
 }
 
 func Load(profilesPath, scenariosPath string) (*Store, error) {
@@ -56,13 +57,14 @@ func New(profiles []model.Profile, scenarios []seed.Scenario) (*Store, error) {
 		return nil, fmt.Errorf("%w: profiles are required", ErrInvalidSeedData)
 	}
 	store := &Store{
-		profiles:      make([]model.Profile, 0, len(profiles)),
-		profilesByID:  make(map[uuid.UUID]model.Profile, len(profiles)),
-		metrics:       make(map[scenarioKey]model.Metrics, len(scenarios)),
-		actionStates:  make(map[uuid.UUID]model.ActionableState, len(scenarios)),
-		recapsByKey:   make(map[model.RecapKey]model.Recap),
-		recapsByID:    make(map[uuid.UUID]model.Recap),
-		recapsByShare: make(map[uuid.UUID]model.Recap),
+		profiles:       make([]model.Profile, 0, len(profiles)),
+		profilesByID:   make(map[uuid.UUID]model.Profile, len(profiles)),
+		profilesByCode: make(map[string]model.Profile, len(profiles)),
+		metrics:        make(map[scenarioKey]model.Metrics, len(scenarios)),
+		actionStates:   make(map[uuid.UUID]model.ActionableState, len(scenarios)),
+		recapsByKey:    make(map[model.RecapKey]model.Recap),
+		recapsByID:     make(map[uuid.UUID]model.Recap),
+		recapsByShare:  make(map[uuid.UUID]model.Recap),
 	}
 	profileIDsByCode := make(map[string]uuid.UUID, len(profiles))
 	for index, profile := range profiles {
@@ -78,6 +80,7 @@ func New(profiles []model.Profile, scenarios []seed.Scenario) (*Store, error) {
 		}
 		store.profiles = append(store.profiles, profile)
 		store.profilesByID[profile.ID] = profile
+		store.profilesByCode[profile.Code] = profile
 		profileIDsByCode[profile.Code] = profile.ID
 	}
 	if len(scenarios) == 0 {
@@ -137,6 +140,19 @@ func (s *Store) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Prof
 	profile, exists := s.profilesByID[profileID]
 	if !exists {
 		return model.Profile{}, application.ErrRecapNotFound
+	}
+	return profile, nil
+}
+
+func (s *Store) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
+	if err := ctx.Err(); err != nil {
+		return model.Profile{}, err
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	profile, exists := s.profilesByCode[code]
+	if !exists {
+		return model.Profile{}, application.ErrProfileNotFound
 	}
 	return profile, nil
 }

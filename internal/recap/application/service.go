@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -84,6 +85,25 @@ func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 		profiles[index] = profile
 	}
 	return profiles, nil
+}
+
+// GetProfileByCode resolves the transport-facing profile code to the internal
+// profile record. The wire contract only ever addresses profiles by code —
+// the UUID stays an internal storage/idempotency detail.
+func (s *Service) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return model.Profile{}, ErrProfileNotFound
+	}
+	profile, err := s.profiles.GetProfileByCode(ctx, code)
+	if err != nil {
+		return model.Profile{}, fmt.Errorf("get profile by code: %w", err)
+	}
+	profile = model.NormalizeProfile(profile)
+	if profile.Code != code {
+		return model.Profile{}, fmt.Errorf("%w: requested %q, got %q", ErrProfileIDMismatch, code, profile.Code)
+	}
+	return profile, nil
 }
 
 var (
