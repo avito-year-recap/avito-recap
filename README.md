@@ -9,12 +9,14 @@ personalized next action, and a privacy-safe public share card.
 - Go 1.25.5 or newer
 - Node.js 20 or newer (only for protobuf generation)
 
-Docker is optional.
-
 ## Run locally
 
 ```powershell
 go run ./cmd/api
+```
+
+```powershell
+docker compose up --build
 ```
 
 The server listens on `http://localhost:8080` by default.
