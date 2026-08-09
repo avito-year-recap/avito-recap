@@ -1,0 +1,125 @@
+.year-symbol {
+  --totem-main: var(--purple);
+  --totem-soft: #efe6ff;
+  --totem-soft-2: #dff1ff;
+  position: relative;
+  width: min(100%, 310px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.year-symbol--blue { --totem-main: var(--blue); --totem-soft: #deedff; --totem-soft-2: #e9f6ff; }
+.year-symbol--green { --totem-main: var(--green); --totem-soft: #dcf7e8; --totem-soft-2: #eaf9f1; }
+.year-symbol--coral { --totem-main: var(--red); --totem-soft: #ffe0da; --totem-soft-2: #fff0e9; }
+.year-symbol__halo {
+  position: absolute;
+  inset: 14%;
+  border-radius: 42% 58% 58% 42% / 44% 43% 57% 56%;
+  background: linear-gradient(145deg, var(--totem-soft), #fff 56%, var(--totem-soft-2));
+  box-shadow: 0 25px 55px rgb(54 70 104 / 12%);
+  animation: year-symbol-breathe 7s ease-in-out infinite;
+}
+.year-symbol__orbit {
+  position: absolute;
+  border: 1px dashed color-mix(in srgb, var(--totem-main) 32%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 360ms ease, transform 520ms cubic-bezier(.22,1,.36,1);
+}
+.year-symbol__orbit--outer { width: 88%; height: 58%; transform: rotate(-13deg) scale(.72); }
+.year-symbol__orbit--inner { width: 66%; height: 84%; transform: rotate(24deg) scale(.72); }
+.year-symbol__core {
+  position: relative;
+  z-index: 3;
+  width: 38%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--totem-main);
+  border: clamp(5px, 1.2vw, 9px) solid rgb(255 255 255 / 86%);
+  border-radius: 35% 65% 52% 48% / 46% 39% 61% 54%;
+  box-shadow: 0 22px 45px color-mix(in srgb, var(--totem-main) 24%, transparent);
+  transform: rotate(-7deg);
+  transition: transform 560ms cubic-bezier(.22,1,.36,1);
+}
+.year-symbol__core > span { font-size: clamp(34px, 8vw, 62px); font-weight: 900; transform: rotate(7deg); }
+.year-symbol__core > small {
+  position: absolute;
+  right: -12%;
+  bottom: -8%;
+  padding: 6px 8px;
+  color: var(--text-primary);
+  background: #fff;
+  border-radius: 11px;
+  font-size: 10px;
+  font-weight: 900;
+  transform: rotate(10deg);
+  box-shadow: var(--shadow-soft);
+}
+.year-symbol__category,
+.year-symbol__month,
+.year-symbol__achievement {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(15 15 15 / 6%);
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  transform: scale(.6) translateY(8px);
+  transition: opacity 360ms ease, transform 520ms cubic-bezier(.22,1,.36,1);
+}
+.year-symbol__category { left: 7%; top: 22%; width: 22%; aspect-ratio: 1; border-radius: 28%; font-size: clamp(24px, 5vw, 40px); }
+.year-symbol__month { right: 8%; top: 15%; width: 19%; aspect-ratio: 1; border-radius: 34%; color: var(--totem-main); font-size: clamp(13px, 2.5vw, 19px); font-weight: 900; }
+.year-symbol__achievement { width: 15%; aspect-ratio: 1; border-radius: 34%; color: var(--totem-main); font-size: clamp(13px, 2.8vw, 22px); font-weight: 900; }
+.year-symbol__achievement--one { left: 10%; bottom: 18%; }
+.year-symbol__achievement--two { right: 13%; bottom: 16%; }
+.year-symbol__achievement--three { right: 2%; top: 48%; }
+.year-symbol__caption {
+  position: absolute;
+  bottom: 0;
+  z-index: 5;
+  padding: 6px 9px;
+  color: var(--text-secondary);
+  background: rgb(255 255 255 / 76%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 9px;
+  font-weight: 750;
+  backdrop-filter: blur(10px);
+}
+.year-symbol--stage-1 .year-symbol__category,
+.year-symbol--stage-2 .year-symbol__category,
+.year-symbol--stage-3 .year-symbol__category,
+.year-symbol--stage-4 .year-symbol__category { opacity: 1; transform: scale(1) rotate(-5deg); }
+.year-symbol--stage-2 .year-symbol__month,
+.year-symbol--stage-3 .year-symbol__month,
+.year-symbol--stage-4 .year-symbol__month { opacity: 1; transform: scale(1) rotate(6deg); }
+.year-symbol--stage-3 .year-symbol__achievement,
+.year-symbol--stage-4 .year-symbol__achievement { opacity: 1; transform: scale(1); }
+.year-symbol--stage-4 .year-symbol__orbit { opacity: 1; }
+.year-symbol--stage-4 .year-symbol__orbit--outer { transform: rotate(-13deg) scale(1); }
+.year-symbol--stage-4 .year-symbol__orbit--inner { transform: rotate(24deg) scale(1); }
+.year-symbol--stage-4 .year-symbol__core { transform: rotate(0deg) scale(1.04); }
+.year-symbol--compact { width: 48px; height: 48px; aspect-ratio: 1; }
+.year-symbol--compact .year-symbol__halo { inset: 8%; }
+.year-symbol--compact .year-symbol__core { width: 58%; border-width: 3px; }
+.year-symbol--compact .year-symbol__core > span { font-size: 14px; }
+.year-symbol--compact .year-symbol__orbit--outer { width: 104%; height: 68%; }
+.year-symbol--compact .year-symbol__orbit--inner { width: 74%; height: 108%; }
+.year-symbol--compact .year-symbol__category { left: -3px; top: 6px; width: 18px; font-size: 10px; }
+.year-symbol--compact .year-symbol__month { right: -3px; top: 3px; width: 16px; font-size: 6px; }
+.year-symbol--compact .year-symbol__achievement { width: 13px; font-size: 6px; }
+.year-symbol--compact .year-symbol__achievement--one { left: 2px; bottom: 1px; }
+.year-symbol--compact .year-symbol__achievement--two { right: 1px; bottom: 0; }
+.year-symbol--compact .year-symbol__achievement--three { display: none; }
+.year-symbol--compact .year-symbol__caption { display: none; }
+@keyframes year-symbol-breathe {
+  50% { border-radius: 58% 42% 44% 56% / 56% 58% 42% 44%; transform: rotate(5deg) scale(1.025); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .year-symbol__halo { animation: none; }
+}
