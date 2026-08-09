@@ -68,7 +68,7 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 		if !strings.HasPrefix(profile.AvatarURL, "/avatars/") || !strings.HasSuffix(profile.AvatarURL, ".png") {
 			t.Fatalf("profile %q avatar must be a local PNG placeholder, got %q", profile.Code, profile.AvatarURL)
 		}
-		avatarPath := projectFile(t, "static", filepath.FromSlash(strings.TrimPrefix(profile.AvatarURL, "/")))
+		avatarPath := projectFile(t, "frontend", "public", filepath.FromSlash(strings.TrimPrefix(profile.AvatarURL, "/")))
 		if info, err := os.Stat(avatarPath); err != nil || info.IsDir() {
 			t.Fatalf("profile %q avatar placeholder is unavailable at %s: %v", profile.Code, avatarPath, err)
 		}

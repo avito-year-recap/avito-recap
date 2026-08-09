@@ -14,7 +14,7 @@ RUN apk add --no-cache ca-certificates \
 WORKDIR /app
 COPY --from=builder /out/api /usr/local/bin/api
 COPY --from=builder /src/seeds ./seeds
-COPY --from=builder /src/static ./static
+COPY --from=builder /src/frontend/public ./static
 USER app
 
 EXPOSE 8080

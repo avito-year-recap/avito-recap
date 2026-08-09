@@ -121,7 +121,7 @@ func TestHTTPHandlerServesSeedCatalogueEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 	handler, err := server.NewHandler(service, server.Options{
-		StaticDir:      filepath.Join(projectRoot(t), "static"),
+		StaticDir:      filepath.Join(projectRoot(t), "frontend", "public"),
 		AllowedOrigins: []string{"http://localhost:3000"},
 	})
 	if err != nil {
@@ -307,7 +307,7 @@ func newTestServer(t *testing.T) *httptest.Server {
 		t.Fatal(err)
 	}
 	handler, err := server.NewHandler(service, server.Options{
-		StaticDir:      filepath.Join(projectRoot(t), "static"),
+		StaticDir:      filepath.Join(projectRoot(t), "frontend", "public"),
 		AllowedOrigins: []string{"http://localhost:5173"},
 	})
 	if err != nil {
