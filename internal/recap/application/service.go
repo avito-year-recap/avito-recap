@@ -88,6 +88,8 @@ func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 
 var (
 	ErrInvalidProfileID  = errors.New("invalid profile id")
+	ErrProfileNotFound   = errors.New("profile not found")
+	ErrMetricsNotFound   = errors.New("annual metrics not found")
 	ErrInvalidRecapID    = errors.New("invalid recap id")
 	ErrInvalidShareID    = errors.New("invalid share id")
 	ErrNotEnoughActivity = engine.ErrNotEnoughActivity

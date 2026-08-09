@@ -13,6 +13,7 @@ func TestFromEnvUsesDevelopmentDefaults(t *testing.T) {
 		"STATIC_DIR",
 		"CORS_ALLOWED_ORIGINS",
 		"SHUTDOWN_TIMEOUT",
+		"SEED_DEMO_DATA",
 	} {
 		t.Setenv(key, "")
 	}
@@ -23,7 +24,8 @@ func TestFromEnvUsesDevelopmentDefaults(t *testing.T) {
 	if configured.Address != ":8080" ||
 		configured.ProfilesPath != "seeds/profiles.json" ||
 		configured.ScenariosPath != "seeds/scenarios.json" ||
-		configured.StaticDir != "static" {
+		configured.StaticDir != "static" ||
+		!configured.SeedDemoData {
 		t.Fatalf("unexpected defaults: %+v", configured)
 	}
 	if configured.ShutdownTimeout != 10*time.Second {
@@ -41,6 +43,7 @@ func TestFromEnvParsesOverrides(t *testing.T) {
 	t.Setenv("STATIC_DIR", "public")
 	t.Setenv("CORS_ALLOWED_ORIGINS", "https://one.example, https://two.example,https://one.example")
 	t.Setenv("SHUTDOWN_TIMEOUT", "3s")
+	t.Setenv("SEED_DEMO_DATA", "false")
 	configured, err := FromEnv()
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +52,8 @@ func TestFromEnvParsesOverrides(t *testing.T) {
 		configured.ProfilesPath != "profiles.json" ||
 		configured.ScenariosPath != "scenarios.json" ||
 		configured.StaticDir != "public" ||
-		configured.ShutdownTimeout != 3*time.Second {
+		configured.ShutdownTimeout != 3*time.Second ||
+		configured.SeedDemoData {
 		t.Fatalf("unexpected config: %+v", configured)
 	}
 	if len(configured.AllowedOrigins) != 2 ||
@@ -63,5 +67,12 @@ func TestFromEnvRejectsInvalidShutdownTimeout(t *testing.T) {
 	t.Setenv("SHUTDOWN_TIMEOUT", "forever")
 	if _, err := FromEnv(); err == nil {
 		t.Fatal("expected invalid timeout error")
+	}
+}
+
+func TestFromEnvRejectsInvalidSeedDemoData(t *testing.T) {
+	t.Setenv("SEED_DEMO_DATA", "maybe")
+	if _, err := FromEnv(); err == nil {
+		t.Fatal("expected invalid SEED_DEMO_DATA error")
 	}
 }

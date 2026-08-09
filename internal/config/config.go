@@ -18,6 +18,7 @@ type Config struct {
 	ClickHouseDSN string
 
 	// Recap data
+	SeedDemoData   bool
 	ProfilesPath   string
 	ScenariosPath  string
 	StaticDir      string
@@ -44,6 +45,11 @@ func FromEnv() (Config, error) {
 		envOrDefault("HTTP_ADDR", ":8080"),
 	)
 
+	seedDemoData, err := envBool("SEED_DEMO_DATA", true)
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		Address:  address,
 		HTTPAddr: address,
@@ -52,6 +58,8 @@ func FromEnv() (Config, error) {
 			"CLICKHOUSE_DSN",
 			"clickhouse://recap:recap@clickhouse:9000/recap",
 		),
+
+		SeedDemoData: seedDemoData,
 
 		ProfilesPath: envOrDefault(
 			"PROFILES_PATH",
@@ -116,4 +124,18 @@ func splitValues(raw string) []string {
 	}
 
 	return values
+}
+func envBool(key string, fallback bool) (bool, error) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback, nil
+	}
+	switch strings.ToLower(raw) {
+	case "1", "true", "yes", "on":
+		return true, nil
+	case "0", "false", "no", "off":
+		return false, nil
+	default:
+		return false, fmt.Errorf("invalid %s %q", key, raw)
+	}
 }
