@@ -98,6 +98,7 @@ const actionVisuals: Record<ActionCode, VisualDefinition> = {
   IMPROVE_LISTINGS: { icon: "↗", secondary: "▤", tone: "green", caption: "Усилить объявление", motif: "stack" },
   CONTINUE_DIALOGS: { icon: "•••", secondary: "→", tone: "blue", caption: "Продолжить разговор", motif: "trail" },
   OPEN_TOP_CATEGORY: { icon: "⌕", secondary: "→", tone: "blue", caption: "Открыть интерес", motif: "orbit" },
+  CREATE_FIRST_LISTING: { icon: "+", secondary: "▤", tone: "coral", caption: "Создать первое объявление", motif: "stack" },
   CREATE_LISTING: { icon: "+", secondary: "▤", tone: "green", caption: "Создать объявление", motif: "stack" },
   SAVE_SEARCH: { icon: "⌕", secondary: "♡", tone: "blue", caption: "Сохранить поиск", motif: "orbit" },
   VIEW_SIMILAR_LISTINGS: { icon: "◎", secondary: "→", tone: "purple", caption: "Посмотреть похожее", motif: "orbit" },
@@ -124,8 +125,8 @@ export function getAchievementVisual(code: string) {
   return achievementVisuals[code] ?? fallback;
 }
 
-export function getActionVisual(code: ActionCode) {
-  return actionVisuals[code];
+export function getActionVisual(code: ActionCode | string) {
+  return actionVisuals[code as ActionCode] ?? fallback;
 }
 
 export function getMonthVisual(month: number) {

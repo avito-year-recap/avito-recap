@@ -110,6 +110,7 @@ export function getActionBeforeAfter(code: string) {
     FINISH_DRAFT: { before: "Черновик ждёт последнего шага", after: "Объявление готово к публикации" },
     OPEN_FAVORITES: { before: "Вспоминать, что понравилось", after: "Вернуться к сохранённым находкам" },
     CONTINUE_DIALOGS: { before: "Оставить разговор на паузе", after: "Продолжить с того же места" },
+    CREATE_FIRST_LISTING: { before: "Первое объявление ещё не опубликовано", after: "Первое объявление уже создаётся" },
     CREATE_LISTING: { before: "Идея остаётся идеей", after: "Новое объявление уже в работе" },
     IMPROVE_LISTINGS: { before: "Объявление остаётся как есть", after: "Можно усилить его прямо сейчас" },
     OPEN_TOP_CATEGORY: { before: "Начинать поиск с нуля", after: "Сразу открыть главный интерес" },

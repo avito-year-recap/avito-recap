@@ -8,9 +8,9 @@ import {
 import type { Profile, PublicSharePayload, Recap } from "../../entities/recap/model";
 import { createRecapTransport } from "./connect-transport";
 
-// nginx proxies /api/ to the backend in production; the dev server has no
-// such proxy, so it talks to the backend directly (CORS-allowed, see
-// internal/config CORS_ALLOWED_ORIGINS default).
+// In the Render single-service build, Go exposes the Connect API under /api
+// and serves the React bundle from the same origin. The Vite dev server still
+// talks to the backend directly on localhost (CORS-allowed by default).
 const API_BASE_URL = import.meta.env.DEV ? "http://localhost:8080" : "/api";
 
 // Seed scenarios (seeds/scenarios.json) only cover 2025, the last calendar

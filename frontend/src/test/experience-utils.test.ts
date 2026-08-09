@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BehaviorCard, YearActivityCard } from "../entities/recap/model";
-import { deriveBehaviorTraits, getDominantActivity, getSecretVisualBonus } from "../shared/lib/experience-utils";
+import { deriveBehaviorTraits, getActionBeforeAfter, getDominantActivity, getSecretVisualBonus } from "../shared/lib/experience-utils";
 
 describe("experience utils", () => {
   it("derives behavior portrait only from evidence", () => {
@@ -31,6 +31,13 @@ describe("experience utils", () => {
       payload: { totalEvents: 1785, searches: 356, totalViews: 1284, favoritesAdded: 96, chatsStarted: 18, listingsPublished: 24, purchasesCompleted: 4, salesCompleted: 3 },
     };
     expect(getDominantActivity(card)).toMatchObject({ key: "totalViews", value: 1284, label: "Просмотры" });
+  });
+
+  it("has copy for the first-listing action", () => {
+    expect(getActionBeforeAfter("CREATE_FIRST_LISTING")).toEqual({
+      before: "Первое объявление ещё не опубликовано",
+      after: "Первое объявление уже создаётся",
+    });
   });
 
   it("marks secret result as a visual bonus, not backend achievement", () => {

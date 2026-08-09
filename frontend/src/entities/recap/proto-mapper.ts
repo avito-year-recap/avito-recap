@@ -13,6 +13,7 @@ import type {
   RecapResponse as ProtoRecapResponse,
 } from "../../gen/recap/v1/recap_pb";
 import { getProfilePresentation } from "../profile-presentation";
+import { resolveProfileAvatarUrl } from "../profile-avatar";
 import type {
   Achievement,
   ActionTarget,
@@ -48,7 +49,7 @@ export function profileFromProto(value: ProtoProfile): Profile {
   return {
     name: value.name,
     description: value.description,
-    avatarUrl: value.avatarUrl,
+    avatarUrl: resolveProfileAvatarUrl(value.profileCode, value.avatarUrl),
     profileCode: value.profileCode,
     ...getProfilePresentation(value.profileCode),
   };
