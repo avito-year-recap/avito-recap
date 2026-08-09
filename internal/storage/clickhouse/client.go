@@ -69,12 +69,40 @@ var schemaStatements = []string{
 	ENGINE = ReplacingMergeTree(updated_at)
 	ORDER BY id`,
 
+	// events is the source of truth for a profile's yearly activity.
+	// annual_metrics below is a cache of AggregateEvents(events) keyed by
+	// (profile_id, year) — never written directly with a hand-computed
+	// Metrics value. CalculateMetrics fills it lazily on first read and
+	// revalidates it against events on every read after that (see
+	// event_count on annual_metrics below) rather than trusting a cache hit
+	// forever, so events landing after the first read are not silently lost.
+	`CREATE TABLE IF NOT EXISTS events
+	(
+		id          UUID,
+		profile_id  UUID,
+		event_type  LowCardinality(String),
+		occurred_at DateTime,
+		category    LowCardinality(String),
+		ad_id       Nullable(UInt64),
+		dialog_id   Nullable(UInt64)
+	)
+	ENGINE = MergeTree
+	PARTITION BY toYYYYMM(occurred_at)
+	ORDER BY (profile_id, occurred_at)
+	TTL occurred_at + INTERVAL 3 YEAR`,
+
+	// event_count is the freshness marker: it records how many events for
+	// (profile_id, year) existed in `events` when this row was computed. A
+	// read compares it against the live count and recomputes on mismatch,
+	// which is what actually invalidates the cache — the row's presence
+	// alone is not treated as proof it is still correct.
 	`CREATE TABLE IF NOT EXISTS annual_metrics
 	(
-		profile_id UUID,
-		year       UInt16,
-		metrics    String,
-		updated_at DateTime DEFAULT now()
+		profile_id  UUID,
+		year        UInt16,
+		metrics     String,
+		event_count UInt64,
+		updated_at  DateTime DEFAULT now()
 	)
 	ENGINE = ReplacingMergeTree(updated_at)
 	ORDER BY (profile_id, year)`,
