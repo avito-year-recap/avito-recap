@@ -9,6 +9,7 @@ services:
       SEED_DEMO_DATA: "true"
       PROFILES_PATH: "seeds/profiles.json"
       SCENARIOS_PATH: "seeds/scenarios.json"
+      CORS_ALLOWED_ORIGINS: "http://localhost:8081,http://localhost:3000,http://localhost:5173"
     depends_on:
       clickhouse:
         condition: service_healthy

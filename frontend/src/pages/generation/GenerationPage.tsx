@@ -61,7 +61,7 @@ export function GenerationPage() {
       <PageShell>
         <ErrorState
           title="Не удалось собрать итоги"
-          description="Профиль не найден в мок-данных."
+          description="Не удалось получить данные с сервера."
           onRetry={() => mutation.mutate(profileCode)}
         />
       </PageShell>

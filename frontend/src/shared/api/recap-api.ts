@@ -1,59 +1,50 @@
-import { getProfilePresentation } from "../../entities/profile-presentation";
-import { mapRecapResponse } from "../../entities/recap/mapper";
-import type {
-  Profile,
-  PublicSharePayload,
-  Recap,
-  ShareCard,
-} from "../../entities/recap/model";
-import { mockRecaps } from "./mock-data";
+import { createClient } from "@connectrpc/connect";
+import { RecapService } from "../../gen/recap/v1/recap_pb";
+import {
+  profilesFromProto,
+  publicShareFromProto,
+  recapFromProto,
+} from "../../entities/recap/proto-mapper";
+import type { Profile, PublicSharePayload, Recap } from "../../entities/recap/model";
+import { createRecapTransport } from "./connect-transport";
 
-function wait(ms = 420) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-}
-function clone<T>(value: T): T {
-  return structuredClone(value);
-}
+// nginx proxies /api/ to the backend in production; the dev server has no
+// such proxy, so it talks to the backend directly (CORS-allowed, see
+// internal/config CORS_ALLOWED_ORIGINS default).
+const API_BASE_URL = import.meta.env.DEV ? "http://localhost:8080" : "/api";
+
+// Seed scenarios (seeds/scenarios.json) only cover 2025, the last calendar
+// year completed before this demo's "now" — GenerateRecap/GetRecap reject
+// any year that isn't fully in the past.
+const RECAP_YEAR = 2025;
+
+const client = createClient(RecapService, createRecapTransport(API_BASE_URL));
 
 export async function listProfiles(): Promise<Profile[]> {
-  await wait(220);
-  return mockRecaps.map((item) => ({
-    ...clone(item.profile),
-    ...getProfilePresentation(item.profile.profileCode),
-  }));
+  const response = await client.listProfiles({});
+  return profilesFromProto(response.profiles);
 }
 
 export async function generateRecap(profileCode: string): Promise<Recap> {
-  await wait(650);
-  const response = mockRecaps.find(
-    (item) => item.profile.profileCode === profileCode,
-  );
-  if (!response) throw new Error("PROFILE_NOT_FOUND");
-  return mapRecapResponse(clone(response));
+  const response = await client.generateRecap({
+    profileCode,
+    year: RECAP_YEAR,
+  });
+  return recapFromProto(response);
 }
 
 export async function getRecap(profileCode: string): Promise<Recap> {
-  await wait();
-  const response = mockRecaps.find(
-    (item) => item.profile.profileCode === profileCode,
-  );
-  if (!response) throw new Error("RECAP_NOT_FOUND");
-  return mapRecapResponse(clone(response));
+  const response = await client.getRecap({
+    profileCode,
+    year: RECAP_YEAR,
+  });
+  return recapFromProto(response);
 }
 
 export async function getPublicShare(
   shareId: string,
 ): Promise<PublicSharePayload> {
-  await wait(300);
-  const shareCard = mockRecaps
-    .flatMap((item) => item.recap.cards)
-    .find(
-      (card): card is ShareCard =>
-        card.type === "SHARE" && card.payload.shareId === shareId,
-    );
-
-  if (!shareCard) throw new Error("SHARE_NOT_FOUND");
-
-  // Имитируем отдельный публичный RPC: наружу выходит только минимальный SHARE payload.
-  return clone(shareCard.payload);
+  const response = await client.getPublicShare({ shareId });
+  if (!response.share) throw new Error("SHARE_NOT_FOUND");
+  return publicShareFromProto(response.share);
 }

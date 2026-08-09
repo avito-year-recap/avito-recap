@@ -27,11 +27,17 @@ describe("mapRecapResponse", () => {
   });
 });
 
-import { getPublicShare } from "../shared/api/recap-api";
+import { publicShareFromProto } from "../entities/recap/proto-mapper";
 
-describe("public share endpoint", () => {
-  it("returns only the minimal public payload", async () => {
-    const payload = await getPublicShare("share-marina-2025");
+describe("publicShareFromProto", () => {
+  it("returns only the minimal public payload", () => {
+    const payload = publicShareFromProto({
+      shareId: "share-marina-2025",
+      year: 2025,
+      behaviorTitle: "Глубокое исследование",
+      achievementTitle: "Внимательное сравнение",
+      topCategory: "Дом и дача",
+    });
 
     expect(payload).toEqual({
       shareId: "share-marina-2025",

@@ -19,6 +19,7 @@ plugins:
       - npx
       - --yes
       - "@bufbuild/protoc-gen-es@2.13.0"
-    out: gen/ts
+    out: frontend/src/gen
     opt:
       - target=ts
+      - erasable_syntax=true
