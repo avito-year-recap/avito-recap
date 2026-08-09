@@ -11,7 +11,7 @@ import (
 	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 type IDGenerator func() (uuid.UUID, error)
@@ -78,7 +78,7 @@ func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	}
 	for index, profile := range profiles {
 		profile = model.NormalizeProfile(profile)
-		if err := validation.ValidateProfile(profile); err != nil {
+		if err := structural.ValidateProfile(profile); err != nil {
 			return nil, fmt.Errorf("validate profile at index %d: %w", index, err)
 		}
 		profiles[index] = profile
@@ -103,10 +103,10 @@ var (
 
 	ErrInvalidYear            = analytics.ErrInvalidYear
 	ErrYearNotComplete        = analytics.ErrYearNotComplete
-	ErrInvalidProfile         = validation.ErrInvalidProfile
-	ErrInvalidMetrics         = validation.ErrInvalidMetrics
-	ErrInvalidActionableState = validation.ErrInvalidActionableState
-	ErrInvalidRecap           = validation.ErrInvalidRecap
+	ErrInvalidProfile         = structural.ErrInvalidProfile
+	ErrInvalidMetrics         = structural.ErrInvalidMetrics
+	ErrInvalidActionableState = structural.ErrInvalidActionableState
+	ErrInvalidRecap           = structural.ErrInvalidRecap
 )
 
 func WithClock(clock func() time.Time) Option {

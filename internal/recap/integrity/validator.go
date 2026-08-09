@@ -55,7 +55,7 @@ func ValidateRecapAgainstRuleset(value model.Recap, configured ruleset.Ruleset, 
 		return err
 	}
 
-	expectedBehavior := behavior.DetectWithRuleset(configured, value.Metrics)
+	expectedBehavior := behavior.Detect(configured, value.Metrics)
 	if !reflect.DeepEqual(value.Behavior, expectedBehavior) {
 		return fmt.Errorf("%w: stored behavior differs from ruleset result", structural.ErrInvalidRecap)
 	}
@@ -66,23 +66,26 @@ func ValidateRecapAgainstRuleset(value model.Recap, configured ruleset.Ruleset, 
 			err,
 		)
 	}
-	expectedAchievements := achievement.BuildWithRuleset(configured, value.Metrics)
+	expectedAchievements := achievement.Build(configured, value.Metrics)
 	if !equalAchievements(value.Achievements, expectedAchievements) {
 		return fmt.Errorf("%w: stored achievements differ from ruleset result", structural.ErrInvalidRecap)
 	}
-	expectedAction := nextaction.BuildWithRuleset(configured, value.Metrics, value.ActionableState, expectedBehavior)
+	expectedAction := nextaction.Build(configured, value.Metrics, value.ActionableState, expectedBehavior)
 	if !reflect.DeepEqual(value.NextAction, expectedAction) {
 		return fmt.Errorf("%w: stored next action differs from ruleset result", structural.ErrInvalidRecap)
 	}
-	expectedCards := cards.BuildWithRuleset(
-		configured, value.Profile, value.Year, value.ShareID, value.Metrics,
-		expectedBehavior, expectedAchievements, expectedAction,
+	expectedShareCard := share.Build(
+		configured.SharePolicy, value.ShareID, value.Year, value.Metrics,
+		expectedBehavior, expectedAchievements,
+	)
+	expectedCards := cards.Build(
+		value.Profile, value.Year, value.Metrics,
+		expectedBehavior, expectedAchievements, expectedAction, expectedShareCard,
 	)
 	if !reflect.DeepEqual(value.Cards, expectedCards) {
 		return fmt.Errorf("%w: stored cards differ from deterministic card projection", structural.ErrInvalidRecap)
 	}
-	expectedShare := share.BuildWithRuleset(configured, value)
-	if expectedShare != value.Cards[len(value.Cards)-1].Payload.(model.ShareCard) {
+	if expectedShareCard != value.Cards[len(value.Cards)-1].Payload.(model.ShareCard) {
 		return fmt.Errorf("%w: public projection differs from final card", structural.ErrInvalidRecap)
 	}
 	return nil

@@ -11,7 +11,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 func testEngine(t testing.TB) *engine.Engine {
@@ -32,7 +32,7 @@ func TestValidGeneratedRecapPassesIntegrityChecks(t *testing.T) {
 func TestEngineDetectsForgedDerivedData(t *testing.T) {
 	value := testkit.Recap()
 	value.Behavior.Title = "Подменено"
-	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, validation.ErrInvalidRecap) {
+	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
 		t.Fatalf("expected invalid recap error, got %v", err)
 	}
 }
@@ -44,10 +44,10 @@ func TestEngineRejectsPlausibleButSemanticallyForgedRecap(t *testing.T) {
 		ButtonText: "Создать объявление", Reason: "Формально валидная, но не вычисленная рекомендация.",
 		Target: model.ActionTarget{Route: &model.RouteTarget{Route: "/listings/new"}},
 	}
-	if err := validation.ValidateRecap(value); err != nil {
+	if err := structural.ValidateRecap(value); err != nil {
 		t.Fatalf("fixture must be structurally valid: %v", err)
 	}
-	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, validation.ErrInvalidRecap) {
+	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
 		t.Fatalf("forged recap error = %v", err)
 	}
 }
@@ -56,7 +56,7 @@ func TestEngineRejectsFutureDatedStoredRecap(t *testing.T) {
 	value := testkit.Recap()
 	value.GeneratedAt = testkit.Clock().Add(24 * time.Hour)
 	value.ActionableState.CapturedAt = value.GeneratedAt
-	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, validation.ErrInvalidRecap) {
+	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
 		t.Fatalf("future recap error = %v", err)
 	}
 }
@@ -70,10 +70,10 @@ func TestEngineRejectsStoredAchievementsFromSameCategory(t *testing.T) {
 		t.Fatal("seller achievement fixtures are empty")
 	}
 	value.Achievements = []model.Achievement{first[0], second[0]}
-	if err := validation.ValidateRecap(value); err != nil {
+	if err := structural.ValidateRecap(value); err != nil {
 		t.Fatalf("fixture must be structurally valid: %v", err)
 	}
-	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, validation.ErrInvalidRecap) {
+	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
 		t.Fatalf("same-category achievements error = %v", err)
 	}
 }
@@ -92,7 +92,7 @@ func TestEngineRejectsLowerGradeWhenHigherGradeWasEarned(t *testing.T) {
 	}
 	value.Achievements = append([]model.Achievement(nil), expected...)
 	value.Achievements[0] = lower[0]
-	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, validation.ErrInvalidRecap) {
+	if _, err := testEngine(t).ValidateStored(value, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
 		t.Fatalf("lower-grade achievement error = %v", err)
 	}
 }

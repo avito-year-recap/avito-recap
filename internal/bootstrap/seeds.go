@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/model"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 type SeedStorage interface {
@@ -73,7 +73,7 @@ func LoadDemoData(ctx context.Context, storage SeedStorage, profilesPath, scenar
 	for index := range profiles {
 		profiles[index] = model.NormalizeProfile(profiles[index])
 		profile := profiles[index]
-		if err := validation.ValidateProfile(profile); err != nil {
+		if err := structural.ValidateProfile(profile); err != nil {
 			return fmt.Errorf("invalid profile seed at index %d: %w", index, err)
 		}
 		if _, exists := byCode[profile.Code]; exists {
@@ -191,7 +191,7 @@ func metricsFromScenario(item scenario) (model.Metrics, error) {
 		metrics.TopCategoryViews = weightedCount(item.Activity.ListingViews, top.Weight)
 	}
 	metrics = analytics.EnrichMetrics(model.NormalizeMetrics(metrics))
-	if err := validation.ValidateMetrics(metrics); err != nil {
+	if err := structural.ValidateMetrics(metrics); err != nil {
 		return model.Metrics{}, err
 	}
 	return metrics, nil

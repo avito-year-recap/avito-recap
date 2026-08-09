@@ -6,6 +6,12 @@ modules:
 lint:
   use:
     - STANDARD
+  except:
+    # GenerateRecap and GetRecap intentionally share one RecapResponse
+    # envelope — the frontend's domain model (entities/recap/model.ts)
+    # treats "get" and "generate" as the same idempotent read/create.
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    - RPC_RESPONSE_STANDARD_NAME
 
 breaking:
   use:

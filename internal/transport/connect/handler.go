@@ -9,9 +9,13 @@ import (
 	"github.com/google/uuid"
 	recapv1 "github.com/year-recap/gen/go/recap/v1"
 	"github.com/year-recap/gen/go/recap/v1/recapv1connect"
+	"github.com/year-recap/internal/recap/model"
 )
 
-var ErrMissingApplication = errors.New("missing recap application")
+var (
+	ErrMissingApplication  = errors.New("missing recap application")
+	ErrProfileCodeNotFound = errors.New("profile code not found")
+)
 
 type Handler struct {
 	application Application
@@ -44,51 +48,49 @@ func (h *Handler) ListProfiles(
 func (h *Handler) GenerateRecap(
 	ctx context.Context,
 	request *connectrpc.Request[recapv1.GenerateRecapRequest],
-) (*connectrpc.Response[recapv1.GenerateRecapResponse], error) {
+) (*connectrpc.Response[recapv1.RecapResponse], error) {
 	if request == nil || request.Msg == nil {
 		return nil, invalidArgumentError("request is required")
 	}
-	profileID, err := parseCanonicalUUID("profile_id", request.Msg.ProfileId)
+	profile, err := h.resolveProfileByCode(ctx, request.Msg.ProfileCode)
 	if err != nil {
 		return nil, err
 	}
-	value, err := h.application.Generate(ctx, profileID, request.Msg.Year)
+	value, err := h.application.Generate(ctx, profile.ID, request.Msg.Year)
 	if err != nil {
 		return nil, transportError(err)
 	}
-	mapped, err := recapToProto(value)
-	if err != nil {
-		return nil, transportError(err)
-	}
-	return connectrpc.NewResponse(&recapv1.GenerateRecapResponse{Recap: mapped}), nil
+	return recapResponse(value)
 }
 
+// GetRecap intentionally shares Generate's idempotent get-or-create path:
+// the wire contract addresses a recap by (profile_code, year), and the
+// application layer already guarantees that generating twice for the same
+// key returns the previously stored recap rather than creating a second one.
+// A read-only lookup by (profile, year) belongs to the service layer and can
+// replace this once it exists.
 func (h *Handler) GetRecap(
 	ctx context.Context,
 	request *connectrpc.Request[recapv1.GetRecapRequest],
-) (*connectrpc.Response[recapv1.GetRecapResponse], error) {
+) (*connectrpc.Response[recapv1.RecapResponse], error) {
 	if request == nil || request.Msg == nil {
 		return nil, invalidArgumentError("request is required")
 	}
-	recapID, err := parseCanonicalUUID("internal_recap_id", request.Msg.InternalRecapId)
+	profile, err := h.resolveProfileByCode(ctx, request.Msg.ProfileCode)
 	if err != nil {
 		return nil, err
 	}
-	value, err := h.application.Get(ctx, recapID)
+	value, err := h.application.Generate(ctx, profile.ID, request.Msg.Year)
 	if err != nil {
 		return nil, transportError(err)
 	}
-	mapped, err := recapToProto(value)
-	if err != nil {
-		return nil, transportError(err)
-	}
-	return connectrpc.NewResponse(&recapv1.GetRecapResponse{Recap: mapped}), nil
+	return recapResponse(value)
 }
 
-func (h *Handler) GetShareCard(
+func (h *Handler) GetPublicShare(
 	ctx context.Context,
-	request *connectrpc.Request[recapv1.GetShareCardRequest],
-) (*connectrpc.Response[recapv1.GetShareCardResponse], error) {
+	request *connectrpc.Request[recapv1.GetPublicShareRequest],
+) (*connectrpc.Response[recapv1.GetPublicShareResponse], error) {
 	if request == nil || request.Msg == nil {
 		return nil, invalidArgumentError("request is required")
 	}
@@ -100,9 +102,42 @@ func (h *Handler) GetShareCard(
 	if err != nil {
 		return nil, transportError(err)
 	}
-	return connectrpc.NewResponse(&recapv1.GetShareCardResponse{
-		ShareCard: shareCardToProto(value),
+	return connectrpc.NewResponse(&recapv1.GetPublicShareResponse{
+		Share: publicShareToProto(value),
 	}), nil
+}
+
+func recapResponse(value model.Recap) (*connectrpc.Response[recapv1.RecapResponse], error) {
+	profile := profileToProto(value.Profile)
+	recap, err := recapToProto(value)
+	if err != nil {
+		return nil, transportError(err)
+	}
+	return connectrpc.NewResponse(&recapv1.RecapResponse{Profile: profile, Recap: recap}), nil
+}
+
+// resolveProfileByCode is transport-layer glue: the wire contract addresses
+// profiles by their human-readable code, but the application/storage layer
+// only knows how to look profiles up by internal UUID. Until the service
+// layer grows a ProfileStorage.GetProfileByCode port, this scans
+// ListProfiles, which is fine at demo/seed scale but not the long-term shape.
+func (h *Handler) resolveProfileByCode(ctx context.Context, code string) (model.Profile, error) {
+	if code == "" {
+		return model.Profile{}, invalidArgumentError("profile_code is required")
+	}
+	profiles, err := h.application.ListProfiles(ctx)
+	if err != nil {
+		return model.Profile{}, transportError(err)
+	}
+	for _, profile := range profiles {
+		if profile.Code == code {
+			return profile, nil
+		}
+	}
+	return model.Profile{}, connectrpc.NewError(
+		connectrpc.CodeNotFound,
+		fmt.Errorf("%w: %q", ErrProfileCodeNotFound, code),
+	)
 }
 
 func parseCanonicalUUID(field, value string) (uuid.UUID, error) {

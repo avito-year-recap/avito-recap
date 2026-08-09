@@ -9,7 +9,6 @@ package recapv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,6 +20,76 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type CardType int32
+
+const (
+	CardType_CARD_TYPE_UNSPECIFIED        CardType = 0
+	CardType_CARD_TYPE_INTRO              CardType = 1
+	CardType_CARD_TYPE_YEAR_ACTIVITY      CardType = 2
+	CardType_CARD_TYPE_TOP_CATEGORY       CardType = 3
+	CardType_CARD_TYPE_ACTIVE_MONTH       CardType = 4
+	CardType_CARD_TYPE_BEHAVIOR           CardType = 5
+	CardType_CARD_TYPE_ACHIEVEMENT        CardType = 6
+	CardType_CARD_TYPE_MISSED_OPPORTUNITY CardType = 7
+	CardType_CARD_TYPE_NEXT_ACTION        CardType = 8
+	CardType_CARD_TYPE_SHARE              CardType = 9
+)
+
+// Enum value maps for CardType.
+var (
+	CardType_name = map[int32]string{
+		0: "CARD_TYPE_UNSPECIFIED",
+		1: "CARD_TYPE_INTRO",
+		2: "CARD_TYPE_YEAR_ACTIVITY",
+		3: "CARD_TYPE_TOP_CATEGORY",
+		4: "CARD_TYPE_ACTIVE_MONTH",
+		5: "CARD_TYPE_BEHAVIOR",
+		6: "CARD_TYPE_ACHIEVEMENT",
+		7: "CARD_TYPE_MISSED_OPPORTUNITY",
+		8: "CARD_TYPE_NEXT_ACTION",
+		9: "CARD_TYPE_SHARE",
+	}
+	CardType_value = map[string]int32{
+		"CARD_TYPE_UNSPECIFIED":        0,
+		"CARD_TYPE_INTRO":              1,
+		"CARD_TYPE_YEAR_ACTIVITY":      2,
+		"CARD_TYPE_TOP_CATEGORY":       3,
+		"CARD_TYPE_ACTIVE_MONTH":       4,
+		"CARD_TYPE_BEHAVIOR":           5,
+		"CARD_TYPE_ACHIEVEMENT":        6,
+		"CARD_TYPE_MISSED_OPPORTUNITY": 7,
+		"CARD_TYPE_NEXT_ACTION":        8,
+		"CARD_TYPE_SHARE":              9,
+	}
+)
+
+func (x CardType) Enum() *CardType {
+	p := new(CardType)
+	*p = x
+	return p
+}
+
+func (x CardType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CardType) Descriptor() protoreflect.EnumDescriptor {
+	return file_recap_v1_recap_proto_enumTypes[0].Descriptor()
+}
+
+func (CardType) Type() protoreflect.EnumType {
+	return &file_recap_v1_recap_proto_enumTypes[0]
+}
+
+func (x CardType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CardType.Descriptor instead.
+func (CardType) EnumDescriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{0}
+}
 
 type BehaviorCode int32
 
@@ -67,11 +136,11 @@ func (x BehaviorCode) String() string {
 }
 
 func (BehaviorCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_recap_v1_recap_proto_enumTypes[0].Descriptor()
+	return file_recap_v1_recap_proto_enumTypes[1].Descriptor()
 }
 
 func (BehaviorCode) Type() protoreflect.EnumType {
-	return &file_recap_v1_recap_proto_enumTypes[0]
+	return &file_recap_v1_recap_proto_enumTypes[1]
 }
 
 func (x BehaviorCode) Number() protoreflect.EnumNumber {
@@ -80,70 +149,60 @@ func (x BehaviorCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use BehaviorCode.Descriptor instead.
 func (BehaviorCode) EnumDescriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{0}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{1}
 }
 
-type AchievementCategory int32
+type EvidenceComparison int32
 
 const (
-	AchievementCategory_ACHIEVEMENT_CATEGORY_UNSPECIFIED AchievementCategory = 0
-	AchievementCategory_ACHIEVEMENT_CATEGORY_SELLING     AchievementCategory = 1
-	AchievementCategory_ACHIEVEMENT_CATEGORY_BUYING      AchievementCategory = 2
-	AchievementCategory_ACHIEVEMENT_CATEGORY_DISCOVERY   AchievementCategory = 3
-	AchievementCategory_ACHIEVEMENT_CATEGORY_COLLECTION  AchievementCategory = 4
-	AchievementCategory_ACHIEVEMENT_CATEGORY_VERSATILITY AchievementCategory = 5
-	AchievementCategory_ACHIEVEMENT_CATEGORY_INTEREST    AchievementCategory = 6
+	EvidenceComparison_EVIDENCE_COMPARISON_UNSPECIFIED EvidenceComparison = 0
+	EvidenceComparison_EVIDENCE_COMPARISON_GTE         EvidenceComparison = 1
+	EvidenceComparison_EVIDENCE_COMPARISON_LTE         EvidenceComparison = 2
 )
 
-// Enum value maps for AchievementCategory.
+// Enum value maps for EvidenceComparison.
 var (
-	AchievementCategory_name = map[int32]string{
-		0: "ACHIEVEMENT_CATEGORY_UNSPECIFIED",
-		1: "ACHIEVEMENT_CATEGORY_SELLING",
-		2: "ACHIEVEMENT_CATEGORY_BUYING",
-		3: "ACHIEVEMENT_CATEGORY_DISCOVERY",
-		4: "ACHIEVEMENT_CATEGORY_COLLECTION",
-		5: "ACHIEVEMENT_CATEGORY_VERSATILITY",
-		6: "ACHIEVEMENT_CATEGORY_INTEREST",
+	EvidenceComparison_name = map[int32]string{
+		0: "EVIDENCE_COMPARISON_UNSPECIFIED",
+		1: "EVIDENCE_COMPARISON_GTE",
+		2: "EVIDENCE_COMPARISON_LTE",
 	}
-	AchievementCategory_value = map[string]int32{
-		"ACHIEVEMENT_CATEGORY_UNSPECIFIED": 0,
-		"ACHIEVEMENT_CATEGORY_SELLING":     1,
-		"ACHIEVEMENT_CATEGORY_BUYING":      2,
-		"ACHIEVEMENT_CATEGORY_DISCOVERY":   3,
-		"ACHIEVEMENT_CATEGORY_COLLECTION":  4,
-		"ACHIEVEMENT_CATEGORY_VERSATILITY": 5,
-		"ACHIEVEMENT_CATEGORY_INTEREST":    6,
+	EvidenceComparison_value = map[string]int32{
+		"EVIDENCE_COMPARISON_UNSPECIFIED": 0,
+		"EVIDENCE_COMPARISON_GTE":         1,
+		"EVIDENCE_COMPARISON_LTE":         2,
 	}
 )
 
-func (x AchievementCategory) Enum() *AchievementCategory {
-	p := new(AchievementCategory)
+func (x EvidenceComparison) Enum() *EvidenceComparison {
+	p := new(EvidenceComparison)
 	*p = x
 	return p
 }
 
-func (x AchievementCategory) String() string {
+func (x EvidenceComparison) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (AchievementCategory) Descriptor() protoreflect.EnumDescriptor {
-	return file_recap_v1_recap_proto_enumTypes[1].Descriptor()
+func (EvidenceComparison) Descriptor() protoreflect.EnumDescriptor {
+	return file_recap_v1_recap_proto_enumTypes[2].Descriptor()
 }
 
-func (AchievementCategory) Type() protoreflect.EnumType {
-	return &file_recap_v1_recap_proto_enumTypes[1]
+func (EvidenceComparison) Type() protoreflect.EnumType {
+	return &file_recap_v1_recap_proto_enumTypes[2]
 }
 
-func (x AchievementCategory) Number() protoreflect.EnumNumber {
+func (x EvidenceComparison) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use AchievementCategory.Descriptor instead.
-func (AchievementCategory) EnumDescriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use EvidenceComparison.Descriptor instead.
+func (EvidenceComparison) EnumDescriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{2}
 }
 
+// Mirrors internal/recap/model.AchievementCode. The frontend treats the code
+// as an opaque string key, so this enum is free to grow.
 type AchievementCode int32
 
 const (
@@ -231,11 +290,11 @@ func (x AchievementCode) String() string {
 }
 
 func (AchievementCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_recap_v1_recap_proto_enumTypes[2].Descriptor()
+	return file_recap_v1_recap_proto_enumTypes[3].Descriptor()
 }
 
 func (AchievementCode) Type() protoreflect.EnumType {
-	return &file_recap_v1_recap_proto_enumTypes[2]
+	return &file_recap_v1_recap_proto_enumTypes[3]
 }
 
 func (x AchievementCode) Number() protoreflect.EnumNumber {
@@ -244,7 +303,68 @@ func (x AchievementCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AchievementCode.Descriptor instead.
 func (AchievementCode) EnumDescriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{2}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{3}
+}
+
+type AchievementCategory int32
+
+const (
+	AchievementCategory_ACHIEVEMENT_CATEGORY_UNSPECIFIED AchievementCategory = 0
+	AchievementCategory_ACHIEVEMENT_CATEGORY_SELLING     AchievementCategory = 1
+	AchievementCategory_ACHIEVEMENT_CATEGORY_BUYING      AchievementCategory = 2
+	AchievementCategory_ACHIEVEMENT_CATEGORY_DISCOVERY   AchievementCategory = 3
+	AchievementCategory_ACHIEVEMENT_CATEGORY_COLLECTION  AchievementCategory = 4
+	AchievementCategory_ACHIEVEMENT_CATEGORY_VERSATILITY AchievementCategory = 5
+	AchievementCategory_ACHIEVEMENT_CATEGORY_INTEREST    AchievementCategory = 6
+)
+
+// Enum value maps for AchievementCategory.
+var (
+	AchievementCategory_name = map[int32]string{
+		0: "ACHIEVEMENT_CATEGORY_UNSPECIFIED",
+		1: "ACHIEVEMENT_CATEGORY_SELLING",
+		2: "ACHIEVEMENT_CATEGORY_BUYING",
+		3: "ACHIEVEMENT_CATEGORY_DISCOVERY",
+		4: "ACHIEVEMENT_CATEGORY_COLLECTION",
+		5: "ACHIEVEMENT_CATEGORY_VERSATILITY",
+		6: "ACHIEVEMENT_CATEGORY_INTEREST",
+	}
+	AchievementCategory_value = map[string]int32{
+		"ACHIEVEMENT_CATEGORY_UNSPECIFIED": 0,
+		"ACHIEVEMENT_CATEGORY_SELLING":     1,
+		"ACHIEVEMENT_CATEGORY_BUYING":      2,
+		"ACHIEVEMENT_CATEGORY_DISCOVERY":   3,
+		"ACHIEVEMENT_CATEGORY_COLLECTION":  4,
+		"ACHIEVEMENT_CATEGORY_VERSATILITY": 5,
+		"ACHIEVEMENT_CATEGORY_INTEREST":    6,
+	}
+)
+
+func (x AchievementCategory) Enum() *AchievementCategory {
+	p := new(AchievementCategory)
+	*p = x
+	return p
+}
+
+func (x AchievementCategory) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AchievementCategory) Descriptor() protoreflect.EnumDescriptor {
+	return file_recap_v1_recap_proto_enumTypes[4].Descriptor()
+}
+
+func (AchievementCategory) Type() protoreflect.EnumType {
+	return &file_recap_v1_recap_proto_enumTypes[4]
+}
+
+func (x AchievementCategory) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AchievementCategory.Descriptor instead.
+func (AchievementCategory) EnumDescriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{4}
 }
 
 type ActionCode int32
@@ -256,11 +376,14 @@ const (
 	ActionCode_ACTION_CODE_IMPROVE_LISTINGS        ActionCode = 3
 	ActionCode_ACTION_CODE_CONTINUE_DIALOGS        ActionCode = 4
 	ActionCode_ACTION_CODE_OPEN_TOP_CATEGORY       ActionCode = 5
-	ActionCode_ACTION_CODE_CREATE_FIRST_LISTING    ActionCode = 6
-	ActionCode_ACTION_CODE_CREATE_LISTING          ActionCode = 7
-	ActionCode_ACTION_CODE_SAVE_SEARCH             ActionCode = 8
-	ActionCode_ACTION_CODE_VIEW_SIMILAR_LISTINGS   ActionCode = 9
-	ActionCode_ACTION_CODE_EXPLORE_RECOMMENDATIONS ActionCode = 10
+	ActionCode_ACTION_CODE_CREATE_LISTING          ActionCode = 6
+	ActionCode_ACTION_CODE_SAVE_SEARCH             ActionCode = 7
+	ActionCode_ACTION_CODE_VIEW_SIMILAR_LISTINGS   ActionCode = 8
+	ActionCode_ACTION_CODE_EXPLORE_RECOMMENDATIONS ActionCode = 9
+	// Kept only for wire compatibility with older integrations.
+	//
+	// Deprecated: Marked as deprecated in recap/v1/recap.proto.
+	ActionCode_ACTION_CODE_CREATE_FIRST_LISTING ActionCode = 10
 )
 
 // Enum value maps for ActionCode.
@@ -272,11 +395,11 @@ var (
 		3:  "ACTION_CODE_IMPROVE_LISTINGS",
 		4:  "ACTION_CODE_CONTINUE_DIALOGS",
 		5:  "ACTION_CODE_OPEN_TOP_CATEGORY",
-		6:  "ACTION_CODE_CREATE_FIRST_LISTING",
-		7:  "ACTION_CODE_CREATE_LISTING",
-		8:  "ACTION_CODE_SAVE_SEARCH",
-		9:  "ACTION_CODE_VIEW_SIMILAR_LISTINGS",
-		10: "ACTION_CODE_EXPLORE_RECOMMENDATIONS",
+		6:  "ACTION_CODE_CREATE_LISTING",
+		7:  "ACTION_CODE_SAVE_SEARCH",
+		8:  "ACTION_CODE_VIEW_SIMILAR_LISTINGS",
+		9:  "ACTION_CODE_EXPLORE_RECOMMENDATIONS",
+		10: "ACTION_CODE_CREATE_FIRST_LISTING",
 	}
 	ActionCode_value = map[string]int32{
 		"ACTION_CODE_UNSPECIFIED":             0,
@@ -285,11 +408,11 @@ var (
 		"ACTION_CODE_IMPROVE_LISTINGS":        3,
 		"ACTION_CODE_CONTINUE_DIALOGS":        4,
 		"ACTION_CODE_OPEN_TOP_CATEGORY":       5,
-		"ACTION_CODE_CREATE_FIRST_LISTING":    6,
-		"ACTION_CODE_CREATE_LISTING":          7,
-		"ACTION_CODE_SAVE_SEARCH":             8,
-		"ACTION_CODE_VIEW_SIMILAR_LISTINGS":   9,
-		"ACTION_CODE_EXPLORE_RECOMMENDATIONS": 10,
+		"ACTION_CODE_CREATE_LISTING":          6,
+		"ACTION_CODE_SAVE_SEARCH":             7,
+		"ACTION_CODE_VIEW_SIMILAR_LISTINGS":   8,
+		"ACTION_CODE_EXPLORE_RECOMMENDATIONS": 9,
+		"ACTION_CODE_CREATE_FIRST_LISTING":    10,
 	}
 )
 
@@ -304,11 +427,11 @@ func (x ActionCode) String() string {
 }
 
 func (ActionCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_recap_v1_recap_proto_enumTypes[3].Descriptor()
+	return file_recap_v1_recap_proto_enumTypes[5].Descriptor()
 }
 
 func (ActionCode) Type() protoreflect.EnumType {
-	return &file_recap_v1_recap_proto_enumTypes[3]
+	return &file_recap_v1_recap_proto_enumTypes[5]
 }
 
 func (x ActionCode) Number() protoreflect.EnumNumber {
@@ -317,77 +440,7 @@ func (x ActionCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ActionCode.Descriptor instead.
 func (ActionCode) EnumDescriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{3}
-}
-
-type CardType int32
-
-const (
-	CardType_CARD_TYPE_UNSPECIFIED        CardType = 0
-	CardType_CARD_TYPE_INTRO              CardType = 1
-	CardType_CARD_TYPE_YEAR_ACTIVITY      CardType = 2
-	CardType_CARD_TYPE_TOP_CATEGORY       CardType = 3
-	CardType_CARD_TYPE_ACTIVE_MONTH       CardType = 4
-	CardType_CARD_TYPE_BEHAVIOR           CardType = 5
-	CardType_CARD_TYPE_ACHIEVEMENT        CardType = 6
-	CardType_CARD_TYPE_MISSED_OPPORTUNITY CardType = 7
-	CardType_CARD_TYPE_NEXT_ACTION        CardType = 8
-	CardType_CARD_TYPE_SHARE              CardType = 10
-)
-
-// Enum value maps for CardType.
-var (
-	CardType_name = map[int32]string{
-		0:  "CARD_TYPE_UNSPECIFIED",
-		1:  "CARD_TYPE_INTRO",
-		2:  "CARD_TYPE_YEAR_ACTIVITY",
-		3:  "CARD_TYPE_TOP_CATEGORY",
-		4:  "CARD_TYPE_ACTIVE_MONTH",
-		5:  "CARD_TYPE_BEHAVIOR",
-		6:  "CARD_TYPE_ACHIEVEMENT",
-		7:  "CARD_TYPE_MISSED_OPPORTUNITY",
-		8:  "CARD_TYPE_NEXT_ACTION",
-		10: "CARD_TYPE_SHARE",
-	}
-	CardType_value = map[string]int32{
-		"CARD_TYPE_UNSPECIFIED":        0,
-		"CARD_TYPE_INTRO":              1,
-		"CARD_TYPE_YEAR_ACTIVITY":      2,
-		"CARD_TYPE_TOP_CATEGORY":       3,
-		"CARD_TYPE_ACTIVE_MONTH":       4,
-		"CARD_TYPE_BEHAVIOR":           5,
-		"CARD_TYPE_ACHIEVEMENT":        6,
-		"CARD_TYPE_MISSED_OPPORTUNITY": 7,
-		"CARD_TYPE_NEXT_ACTION":        8,
-		"CARD_TYPE_SHARE":              10,
-	}
-)
-
-func (x CardType) Enum() *CardType {
-	p := new(CardType)
-	*p = x
-	return p
-}
-
-func (x CardType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (CardType) Descriptor() protoreflect.EnumDescriptor {
-	return file_recap_v1_recap_proto_enumTypes[4].Descriptor()
-}
-
-func (CardType) Type() protoreflect.EnumType {
-	return &file_recap_v1_recap_proto_enumTypes[4]
-}
-
-func (x CardType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use CardType.Descriptor instead.
-func (CardType) EnumDescriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{4}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{5}
 }
 
 type ListProfilesRequest struct {
@@ -471,12 +524,9 @@ func (x *ListProfilesResponse) GetProfiles() []*Profile {
 }
 
 type GenerateRecapRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID of a profile from the profile catalogue.
-	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
-	// Completed UTC calendar year. Zero, future years and the current unfinished
-	// year are rejected by the application layer.
-	Year          uint32 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProfileCode   string                 `protobuf:"bytes,1,opt,name=profile_code,json=profileCode,proto3" json:"profile_code,omitempty"`
+	Year          uint32                 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -511,9 +561,9 @@ func (*GenerateRecapRequest) Descriptor() ([]byte, []int) {
 	return file_recap_v1_recap_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GenerateRecapRequest) GetProfileId() string {
+func (x *GenerateRecapRequest) GetProfileCode() string {
 	if x != nil {
-		return x.ProfileId
+		return x.ProfileCode
 	}
 	return ""
 }
@@ -525,62 +575,17 @@ func (x *GenerateRecapRequest) GetYear() uint32 {
 	return 0
 }
 
-type GenerateRecapResponse struct {
+type GetRecapRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Recap         *Recap                 `protobuf:"bytes,1,opt,name=recap,proto3" json:"recap,omitempty"`
+	ProfileCode   string                 `protobuf:"bytes,1,opt,name=profile_code,json=profileCode,proto3" json:"profile_code,omitempty"`
+	Year          uint32                 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GenerateRecapResponse) Reset() {
-	*x = GenerateRecapResponse{}
-	mi := &file_recap_v1_recap_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GenerateRecapResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GenerateRecapResponse) ProtoMessage() {}
-
-func (x *GenerateRecapResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GenerateRecapResponse.ProtoReflect.Descriptor instead.
-func (*GenerateRecapResponse) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GenerateRecapResponse) GetRecap() *Recap {
-	if x != nil {
-		return x.Recap
-	}
-	return nil
-}
-
-type GetRecapRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID of the private recap. This identifier must never be used as
-	// the public sharing identifier.
-	InternalRecapId string `protobuf:"bytes,1,opt,name=internal_recap_id,json=internalRecapId,proto3" json:"internal_recap_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
 func (x *GetRecapRequest) Reset() {
 	*x = GetRecapRequest{}
-	mi := &file_recap_v1_recap_proto_msgTypes[4]
+	mi := &file_recap_v1_recap_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -592,7 +597,7 @@ func (x *GetRecapRequest) String() string {
 func (*GetRecapRequest) ProtoMessage() {}
 
 func (x *GetRecapRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[4]
+	mi := &file_recap_v1_recap_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -605,38 +610,45 @@ func (x *GetRecapRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRecapRequest.ProtoReflect.Descriptor instead.
 func (*GetRecapRequest) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{4}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetRecapRequest) GetInternalRecapId() string {
+func (x *GetRecapRequest) GetProfileCode() string {
 	if x != nil {
-		return x.InternalRecapId
+		return x.ProfileCode
 	}
 	return ""
 }
 
-type GetRecapResponse struct {
+func (x *GetRecapRequest) GetYear() uint32 {
+	if x != nil {
+		return x.Year
+	}
+	return 0
+}
+
+type GetPublicShareRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Recap         *Recap                 `protobuf:"bytes,1,opt,name=recap,proto3" json:"recap,omitempty"`
+	ShareId       string                 `protobuf:"bytes,1,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRecapResponse) Reset() {
-	*x = GetRecapResponse{}
-	mi := &file_recap_v1_recap_proto_msgTypes[5]
+func (x *GetPublicShareRequest) Reset() {
+	*x = GetPublicShareRequest{}
+	mi := &file_recap_v1_recap_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRecapResponse) String() string {
+func (x *GetPublicShareRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRecapResponse) ProtoMessage() {}
+func (*GetPublicShareRequest) ProtoMessage() {}
 
-func (x *GetRecapResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[5]
+func (x *GetPublicShareRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,85 +659,41 @@ func (x *GetRecapResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRecapResponse.ProtoReflect.Descriptor instead.
-func (*GetRecapResponse) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{5}
+// Deprecated: Use GetPublicShareRequest.ProtoReflect.Descriptor instead.
+func (*GetPublicShareRequest) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetRecapResponse) GetRecap() *Recap {
-	if x != nil {
-		return x.Recap
-	}
-	return nil
-}
-
-type GetShareCardRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID of the public share projection.
-	ShareId       string `protobuf:"bytes,1,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetShareCardRequest) Reset() {
-	*x = GetShareCardRequest{}
-	mi := &file_recap_v1_recap_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetShareCardRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetShareCardRequest) ProtoMessage() {}
-
-func (x *GetShareCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetShareCardRequest.ProtoReflect.Descriptor instead.
-func (*GetShareCardRequest) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *GetShareCardRequest) GetShareId() string {
+func (x *GetPublicShareRequest) GetShareId() string {
 	if x != nil {
 		return x.ShareId
 	}
 	return ""
 }
 
-type GetShareCardResponse struct {
+type RecapResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShareCard     *ShareCard             `protobuf:"bytes,1,opt,name=share_card,json=shareCard,proto3" json:"share_card,omitempty"`
+	Profile       *Profile               `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	Recap         *Recap                 `protobuf:"bytes,2,opt,name=recap,proto3" json:"recap,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetShareCardResponse) Reset() {
-	*x = GetShareCardResponse{}
-	mi := &file_recap_v1_recap_proto_msgTypes[7]
+func (x *RecapResponse) Reset() {
+	*x = RecapResponse{}
+	mi := &file_recap_v1_recap_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetShareCardResponse) String() string {
+func (x *RecapResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetShareCardResponse) ProtoMessage() {}
+func (*RecapResponse) ProtoMessage() {}
 
-func (x *GetShareCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[7]
+func (x *RecapResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -736,36 +704,82 @@ func (x *GetShareCardResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetShareCardResponse.ProtoReflect.Descriptor instead.
-func (*GetShareCardResponse) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{7}
+// Deprecated: Use RecapResponse.ProtoReflect.Descriptor instead.
+func (*RecapResponse) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetShareCardResponse) GetShareCard() *ShareCard {
+func (x *RecapResponse) GetProfile() *Profile {
 	if x != nil {
-		return x.ShareCard
+		return x.Profile
+	}
+	return nil
+}
+
+func (x *RecapResponse) GetRecap() *Recap {
+	if x != nil {
+		return x.Recap
+	}
+	return nil
+}
+
+type GetPublicShareResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Share         *PublicShare           `protobuf:"bytes,1,opt,name=share,proto3" json:"share,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPublicShareResponse) Reset() {
+	*x = GetPublicShareResponse{}
+	mi := &file_recap_v1_recap_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPublicShareResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPublicShareResponse) ProtoMessage() {}
+
+func (x *GetPublicShareResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPublicShareResponse.ProtoReflect.Descriptor instead.
+func (*GetPublicShareResponse) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetPublicShareResponse) GetShare() *PublicShare {
+	if x != nil {
+		return x.Share
 	}
 	return nil
 }
 
 type Profile struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Stable machine-readable profile code used by fixtures/demo clients.
-	Code        string `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
-	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	// Relative or absolute URL. Absence is distinct from an explicitly supplied
-	// empty value at the API boundary.
-	AvatarUrl     *string `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3,oneof" json:"avatar_url,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	AvatarUrl     string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	ProfileCode   string                 `protobuf:"bytes,4,opt,name=profile_code,json=profileCode,proto3" json:"profile_code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Profile) Reset() {
 	*x = Profile{}
-	mi := &file_recap_v1_recap_proto_msgTypes[8]
+	mi := &file_recap_v1_recap_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -777,7 +791,7 @@ func (x *Profile) String() string {
 func (*Profile) ProtoMessage() {}
 
 func (x *Profile) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[8]
+	mi := &file_recap_v1_recap_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -790,26 +804,12 @@ func (x *Profile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Profile.ProtoReflect.Descriptor instead.
 func (*Profile) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{8}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *Profile) GetId() string {
+func (x *Profile) GetName() string {
 	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *Profile) GetCode() string {
-	if x != nil {
-		return x.Code
-	}
-	return ""
-}
-
-func (x *Profile) GetDisplayName() string {
-	if x != nil {
-		return x.DisplayName
+		return x.Name
 	}
 	return ""
 }
@@ -822,112 +822,34 @@ func (x *Profile) GetDescription() string {
 }
 
 func (x *Profile) GetAvatarUrl() string {
-	if x != nil && x.AvatarUrl != nil {
-		return *x.AvatarUrl
+	if x != nil {
+		return x.AvatarUrl
 	}
 	return ""
 }
 
-// RecapPeriod is a final half-open UTC interval [start_at, end_at).
-type RecapPeriod struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Year          uint32                 `protobuf:"varint,1,opt,name=year,proto3" json:"year,omitempty"`
-	StartAt       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_at,json=startAt,proto3" json:"start_at,omitempty"` // Inclusive, always UTC.
-	EndAt         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_at,json=endAt,proto3" json:"end_at,omitempty"`       // Exclusive, always UTC.
-	Final         bool                   `protobuf:"varint,4,opt,name=final,proto3" json:"final,omitempty"`                   // Always true for a valid annual recap.
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RecapPeriod) Reset() {
-	*x = RecapPeriod{}
-	mi := &file_recap_v1_recap_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RecapPeriod) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RecapPeriod) ProtoMessage() {}
-
-func (x *RecapPeriod) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[9]
+func (x *Profile) GetProfileCode() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.ProfileCode
 	}
-	return mi.MessageOf(x)
+	return ""
 }
 
-// Deprecated: Use RecapPeriod.ProtoReflect.Descriptor instead.
-func (*RecapPeriod) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *RecapPeriod) GetYear() uint32 {
-	if x != nil {
-		return x.Year
-	}
-	return 0
-}
-
-func (x *RecapPeriod) GetStartAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.StartAt
-	}
-	return nil
-}
-
-func (x *RecapPeriod) GetEndAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.EndAt
-	}
-	return nil
-}
-
-func (x *RecapPeriod) GetFinal() bool {
-	if x != nil {
-		return x.Final
-	}
-	return false
-}
-
-// Recap is the private, authenticated representation returned to the recap
-// client. The ActionableState snapshot is intentionally not part of this API.
 type Recap struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Private opaque UUID used only by authenticated recap APIs.
-	InternalId string   `protobuf:"bytes,1,opt,name=internal_id,json=internalId,proto3" json:"internal_id,omitempty"`
-	Profile    *Profile `protobuf:"bytes,2,opt,name=profile,proto3" json:"profile,omitempty"`
-	Year       uint32   `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
-	// Semantic version of the executable rules contract.
-	RulesVersion string         `protobuf:"bytes,4,opt,name=rules_version,json=rulesVersion,proto3" json:"rules_version,omitempty"`
-	Metrics      *Metrics       `protobuf:"bytes,5,opt,name=metrics,proto3" json:"metrics,omitempty"`
-	Behavior     *Behavior      `protobuf:"bytes,6,opt,name=behavior,proto3" json:"behavior,omitempty"`
-	Achievements []*Achievement `protobuf:"bytes,7,rep,name=achievements,proto3" json:"achievements,omitempty"`
-	// Ordered story cards. Positions are contiguous and start at 1. Exactly one
-	// SHARE card exists and it is always the last card.
-	Cards       []*Card                `protobuf:"bytes,8,rep,name=cards,proto3" json:"cards,omitempty"`
-	NextAction  *NextAction            `protobuf:"bytes,9,opt,name=next_action,json=nextAction,proto3" json:"next_action,omitempty"`
-	GeneratedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=generated_at,json=generatedAt,proto3" json:"generated_at,omitempty"`
-	// Public opaque UUID. It is intentionally distinct from internal_id.
-	ShareId string       `protobuf:"bytes,11,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
-	Period  *RecapPeriod `protobuf:"bytes,12,opt,name=period,proto3" json:"period,omitempty"`
-	// Lowercase hex SHA-256 fingerprint of the complete executable ruleset,
-	// including thresholds, priorities and privacy policy.
-	RulesDigest   string `protobuf:"bytes,14,opt,name=rules_digest,json=rulesDigest,proto3" json:"rules_digest,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Year          uint32                 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
+	RuleVersion   string                 `protobuf:"bytes,3,opt,name=rule_version,json=ruleVersion,proto3" json:"rule_version,omitempty"`
+	Cards         []*RecapCard           `protobuf:"bytes,4,rep,name=cards,proto3" json:"cards,omitempty"`
+	Achievements  []*Achievement         `protobuf:"bytes,5,rep,name=achievements,proto3" json:"achievements,omitempty"`
+	NextAction    *NextAction            `protobuf:"bytes,6,opt,name=next_action,json=nextAction,proto3" json:"next_action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Recap) Reset() {
 	*x = Recap{}
-	mi := &file_recap_v1_recap_proto_msgTypes[10]
+	mi := &file_recap_v1_recap_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -939,7 +861,7 @@ func (x *Recap) String() string {
 func (*Recap) ProtoMessage() {}
 
 func (x *Recap) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[10]
+	mi := &file_recap_v1_recap_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -952,21 +874,14 @@ func (x *Recap) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Recap.ProtoReflect.Descriptor instead.
 func (*Recap) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{10}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *Recap) GetInternalId() string {
+func (x *Recap) GetId() string {
 	if x != nil {
-		return x.InternalId
+		return x.Id
 	}
 	return ""
-}
-
-func (x *Recap) GetProfile() *Profile {
-	if x != nil {
-		return x.Profile
-	}
-	return nil
 }
 
 func (x *Recap) GetYear() uint32 {
@@ -976,23 +891,16 @@ func (x *Recap) GetYear() uint32 {
 	return 0
 }
 
-func (x *Recap) GetRulesVersion() string {
+func (x *Recap) GetRuleVersion() string {
 	if x != nil {
-		return x.RulesVersion
+		return x.RuleVersion
 	}
 	return ""
 }
 
-func (x *Recap) GetMetrics() *Metrics {
+func (x *Recap) GetCards() []*RecapCard {
 	if x != nil {
-		return x.Metrics
-	}
-	return nil
-}
-
-func (x *Recap) GetBehavior() *Behavior {
-	if x != nil {
-		return x.Behavior
+		return x.Cards
 	}
 	return nil
 }
@@ -1004,13 +912,6 @@ func (x *Recap) GetAchievements() []*Achievement {
 	return nil
 }
 
-func (x *Recap) GetCards() []*Card {
-	if x != nil {
-		return x.Cards
-	}
-	return nil
-}
-
 func (x *Recap) GetNextAction() *NextAction {
 	if x != nil {
 		return x.NextAction
@@ -1018,825 +919,50 @@ func (x *Recap) GetNextAction() *NextAction {
 	return nil
 }
 
-func (x *Recap) GetGeneratedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.GeneratedAt
-	}
-	return nil
-}
-
-func (x *Recap) GetShareId() string {
-	if x != nil {
-		return x.ShareId
-	}
-	return ""
-}
-
-func (x *Recap) GetPeriod() *RecapPeriod {
-	if x != nil {
-		return x.Period
-	}
-	return nil
-}
-
-func (x *Recap) GetRulesDigest() string {
-	if x != nil {
-		return x.RulesDigest
-	}
-	return ""
-}
-
-type Metrics struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	TotalEvents        uint64                 `protobuf:"varint,1,opt,name=total_events,json=totalEvents,proto3" json:"total_events,omitempty"`
-	Searches           uint64                 `protobuf:"varint,2,opt,name=searches,proto3" json:"searches,omitempty"`
-	TotalViews         uint64                 `protobuf:"varint,3,opt,name=total_views,json=totalViews,proto3" json:"total_views,omitempty"`
-	UniqueListings     uint64                 `protobuf:"varint,4,opt,name=unique_listings,json=uniqueListings,proto3" json:"unique_listings,omitempty"`
-	RepeatedViews      uint64                 `protobuf:"varint,5,opt,name=repeated_views,json=repeatedViews,proto3" json:"repeated_views,omitempty"`
-	FavoritesAdded     uint64                 `protobuf:"varint,6,opt,name=favorites_added,json=favoritesAdded,proto3" json:"favorites_added,omitempty"`
-	ChatsStarted       uint64                 `protobuf:"varint,7,opt,name=chats_started,json=chatsStarted,proto3" json:"chats_started,omitempty"`
-	ListingsCreated    uint64                 `protobuf:"varint,8,opt,name=listings_created,json=listingsCreated,proto3" json:"listings_created,omitempty"`
-	ListingsPublished  uint64                 `protobuf:"varint,9,opt,name=listings_published,json=listingsPublished,proto3" json:"listings_published,omitempty"`
-	PurchasesCompleted uint64                 `protobuf:"varint,10,opt,name=purchases_completed,json=purchasesCompleted,proto3" json:"purchases_completed,omitempty"`
-	SalesCompleted     uint64                 `protobuf:"varint,11,opt,name=sales_completed,json=salesCompleted,proto3" json:"sales_completed,omitempty"`
-	ActiveDays         uint64                 `protobuf:"varint,12,opt,name=active_days,json=activeDays,proto3" json:"active_days,omitempty"`
-	CategoriesCount    uint64                 `protobuf:"varint,13,opt,name=categories_count,json=categoriesCount,proto3" json:"categories_count,omitempty"`
-	// Top-category fields are either all populated consistently or all absent / 0.
-	TopCategoryCode  *string `protobuf:"bytes,14,opt,name=top_category_code,json=topCategoryCode,proto3,oneof" json:"top_category_code,omitempty"`
-	TopCategory      *string `protobuf:"bytes,15,opt,name=top_category,json=topCategory,proto3,oneof" json:"top_category,omitempty"`
-	TopCategoryViews uint64  `protobuf:"varint,16,opt,name=top_category_views,json=topCategoryViews,proto3" json:"top_category_views,omitempty"`
-	// Internal-to-private-recap privacy signal. This is never copied directly to
-	// ShareCard; the share builder additionally applies the versioned allow-list.
-	TopCategoryShareable bool `protobuf:"varint,17,opt,name=top_category_shareable,json=topCategoryShareable,proto3" json:"top_category_shareable,omitempty"`
-	// Calendar month in [1, 12] for a valid recap.
-	MostActiveMonth uint32 `protobuf:"varint,18,opt,name=most_active_month,json=mostActiveMonth,proto3" json:"most_active_month,omitempty"`
-	// repeated_views / total_views, in [0, 1].
-	RepeatRate float64 `protobuf:"fixed64,21,opt,name=repeat_rate,json=repeatRate,proto3" json:"repeat_rate,omitempty"`
-	// chats_with_purchase / chats_started, in [0, 1].
-	PurchaseRate      float64 `protobuf:"fixed64,24,opt,name=purchase_rate,json=purchaseRate,proto3" json:"purchase_rate,omitempty"`
-	ChatsWithPurchase uint64  `protobuf:"varint,25,opt,name=chats_with_purchase,json=chatsWithPurchase,proto3" json:"chats_with_purchase,omitempty"`
-	// Normalized by category_code. Used as evidence for thematic achievements.
-	CategoryActivities []*CategoryActivity `protobuf:"bytes,26,rep,name=category_activities,json=categoryActivities,proto3" json:"category_activities,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *Metrics) Reset() {
-	*x = Metrics{}
-	mi := &file_recap_v1_recap_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Metrics) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Metrics) ProtoMessage() {}
-
-func (x *Metrics) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Metrics.ProtoReflect.Descriptor instead.
-func (*Metrics) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *Metrics) GetTotalEvents() uint64 {
-	if x != nil {
-		return x.TotalEvents
-	}
-	return 0
-}
-
-func (x *Metrics) GetSearches() uint64 {
-	if x != nil {
-		return x.Searches
-	}
-	return 0
-}
-
-func (x *Metrics) GetTotalViews() uint64 {
-	if x != nil {
-		return x.TotalViews
-	}
-	return 0
-}
-
-func (x *Metrics) GetUniqueListings() uint64 {
-	if x != nil {
-		return x.UniqueListings
-	}
-	return 0
-}
-
-func (x *Metrics) GetRepeatedViews() uint64 {
-	if x != nil {
-		return x.RepeatedViews
-	}
-	return 0
-}
-
-func (x *Metrics) GetFavoritesAdded() uint64 {
-	if x != nil {
-		return x.FavoritesAdded
-	}
-	return 0
-}
-
-func (x *Metrics) GetChatsStarted() uint64 {
-	if x != nil {
-		return x.ChatsStarted
-	}
-	return 0
-}
-
-func (x *Metrics) GetListingsCreated() uint64 {
-	if x != nil {
-		return x.ListingsCreated
-	}
-	return 0
-}
-
-func (x *Metrics) GetListingsPublished() uint64 {
-	if x != nil {
-		return x.ListingsPublished
-	}
-	return 0
-}
-
-func (x *Metrics) GetPurchasesCompleted() uint64 {
-	if x != nil {
-		return x.PurchasesCompleted
-	}
-	return 0
-}
-
-func (x *Metrics) GetSalesCompleted() uint64 {
-	if x != nil {
-		return x.SalesCompleted
-	}
-	return 0
-}
-
-func (x *Metrics) GetActiveDays() uint64 {
-	if x != nil {
-		return x.ActiveDays
-	}
-	return 0
-}
-
-func (x *Metrics) GetCategoriesCount() uint64 {
-	if x != nil {
-		return x.CategoriesCount
-	}
-	return 0
-}
-
-func (x *Metrics) GetTopCategoryCode() string {
-	if x != nil && x.TopCategoryCode != nil {
-		return *x.TopCategoryCode
-	}
-	return ""
-}
-
-func (x *Metrics) GetTopCategory() string {
-	if x != nil && x.TopCategory != nil {
-		return *x.TopCategory
-	}
-	return ""
-}
-
-func (x *Metrics) GetTopCategoryViews() uint64 {
-	if x != nil {
-		return x.TopCategoryViews
-	}
-	return 0
-}
-
-func (x *Metrics) GetTopCategoryShareable() bool {
-	if x != nil {
-		return x.TopCategoryShareable
-	}
-	return false
-}
-
-func (x *Metrics) GetMostActiveMonth() uint32 {
-	if x != nil {
-		return x.MostActiveMonth
-	}
-	return 0
-}
-
-func (x *Metrics) GetRepeatRate() float64 {
-	if x != nil {
-		return x.RepeatRate
-	}
-	return 0
-}
-
-func (x *Metrics) GetPurchaseRate() float64 {
-	if x != nil {
-		return x.PurchaseRate
-	}
-	return 0
-}
-
-func (x *Metrics) GetChatsWithPurchase() uint64 {
-	if x != nil {
-		return x.ChatsWithPurchase
-	}
-	return 0
-}
-
-func (x *Metrics) GetCategoryActivities() []*CategoryActivity {
-	if x != nil {
-		return x.CategoryActivities
-	}
-	return nil
-}
-
-type CategoryActivity struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	CategoryCode       string                 `protobuf:"bytes,1,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"`
-	Category           string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
-	Shareable          bool                   `protobuf:"varint,3,opt,name=shareable,proto3" json:"shareable,omitempty"`
-	Views              uint64                 `protobuf:"varint,4,opt,name=views,proto3" json:"views,omitempty"`
-	FavoritesAdded     uint64                 `protobuf:"varint,5,opt,name=favorites_added,json=favoritesAdded,proto3" json:"favorites_added,omitempty"`
-	PurchasesCompleted uint64                 `protobuf:"varint,6,opt,name=purchases_completed,json=purchasesCompleted,proto3" json:"purchases_completed,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *CategoryActivity) Reset() {
-	*x = CategoryActivity{}
-	mi := &file_recap_v1_recap_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CategoryActivity) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CategoryActivity) ProtoMessage() {}
-
-func (x *CategoryActivity) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CategoryActivity.ProtoReflect.Descriptor instead.
-func (*CategoryActivity) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *CategoryActivity) GetCategoryCode() string {
-	if x != nil {
-		return x.CategoryCode
-	}
-	return ""
-}
-
-func (x *CategoryActivity) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-func (x *CategoryActivity) GetShareable() bool {
-	if x != nil {
-		return x.Shareable
-	}
-	return false
-}
-
-func (x *CategoryActivity) GetViews() uint64 {
-	if x != nil {
-		return x.Views
-	}
-	return 0
-}
-
-func (x *CategoryActivity) GetFavoritesAdded() uint64 {
-	if x != nil {
-		return x.FavoritesAdded
-	}
-	return 0
-}
-
-func (x *CategoryActivity) GetPurchasesCompleted() uint64 {
-	if x != nil {
-		return x.PurchasesCompleted
-	}
-	return 0
-}
-
-// BehaviorEvidence explains a deterministic rule match. It is not a
-// probability/confidence score.
-type BehaviorEvidence struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable metric key such as "total_views", "repeat_rate" or
-	// "listings_published".
-	Metric    string  `protobuf:"bytes,1,opt,name=metric,proto3" json:"metric,omitempty"`
-	Actual    float64 `protobuf:"fixed64,2,opt,name=actual,proto3" json:"actual,omitempty"`
-	Threshold float64 `protobuf:"fixed64,3,opt,name=threshold,proto3" json:"threshold,omitempty"`
-	// Human-readable explanation generated by the ruleset.
-	Detail        string `protobuf:"bytes,5,opt,name=detail,proto3" json:"detail,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BehaviorEvidence) Reset() {
-	*x = BehaviorEvidence{}
-	mi := &file_recap_v1_recap_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BehaviorEvidence) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BehaviorEvidence) ProtoMessage() {}
-
-func (x *BehaviorEvidence) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BehaviorEvidence.ProtoReflect.Descriptor instead.
-func (*BehaviorEvidence) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *BehaviorEvidence) GetMetric() string {
-	if x != nil {
-		return x.Metric
-	}
-	return ""
-}
-
-func (x *BehaviorEvidence) GetActual() float64 {
-	if x != nil {
-		return x.Actual
-	}
-	return 0
-}
-
-func (x *BehaviorEvidence) GetThreshold() float64 {
-	if x != nil {
-		return x.Threshold
-	}
-	return 0
-}
-
-func (x *BehaviorEvidence) GetDetail() string {
-	if x != nil {
-		return x.Detail
-	}
-	return ""
-}
-
-type Behavior struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          BehaviorCode           `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.BehaviorCode" json:"code,omitempty"`
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
-	Evidence      []*BehaviorEvidence    `protobuf:"bytes,6,rep,name=evidence,proto3" json:"evidence,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Behavior) Reset() {
-	*x = Behavior{}
-	mi := &file_recap_v1_recap_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Behavior) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Behavior) ProtoMessage() {}
-
-func (x *Behavior) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Behavior.ProtoReflect.Descriptor instead.
-func (*Behavior) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *Behavior) GetCode() BehaviorCode {
-	if x != nil {
-		return x.Code
-	}
-	return BehaviorCode_BEHAVIOR_CODE_UNSPECIFIED
-}
-
-func (x *Behavior) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *Behavior) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *Behavior) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
-func (x *Behavior) GetEvidence() []*BehaviorEvidence {
-	if x != nil {
-		return x.Evidence
-	}
-	return nil
-}
-
-type Achievement struct {
+type RecapCard struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Code        AchievementCode        `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.AchievementCode" json:"code,omitempty"`
-	Title       string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Reason      string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
-	// Whether this achievement may be considered by the current share policy.
-	// The public ShareCard is still built from an explicit allow-list projection.
-	Shareable     bool                `protobuf:"varint,5,opt,name=shareable,proto3" json:"shareable,omitempty"`
-	Category      AchievementCategory `protobuf:"varint,6,opt,name=category,proto3,enum=recap.v1.AchievementCategory" json:"category,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Achievement) Reset() {
-	*x = Achievement{}
-	mi := &file_recap_v1_recap_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Achievement) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Achievement) ProtoMessage() {}
-
-func (x *Achievement) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Achievement.ProtoReflect.Descriptor instead.
-func (*Achievement) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *Achievement) GetCode() AchievementCode {
-	if x != nil {
-		return x.Code
-	}
-	return AchievementCode_ACHIEVEMENT_CODE_UNSPECIFIED
-}
-
-func (x *Achievement) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *Achievement) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *Achievement) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
-func (x *Achievement) GetShareable() bool {
-	if x != nil {
-		return x.Shareable
-	}
-	return false
-}
-
-func (x *Achievement) GetCategory() AchievementCategory {
-	if x != nil {
-		return x.Category
-	}
-	return AchievementCategory_ACHIEVEMENT_CATEGORY_UNSPECIFIED
-}
-
-type RouteTarget struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Only routes allowed by the application ruleset may be returned.
-	Route         string `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RouteTarget) Reset() {
-	*x = RouteTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RouteTarget) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RouteTarget) ProtoMessage() {}
-
-func (x *RouteTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RouteTarget.ProtoReflect.Descriptor instead.
-func (*RouteTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *RouteTarget) GetRoute() string {
-	if x != nil {
-		return x.Route
-	}
-	return ""
-}
-
-type CategoryTarget struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CategoryCode  string                 `protobuf:"bytes,1,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CategoryTarget) Reset() {
-	*x = CategoryTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CategoryTarget) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CategoryTarget) ProtoMessage() {}
-
-func (x *CategoryTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CategoryTarget.ProtoReflect.Descriptor instead.
-func (*CategoryTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *CategoryTarget) GetCategoryCode() string {
-	if x != nil {
-		return x.CategoryCode
-	}
-	return ""
-}
-
-type ListingTarget struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID of an addressable listing.
-	ListingId     string `protobuf:"bytes,1,opt,name=listing_id,json=listingId,proto3" json:"listing_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListingTarget) Reset() {
-	*x = ListingTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListingTarget) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListingTarget) ProtoMessage() {}
-
-func (x *ListingTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListingTarget.ProtoReflect.Descriptor instead.
-func (*ListingTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *ListingTarget) GetListingId() string {
-	if x != nil {
-		return x.ListingId
-	}
-	return ""
-}
-
-type DialogTarget struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical UUID of an addressable dialog.
-	DialogId      string `protobuf:"bytes,1,opt,name=dialog_id,json=dialogId,proto3" json:"dialog_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DialogTarget) Reset() {
-	*x = DialogTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DialogTarget) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DialogTarget) ProtoMessage() {}
-
-func (x *DialogTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DialogTarget.ProtoReflect.Descriptor instead.
-func (*DialogTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *DialogTarget) GetDialogId() string {
-	if x != nil {
-		return x.DialogId
-	}
-	return ""
-}
-
-type SearchTarget struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CategoryCode  string                 `protobuf:"bytes,1,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SearchTarget) Reset() {
-	*x = SearchTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SearchTarget) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SearchTarget) ProtoMessage() {}
-
-func (x *SearchTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SearchTarget.ProtoReflect.Descriptor instead.
-func (*SearchTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{20}
-}
-
-func (x *SearchTarget) GetCategoryCode() string {
-	if x != nil {
-		return x.CategoryCode
-	}
-	return ""
-}
-
-// Exactly one executable destination is present.
-type ActionTarget struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Destination:
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type        CardType               `protobuf:"varint,2,opt,name=type,proto3,enum=recap.v1.CardType" json:"type,omitempty"`
+	Position    uint32                 `protobuf:"varint,3,opt,name=position,proto3" json:"position,omitempty"`
+	Title       string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	Description string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	Explanation string                 `protobuf:"bytes,6,opt,name=explanation,proto3" json:"explanation,omitempty"`
+	Shareable   bool                   `protobuf:"varint,7,opt,name=shareable,proto3" json:"shareable,omitempty"`
+	// Typed payload prevents the UI from reading fields that do not belong to
+	// the current card type. `type` is kept as an explicit product field; the
+	// payload case is the source of data for rendering.
 	//
-	//	*ActionTarget_Route
-	//	*ActionTarget_Category
-	//	*ActionTarget_Listing
-	//	*ActionTarget_Dialog
-	//	*ActionTarget_Search
-	Destination   isActionTarget_Destination `protobuf_oneof:"destination"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*RecapCard_Intro
+	//	*RecapCard_YearActivity
+	//	*RecapCard_TopCategory
+	//	*RecapCard_ActiveMonth
+	//	*RecapCard_Behavior
+	//	*RecapCard_Achievement
+	//	*RecapCard_MissedOpportunity
+	//	*RecapCard_NextAction
+	//	*RecapCard_Share
+	Payload       isRecapCard_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ActionTarget) Reset() {
-	*x = ActionTarget{}
-	mi := &file_recap_v1_recap_proto_msgTypes[21]
+func (x *RecapCard) Reset() {
+	*x = RecapCard{}
+	mi := &file_recap_v1_recap_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ActionTarget) String() string {
+func (x *RecapCard) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ActionTarget) ProtoMessage() {}
+func (*RecapCard) ProtoMessage() {}
 
-func (x *ActionTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[21]
+func (x *RecapCard) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1847,286 +973,240 @@ func (x *ActionTarget) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ActionTarget.ProtoReflect.Descriptor instead.
-func (*ActionTarget) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{21}
+// Deprecated: Use RecapCard.ProtoReflect.Descriptor instead.
+func (*RecapCard) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ActionTarget) GetDestination() isActionTarget_Destination {
-	if x != nil {
-		return x.Destination
-	}
-	return nil
-}
-
-func (x *ActionTarget) GetRoute() *RouteTarget {
-	if x != nil {
-		if x, ok := x.Destination.(*ActionTarget_Route); ok {
-			return x.Route
-		}
-	}
-	return nil
-}
-
-func (x *ActionTarget) GetCategory() *CategoryTarget {
-	if x != nil {
-		if x, ok := x.Destination.(*ActionTarget_Category); ok {
-			return x.Category
-		}
-	}
-	return nil
-}
-
-func (x *ActionTarget) GetListing() *ListingTarget {
-	if x != nil {
-		if x, ok := x.Destination.(*ActionTarget_Listing); ok {
-			return x.Listing
-		}
-	}
-	return nil
-}
-
-func (x *ActionTarget) GetDialog() *DialogTarget {
-	if x != nil {
-		if x, ok := x.Destination.(*ActionTarget_Dialog); ok {
-			return x.Dialog
-		}
-	}
-	return nil
-}
-
-func (x *ActionTarget) GetSearch() *SearchTarget {
-	if x != nil {
-		if x, ok := x.Destination.(*ActionTarget_Search); ok {
-			return x.Search
-		}
-	}
-	return nil
-}
-
-type isActionTarget_Destination interface {
-	isActionTarget_Destination()
-}
-
-type ActionTarget_Route struct {
-	Route *RouteTarget `protobuf:"bytes,1,opt,name=route,proto3,oneof"`
-}
-
-type ActionTarget_Category struct {
-	Category *CategoryTarget `protobuf:"bytes,2,opt,name=category,proto3,oneof"`
-}
-
-type ActionTarget_Listing struct {
-	Listing *ListingTarget `protobuf:"bytes,3,opt,name=listing,proto3,oneof"`
-}
-
-type ActionTarget_Dialog struct {
-	Dialog *DialogTarget `protobuf:"bytes,4,opt,name=dialog,proto3,oneof"`
-}
-
-type ActionTarget_Search struct {
-	Search *SearchTarget `protobuf:"bytes,5,opt,name=search,proto3,oneof"`
-}
-
-func (*ActionTarget_Route) isActionTarget_Destination() {}
-
-func (*ActionTarget_Category) isActionTarget_Destination() {}
-
-func (*ActionTarget_Listing) isActionTarget_Destination() {}
-
-func (*ActionTarget_Dialog) isActionTarget_Destination() {}
-
-func (*ActionTarget_Search) isActionTarget_Destination() {}
-
-type NextAction struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Code        ActionCode             `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.ActionCode" json:"code,omitempty"`
-	Title       string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	ButtonText  string                 `protobuf:"bytes,4,opt,name=button_text,json=buttonText,proto3" json:"button_text,omitempty"`
-	Reason      string                 `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
-	// The application validates the action-code/target combination. For example,
-	// FINISH_DRAFT requires a listing target, CONTINUE_DIALOGS a dialog target,
-	// and OPEN_FAVORITES an allow-listed route target.
-	Target        *ActionTarget `protobuf:"bytes,6,opt,name=target,proto3" json:"target,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *NextAction) Reset() {
-	*x = NextAction{}
-	mi := &file_recap_v1_recap_proto_msgTypes[22]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NextAction) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NextAction) ProtoMessage() {}
-
-func (x *NextAction) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[22]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NextAction.ProtoReflect.Descriptor instead.
-func (*NextAction) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{22}
-}
-
-func (x *NextAction) GetCode() ActionCode {
-	if x != nil {
-		return x.Code
-	}
-	return ActionCode_ACTION_CODE_UNSPECIFIED
-}
-
-func (x *NextAction) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *NextAction) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *NextAction) GetButtonText() string {
-	if x != nil {
-		return x.ButtonText
-	}
-	return ""
-}
-
-func (x *NextAction) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
-func (x *NextAction) GetTarget() *ActionTarget {
-	if x != nil {
-		return x.Target
-	}
-	return nil
-}
-
-type Card struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Type  CardType               `protobuf:"varint,2,opt,name=type,proto3,enum=recap.v1.CardType" json:"type,omitempty"`
-	// Contiguous 1-based position in the recap story.
-	Position    uint32  `protobuf:"varint,3,opt,name=position,proto3" json:"position,omitempty"`
-	Title       string  `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
-	Description string  `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	Explanation *string `protobuf:"bytes,6,opt,name=explanation,proto3,oneof" json:"explanation,omitempty"`
-	// Exactly one final SHARE card is true; all other cards are false.
-	Shareable bool `protobuf:"varint,7,opt,name=shareable,proto3" json:"shareable,omitempty"`
-	// INTRO has no payload. Every other card has exactly the payload variant that
-	// corresponds to type; transport mapping must reject mismatched pairs.
-	Payload       *CardPayload `protobuf:"bytes,8,opt,name=payload,proto3" json:"payload,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Card) Reset() {
-	*x = Card{}
-	mi := &file_recap_v1_recap_proto_msgTypes[23]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Card) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Card) ProtoMessage() {}
-
-func (x *Card) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[23]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Card.ProtoReflect.Descriptor instead.
-func (*Card) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{23}
-}
-
-func (x *Card) GetId() string {
+func (x *RecapCard) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Card) GetType() CardType {
+func (x *RecapCard) GetType() CardType {
 	if x != nil {
 		return x.Type
 	}
 	return CardType_CARD_TYPE_UNSPECIFIED
 }
 
-func (x *Card) GetPosition() uint32 {
+func (x *RecapCard) GetPosition() uint32 {
 	if x != nil {
 		return x.Position
 	}
 	return 0
 }
 
-func (x *Card) GetTitle() string {
+func (x *RecapCard) GetTitle() string {
 	if x != nil {
 		return x.Title
 	}
 	return ""
 }
 
-func (x *Card) GetDescription() string {
+func (x *RecapCard) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *Card) GetExplanation() string {
-	if x != nil && x.Explanation != nil {
-		return *x.Explanation
+func (x *RecapCard) GetExplanation() string {
+	if x != nil {
+		return x.Explanation
 	}
 	return ""
 }
 
-func (x *Card) GetShareable() bool {
+func (x *RecapCard) GetShareable() bool {
 	if x != nil {
 		return x.Shareable
 	}
 	return false
 }
 
-func (x *Card) GetPayload() *CardPayload {
+func (x *RecapCard) GetPayload() isRecapCard_Payload {
 	if x != nil {
 		return x.Payload
 	}
 	return nil
+}
+
+func (x *RecapCard) GetIntro() *IntroPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_Intro); ok {
+			return x.Intro
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetYearActivity() *YearActivityPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_YearActivity); ok {
+			return x.YearActivity
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetTopCategory() *TopCategoryPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_TopCategory); ok {
+			return x.TopCategory
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetActiveMonth() *ActiveMonthPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_ActiveMonth); ok {
+			return x.ActiveMonth
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetBehavior() *BehaviorPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_Behavior); ok {
+			return x.Behavior
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetAchievement() *AchievementPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_Achievement); ok {
+			return x.Achievement
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetMissedOpportunity() *MissedOpportunityPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_MissedOpportunity); ok {
+			return x.MissedOpportunity
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetNextAction() *NextActionPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_NextAction); ok {
+			return x.NextAction
+		}
+	}
+	return nil
+}
+
+func (x *RecapCard) GetShare() *SharePayload {
+	if x != nil {
+		if x, ok := x.Payload.(*RecapCard_Share); ok {
+			return x.Share
+		}
+	}
+	return nil
+}
+
+type isRecapCard_Payload interface {
+	isRecapCard_Payload()
+}
+
+type RecapCard_Intro struct {
+	Intro *IntroPayload `protobuf:"bytes,10,opt,name=intro,proto3,oneof"`
+}
+
+type RecapCard_YearActivity struct {
+	YearActivity *YearActivityPayload `protobuf:"bytes,11,opt,name=year_activity,json=yearActivity,proto3,oneof"`
+}
+
+type RecapCard_TopCategory struct {
+	TopCategory *TopCategoryPayload `protobuf:"bytes,12,opt,name=top_category,json=topCategory,proto3,oneof"`
+}
+
+type RecapCard_ActiveMonth struct {
+	ActiveMonth *ActiveMonthPayload `protobuf:"bytes,13,opt,name=active_month,json=activeMonth,proto3,oneof"`
+}
+
+type RecapCard_Behavior struct {
+	Behavior *BehaviorPayload `protobuf:"bytes,14,opt,name=behavior,proto3,oneof"`
+}
+
+type RecapCard_Achievement struct {
+	Achievement *AchievementPayload `protobuf:"bytes,15,opt,name=achievement,proto3,oneof"`
+}
+
+type RecapCard_MissedOpportunity struct {
+	MissedOpportunity *MissedOpportunityPayload `protobuf:"bytes,16,opt,name=missed_opportunity,json=missedOpportunity,proto3,oneof"`
+}
+
+type RecapCard_NextAction struct {
+	NextAction *NextActionPayload `protobuf:"bytes,17,opt,name=next_action,json=nextAction,proto3,oneof"`
+}
+
+type RecapCard_Share struct {
+	Share *SharePayload `protobuf:"bytes,18,opt,name=share,proto3,oneof"`
+}
+
+func (*RecapCard_Intro) isRecapCard_Payload() {}
+
+func (*RecapCard_YearActivity) isRecapCard_Payload() {}
+
+func (*RecapCard_TopCategory) isRecapCard_Payload() {}
+
+func (*RecapCard_ActiveMonth) isRecapCard_Payload() {}
+
+func (*RecapCard_Behavior) isRecapCard_Payload() {}
+
+func (*RecapCard_Achievement) isRecapCard_Payload() {}
+
+func (*RecapCard_MissedOpportunity) isRecapCard_Payload() {}
+
+func (*RecapCard_NextAction) isRecapCard_Payload() {}
+
+func (*RecapCard_Share) isRecapCard_Payload() {}
+
+type IntroPayload struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IntroPayload) Reset() {
+	*x = IntroPayload{}
+	mi := &file_recap_v1_recap_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IntroPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IntroPayload) ProtoMessage() {}
+
+func (x *IntroPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IntroPayload.ProtoReflect.Descriptor instead.
+func (*IntroPayload) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{10}
 }
 
 type YearActivityPayload struct {
@@ -2145,7 +1225,7 @@ type YearActivityPayload struct {
 
 func (x *YearActivityPayload) Reset() {
 	*x = YearActivityPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[24]
+	mi := &file_recap_v1_recap_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2157,7 +1237,7 @@ func (x *YearActivityPayload) String() string {
 func (*YearActivityPayload) ProtoMessage() {}
 
 func (x *YearActivityPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[24]
+	mi := &file_recap_v1_recap_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2170,7 +1250,7 @@ func (x *YearActivityPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use YearActivityPayload.ProtoReflect.Descriptor instead.
 func (*YearActivityPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{24}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *YearActivityPayload) GetTotalEvents() uint64 {
@@ -2240,7 +1320,7 @@ type TopCategoryPayload struct {
 
 func (x *TopCategoryPayload) Reset() {
 	*x = TopCategoryPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[25]
+	mi := &file_recap_v1_recap_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2252,7 +1332,7 @@ func (x *TopCategoryPayload) String() string {
 func (*TopCategoryPayload) ProtoMessage() {}
 
 func (x *TopCategoryPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[25]
+	mi := &file_recap_v1_recap_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2265,7 +1345,7 @@ func (x *TopCategoryPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TopCategoryPayload.ProtoReflect.Descriptor instead.
 func (*TopCategoryPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{25}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *TopCategoryPayload) GetCategoryCode() string {
@@ -2291,7 +1371,7 @@ func (x *TopCategoryPayload) GetCategoryViews() uint64 {
 
 type ActiveMonthPayload struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Calendar month in [1, 12].
+	// 1..12. The frontend must not infer an event count from this field.
 	Month         uint32 `protobuf:"varint,1,opt,name=month,proto3" json:"month,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2299,7 +1379,7 @@ type ActiveMonthPayload struct {
 
 func (x *ActiveMonthPayload) Reset() {
 	*x = ActiveMonthPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[26]
+	mi := &file_recap_v1_recap_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2311,7 +1391,7 @@ func (x *ActiveMonthPayload) String() string {
 func (*ActiveMonthPayload) ProtoMessage() {}
 
 func (x *ActiveMonthPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[26]
+	mi := &file_recap_v1_recap_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2324,7 +1404,7 @@ func (x *ActiveMonthPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActiveMonthPayload.ProtoReflect.Descriptor instead.
 func (*ActiveMonthPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{26}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ActiveMonthPayload) GetMonth() uint32 {
@@ -2334,9 +1414,102 @@ func (x *ActiveMonthPayload) GetMonth() uint32 {
 	return 0
 }
 
+type BehaviorEvidence struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metric        string                 `protobuf:"bytes,1,opt,name=metric,proto3" json:"metric,omitempty"`
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	ActualValue   float64                `protobuf:"fixed64,3,opt,name=actual_value,json=actualValue,proto3" json:"actual_value,omitempty"`
+	Threshold     float64                `protobuf:"fixed64,4,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	Comparison    EvidenceComparison     `protobuf:"varint,5,opt,name=comparison,proto3,enum=recap.v1.EvidenceComparison" json:"comparison,omitempty"`
+	Points        int32                  `protobuf:"varint,6,opt,name=points,proto3" json:"points,omitempty"`
+	Explanation   string                 `protobuf:"bytes,7,opt,name=explanation,proto3" json:"explanation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BehaviorEvidence) Reset() {
+	*x = BehaviorEvidence{}
+	mi := &file_recap_v1_recap_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BehaviorEvidence) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BehaviorEvidence) ProtoMessage() {}
+
+func (x *BehaviorEvidence) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BehaviorEvidence.ProtoReflect.Descriptor instead.
+func (*BehaviorEvidence) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *BehaviorEvidence) GetMetric() string {
+	if x != nil {
+		return x.Metric
+	}
+	return ""
+}
+
+func (x *BehaviorEvidence) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *BehaviorEvidence) GetActualValue() float64 {
+	if x != nil {
+		return x.ActualValue
+	}
+	return 0
+}
+
+func (x *BehaviorEvidence) GetThreshold() float64 {
+	if x != nil {
+		return x.Threshold
+	}
+	return 0
+}
+
+func (x *BehaviorEvidence) GetComparison() EvidenceComparison {
+	if x != nil {
+		return x.Comparison
+	}
+	return EvidenceComparison_EVIDENCE_COMPARISON_UNSPECIFIED
+}
+
+func (x *BehaviorEvidence) GetPoints() int32 {
+	if x != nil {
+		return x.Points
+	}
+	return 0
+}
+
+func (x *BehaviorEvidence) GetExplanation() string {
+	if x != nil {
+		return x.Explanation
+	}
+	return ""
+}
+
 type BehaviorPayload struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          BehaviorCode           `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.BehaviorCode" json:"code,omitempty"`
+	Score         int32                  `protobuf:"varint,2,opt,name=score,proto3" json:"score,omitempty"`
 	Evidence      []*BehaviorEvidence    `protobuf:"bytes,3,rep,name=evidence,proto3" json:"evidence,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2344,7 +1517,7 @@ type BehaviorPayload struct {
 
 func (x *BehaviorPayload) Reset() {
 	*x = BehaviorPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[27]
+	mi := &file_recap_v1_recap_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2356,7 +1529,7 @@ func (x *BehaviorPayload) String() string {
 func (*BehaviorPayload) ProtoMessage() {}
 
 func (x *BehaviorPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[27]
+	mi := &file_recap_v1_recap_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2369,7 +1542,7 @@ func (x *BehaviorPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BehaviorPayload.ProtoReflect.Descriptor instead.
 func (*BehaviorPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{27}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BehaviorPayload) GetCode() BehaviorCode {
@@ -2377,6 +1550,13 @@ func (x *BehaviorPayload) GetCode() BehaviorCode {
 		return x.Code
 	}
 	return BehaviorCode_BEHAVIOR_CODE_UNSPECIFIED
+}
+
+func (x *BehaviorPayload) GetScore() int32 {
+	if x != nil {
+		return x.Score
+	}
+	return 0
 }
 
 func (x *BehaviorPayload) GetEvidence() []*BehaviorEvidence {
@@ -2387,16 +1567,15 @@ func (x *BehaviorPayload) GetEvidence() []*BehaviorEvidence {
 }
 
 type AchievementPayload struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// One to three distinct achievement codes, in presentation order.
-	Codes         []AchievementCode `protobuf:"varint,1,rep,packed,name=codes,proto3,enum=recap.v1.AchievementCode" json:"codes,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Codes         []AchievementCode      `protobuf:"varint,1,rep,packed,name=codes,proto3,enum=recap.v1.AchievementCode" json:"codes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AchievementPayload) Reset() {
 	*x = AchievementPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[28]
+	mi := &file_recap_v1_recap_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2408,7 +1587,7 @@ func (x *AchievementPayload) String() string {
 func (*AchievementPayload) ProtoMessage() {}
 
 func (x *AchievementPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[28]
+	mi := &file_recap_v1_recap_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2421,7 +1600,7 @@ func (x *AchievementPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AchievementPayload.ProtoReflect.Descriptor instead.
 func (*AchievementPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{28}
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AchievementPayload) GetCodes() []AchievementCode {
@@ -2431,7 +1610,478 @@ func (x *AchievementPayload) GetCodes() []AchievementCode {
 	return nil
 }
 
-type ActionPayload struct {
+type Achievement struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          AchievementCode        `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.AchievementCode" json:"code,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	Shareable     bool                   `protobuf:"varint,4,opt,name=shareable,proto3" json:"shareable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Achievement) Reset() {
+	*x = Achievement{}
+	mi := &file_recap_v1_recap_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Achievement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Achievement) ProtoMessage() {}
+
+func (x *Achievement) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Achievement.ProtoReflect.Descriptor instead.
+func (*Achievement) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *Achievement) GetCode() AchievementCode {
+	if x != nil {
+		return x.Code
+	}
+	return AchievementCode_ACHIEVEMENT_CODE_UNSPECIFIED
+}
+
+func (x *Achievement) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Achievement) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Achievement) GetShareable() bool {
+	if x != nil {
+		return x.Shareable
+	}
+	return false
+}
+
+type ListingTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ListingId     string                 `protobuf:"bytes,1,opt,name=listing_id,json=listingId,proto3" json:"listing_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListingTarget) Reset() {
+	*x = ListingTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListingTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListingTarget) ProtoMessage() {}
+
+func (x *ListingTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListingTarget.ProtoReflect.Descriptor instead.
+func (*ListingTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListingTarget) GetListingId() string {
+	if x != nil {
+		return x.ListingId
+	}
+	return ""
+}
+
+type DialogTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DialogId      string                 `protobuf:"bytes,1,opt,name=dialog_id,json=dialogId,proto3" json:"dialog_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DialogTarget) Reset() {
+	*x = DialogTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DialogTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DialogTarget) ProtoMessage() {}
+
+func (x *DialogTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DialogTarget.ProtoReflect.Descriptor instead.
+func (*DialogTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *DialogTarget) GetDialogId() string {
+	if x != nil {
+		return x.DialogId
+	}
+	return ""
+}
+
+type CategoryTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CategoryCode  string                 `protobuf:"bytes,1,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CategoryTarget) Reset() {
+	*x = CategoryTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CategoryTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CategoryTarget) ProtoMessage() {}
+
+func (x *CategoryTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CategoryTarget.ProtoReflect.Descriptor instead.
+func (*CategoryTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *CategoryTarget) GetCategoryCode() string {
+	if x != nil {
+		return x.CategoryCode
+	}
+	return ""
+}
+
+type SearchTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CategoryCode  string                 `protobuf:"bytes,1,opt,name=category_code,json=categoryCode,proto3" json:"category_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchTarget) Reset() {
+	*x = SearchTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchTarget) ProtoMessage() {}
+
+func (x *SearchTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchTarget.ProtoReflect.Descriptor instead.
+func (*SearchTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *SearchTarget) GetCategoryCode() string {
+	if x != nil {
+		return x.CategoryCode
+	}
+	return ""
+}
+
+type RouteTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RouteTarget) Reset() {
+	*x = RouteTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RouteTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RouteTarget) ProtoMessage() {}
+
+func (x *RouteTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RouteTarget.ProtoReflect.Descriptor instead.
+func (*RouteTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *RouteTarget) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+type ActionTarget struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Target:
+	//
+	//	*ActionTarget_Listing
+	//	*ActionTarget_Dialog
+	//	*ActionTarget_Category
+	//	*ActionTarget_Search
+	//	*ActionTarget_Route
+	Target        isActionTarget_Target `protobuf_oneof:"target"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActionTarget) Reset() {
+	*x = ActionTarget{}
+	mi := &file_recap_v1_recap_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActionTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActionTarget) ProtoMessage() {}
+
+func (x *ActionTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActionTarget.ProtoReflect.Descriptor instead.
+func (*ActionTarget) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ActionTarget) GetTarget() isActionTarget_Target {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *ActionTarget) GetListing() *ListingTarget {
+	if x != nil {
+		if x, ok := x.Target.(*ActionTarget_Listing); ok {
+			return x.Listing
+		}
+	}
+	return nil
+}
+
+func (x *ActionTarget) GetDialog() *DialogTarget {
+	if x != nil {
+		if x, ok := x.Target.(*ActionTarget_Dialog); ok {
+			return x.Dialog
+		}
+	}
+	return nil
+}
+
+func (x *ActionTarget) GetCategory() *CategoryTarget {
+	if x != nil {
+		if x, ok := x.Target.(*ActionTarget_Category); ok {
+			return x.Category
+		}
+	}
+	return nil
+}
+
+func (x *ActionTarget) GetSearch() *SearchTarget {
+	if x != nil {
+		if x, ok := x.Target.(*ActionTarget_Search); ok {
+			return x.Search
+		}
+	}
+	return nil
+}
+
+func (x *ActionTarget) GetRoute() *RouteTarget {
+	if x != nil {
+		if x, ok := x.Target.(*ActionTarget_Route); ok {
+			return x.Route
+		}
+	}
+	return nil
+}
+
+type isActionTarget_Target interface {
+	isActionTarget_Target()
+}
+
+type ActionTarget_Listing struct {
+	Listing *ListingTarget `protobuf:"bytes,1,opt,name=listing,proto3,oneof"`
+}
+
+type ActionTarget_Dialog struct {
+	Dialog *DialogTarget `protobuf:"bytes,2,opt,name=dialog,proto3,oneof"`
+}
+
+type ActionTarget_Category struct {
+	Category *CategoryTarget `protobuf:"bytes,3,opt,name=category,proto3,oneof"`
+}
+
+type ActionTarget_Search struct {
+	Search *SearchTarget `protobuf:"bytes,4,opt,name=search,proto3,oneof"`
+}
+
+type ActionTarget_Route struct {
+	Route *RouteTarget `protobuf:"bytes,5,opt,name=route,proto3,oneof"`
+}
+
+func (*ActionTarget_Listing) isActionTarget_Target() {}
+
+func (*ActionTarget_Dialog) isActionTarget_Target() {}
+
+func (*ActionTarget_Category) isActionTarget_Target() {}
+
+func (*ActionTarget_Search) isActionTarget_Target() {}
+
+func (*ActionTarget_Route) isActionTarget_Target() {}
+
+type MissedOpportunityPayload struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Current rules only emit SAVE_SEARCH or FINISH_DRAFT here.
+	Code          ActionCode    `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.ActionCode" json:"code,omitempty"`
+	Target        *ActionTarget `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MissedOpportunityPayload) Reset() {
+	*x = MissedOpportunityPayload{}
+	mi := &file_recap_v1_recap_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MissedOpportunityPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MissedOpportunityPayload) ProtoMessage() {}
+
+func (x *MissedOpportunityPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MissedOpportunityPayload.ProtoReflect.Descriptor instead.
+func (*MissedOpportunityPayload) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *MissedOpportunityPayload) GetCode() ActionCode {
+	if x != nil {
+		return x.Code
+	}
+	return ActionCode_ACTION_CODE_UNSPECIFIED
+}
+
+func (x *MissedOpportunityPayload) GetTarget() *ActionTarget {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+type NextActionPayload struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          ActionCode             `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.ActionCode" json:"code,omitempty"`
 	Target        *ActionTarget          `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
@@ -2439,21 +2089,21 @@ type ActionPayload struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ActionPayload) Reset() {
-	*x = ActionPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[29]
+func (x *NextActionPayload) Reset() {
+	*x = NextActionPayload{}
+	mi := &file_recap_v1_recap_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ActionPayload) String() string {
+func (x *NextActionPayload) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ActionPayload) ProtoMessage() {}
+func (*NextActionPayload) ProtoMessage() {}
 
-func (x *ActionPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[29]
+func (x *NextActionPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2464,58 +2114,52 @@ func (x *ActionPayload) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ActionPayload.ProtoReflect.Descriptor instead.
-func (*ActionPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{29}
+// Deprecated: Use NextActionPayload.ProtoReflect.Descriptor instead.
+func (*NextActionPayload) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *ActionPayload) GetCode() ActionCode {
+func (x *NextActionPayload) GetCode() ActionCode {
 	if x != nil {
 		return x.Code
 	}
 	return ActionCode_ACTION_CODE_UNSPECIFIED
 }
 
-func (x *ActionPayload) GetTarget() *ActionTarget {
+func (x *NextActionPayload) GetTarget() *ActionTarget {
 	if x != nil {
 		return x.Target
 	}
 	return nil
 }
 
-// Closed payload union for story cards. Legacy sparse payload field numbers are
-// reserved permanently to prevent accidental wire reuse.
-type CardPayload struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Value:
-	//
-	//	*CardPayload_YearActivity
-	//	*CardPayload_TopCategory
-	//	*CardPayload_ActiveMonth
-	//	*CardPayload_Behavior
-	//	*CardPayload_Achievement
-	//	*CardPayload_Action
-	//	*CardPayload_Share
-	Value         isCardPayload_Value `protobuf_oneof:"value"`
+type NextAction struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          ActionCode             `protobuf:"varint,1,opt,name=code,proto3,enum=recap.v1.ActionCode" json:"code,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Explanation   string                 `protobuf:"bytes,4,opt,name=explanation,proto3" json:"explanation,omitempty"`
+	ButtonText    string                 `protobuf:"bytes,5,opt,name=button_text,json=buttonText,proto3" json:"button_text,omitempty"`
+	Target        *ActionTarget          `protobuf:"bytes,6,opt,name=target,proto3" json:"target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CardPayload) Reset() {
-	*x = CardPayload{}
-	mi := &file_recap_v1_recap_proto_msgTypes[30]
+func (x *NextAction) Reset() {
+	*x = NextAction{}
+	mi := &file_recap_v1_recap_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CardPayload) String() string {
+func (x *NextAction) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CardPayload) ProtoMessage() {}
+func (*NextAction) ProtoMessage() {}
 
-func (x *CardPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[30]
+func (x *NextAction) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2526,163 +2170,79 @@ func (x *CardPayload) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CardPayload.ProtoReflect.Descriptor instead.
-func (*CardPayload) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{30}
+// Deprecated: Use NextAction.ProtoReflect.Descriptor instead.
+func (*NextAction) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *CardPayload) GetValue() isCardPayload_Value {
+func (x *NextAction) GetCode() ActionCode {
 	if x != nil {
-		return x.Value
+		return x.Code
+	}
+	return ActionCode_ACTION_CODE_UNSPECIFIED
+}
+
+func (x *NextAction) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *NextAction) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *NextAction) GetExplanation() string {
+	if x != nil {
+		return x.Explanation
+	}
+	return ""
+}
+
+func (x *NextAction) GetButtonText() string {
+	if x != nil {
+		return x.ButtonText
+	}
+	return ""
+}
+
+func (x *NextAction) GetTarget() *ActionTarget {
+	if x != nil {
+		return x.Target
 	}
 	return nil
 }
 
-func (x *CardPayload) GetYearActivity() *YearActivityPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_YearActivity); ok {
-			return x.YearActivity
-		}
-	}
-	return nil
+type SharePayload struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ShareId          string                 `protobuf:"bytes,1,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
+	Year             uint32                 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
+	BehaviorTitle    string                 `protobuf:"bytes,3,opt,name=behavior_title,json=behaviorTitle,proto3" json:"behavior_title,omitempty"`
+	AchievementTitle *string                `protobuf:"bytes,4,opt,name=achievement_title,json=achievementTitle,proto3,oneof" json:"achievement_title,omitempty"`
+	TopCategory      *string                `protobuf:"bytes,5,opt,name=top_category,json=topCategory,proto3,oneof" json:"top_category,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
-func (x *CardPayload) GetTopCategory() *TopCategoryPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_TopCategory); ok {
-			return x.TopCategory
-		}
-	}
-	return nil
-}
-
-func (x *CardPayload) GetActiveMonth() *ActiveMonthPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_ActiveMonth); ok {
-			return x.ActiveMonth
-		}
-	}
-	return nil
-}
-
-func (x *CardPayload) GetBehavior() *BehaviorPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_Behavior); ok {
-			return x.Behavior
-		}
-	}
-	return nil
-}
-
-func (x *CardPayload) GetAchievement() *AchievementPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_Achievement); ok {
-			return x.Achievement
-		}
-	}
-	return nil
-}
-
-func (x *CardPayload) GetAction() *ActionPayload {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_Action); ok {
-			return x.Action
-		}
-	}
-	return nil
-}
-
-func (x *CardPayload) GetShare() *ShareCard {
-	if x != nil {
-		if x, ok := x.Value.(*CardPayload_Share); ok {
-			return x.Share
-		}
-	}
-	return nil
-}
-
-type isCardPayload_Value interface {
-	isCardPayload_Value()
-}
-
-type CardPayload_YearActivity struct {
-	YearActivity *YearActivityPayload `protobuf:"bytes,20,opt,name=year_activity,json=yearActivity,proto3,oneof"`
-}
-
-type CardPayload_TopCategory struct {
-	TopCategory *TopCategoryPayload `protobuf:"bytes,21,opt,name=top_category,json=topCategory,proto3,oneof"`
-}
-
-type CardPayload_ActiveMonth struct {
-	ActiveMonth *ActiveMonthPayload `protobuf:"bytes,22,opt,name=active_month,json=activeMonth,proto3,oneof"`
-}
-
-type CardPayload_Behavior struct {
-	Behavior *BehaviorPayload `protobuf:"bytes,23,opt,name=behavior,proto3,oneof"`
-}
-
-type CardPayload_Achievement struct {
-	Achievement *AchievementPayload `protobuf:"bytes,24,opt,name=achievement,proto3,oneof"`
-}
-
-type CardPayload_Action struct {
-	// Used by MISSED_OPPORTUNITY and NEXT_ACTION cards.
-	Action *ActionPayload `protobuf:"bytes,25,opt,name=action,proto3,oneof"`
-}
-
-type CardPayload_Share struct {
-	// The final story card embeds the exact same allow-listed DTO returned by
-	// GetShareCard, guaranteeing that preview and public link cannot drift.
-	Share *ShareCard `protobuf:"bytes,26,opt,name=share,proto3,oneof"`
-}
-
-func (*CardPayload_YearActivity) isCardPayload_Value() {}
-
-func (*CardPayload_TopCategory) isCardPayload_Value() {}
-
-func (*CardPayload_ActiveMonth) isCardPayload_Value() {}
-
-func (*CardPayload_Behavior) isCardPayload_Value() {}
-
-func (*CardPayload_Achievement) isCardPayload_Value() {}
-
-func (*CardPayload_Action) isCardPayload_Value() {}
-
-func (*CardPayload_Share) isCardPayload_Value() {}
-
-// Strict public DTO. It intentionally contains neither internal recap ID,
-// profile ID, raw metrics, action targets nor ActionableState snapshot fields.
-type ShareCard struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical public UUID.
-	ShareId       string `protobuf:"bytes,1,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
-	Year          uint32 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
-	BehaviorTitle string `protobuf:"bytes,3,opt,name=behavior_title,json=behaviorTitle,proto3" json:"behavior_title,omitempty"`
-	// Omitted when no awarded achievement is allowed by the share policy.
-	AchievementTitle *string `protobuf:"bytes,4,opt,name=achievement_title,json=achievementTitle,proto3,oneof" json:"achievement_title,omitempty"`
-	// Omitted when top-category sharing is disallowed by policy or source data.
-	TopCategory *string `protobuf:"bytes,5,opt,name=top_category,json=topCategory,proto3,oneof" json:"top_category,omitempty"`
-	// Version of the allow-list/privacy projection used to construct this DTO.
-	PrivacyVersion string `protobuf:"bytes,6,opt,name=privacy_version,json=privacyVersion,proto3" json:"privacy_version,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *ShareCard) Reset() {
-	*x = ShareCard{}
-	mi := &file_recap_v1_recap_proto_msgTypes[31]
+func (x *SharePayload) Reset() {
+	*x = SharePayload{}
+	mi := &file_recap_v1_recap_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ShareCard) String() string {
+func (x *SharePayload) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ShareCard) ProtoMessage() {}
+func (*SharePayload) ProtoMessage() {}
 
-func (x *ShareCard) ProtoReflect() protoreflect.Message {
-	mi := &file_recap_v1_recap_proto_msgTypes[31]
+func (x *SharePayload) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2693,49 +2253,119 @@ func (x *ShareCard) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ShareCard.ProtoReflect.Descriptor instead.
-func (*ShareCard) Descriptor() ([]byte, []int) {
-	return file_recap_v1_recap_proto_rawDescGZIP(), []int{31}
+// Deprecated: Use SharePayload.ProtoReflect.Descriptor instead.
+func (*SharePayload) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *ShareCard) GetShareId() string {
+func (x *SharePayload) GetShareId() string {
 	if x != nil {
 		return x.ShareId
 	}
 	return ""
 }
 
-func (x *ShareCard) GetYear() uint32 {
+func (x *SharePayload) GetYear() uint32 {
 	if x != nil {
 		return x.Year
 	}
 	return 0
 }
 
-func (x *ShareCard) GetBehaviorTitle() string {
+func (x *SharePayload) GetBehaviorTitle() string {
 	if x != nil {
 		return x.BehaviorTitle
 	}
 	return ""
 }
 
-func (x *ShareCard) GetAchievementTitle() string {
+func (x *SharePayload) GetAchievementTitle() string {
 	if x != nil && x.AchievementTitle != nil {
 		return *x.AchievementTitle
 	}
 	return ""
 }
 
-func (x *ShareCard) GetTopCategory() string {
+func (x *SharePayload) GetTopCategory() string {
 	if x != nil && x.TopCategory != nil {
 		return *x.TopCategory
 	}
 	return ""
 }
 
-func (x *ShareCard) GetPrivacyVersion() string {
+// The public RPC intentionally returns the same minimal shape as SHARE payload.
+type PublicShare struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ShareId          string                 `protobuf:"bytes,1,opt,name=share_id,json=shareId,proto3" json:"share_id,omitempty"`
+	Year             uint32                 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
+	BehaviorTitle    string                 `protobuf:"bytes,3,opt,name=behavior_title,json=behaviorTitle,proto3" json:"behavior_title,omitempty"`
+	AchievementTitle *string                `protobuf:"bytes,4,opt,name=achievement_title,json=achievementTitle,proto3,oneof" json:"achievement_title,omitempty"`
+	TopCategory      *string                `protobuf:"bytes,5,opt,name=top_category,json=topCategory,proto3,oneof" json:"top_category,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *PublicShare) Reset() {
+	*x = PublicShare{}
+	mi := &file_recap_v1_recap_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublicShare) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublicShare) ProtoMessage() {}
+
+func (x *PublicShare) ProtoReflect() protoreflect.Message {
+	mi := &file_recap_v1_recap_proto_msgTypes[28]
 	if x != nil {
-		return x.PrivacyVersion
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublicShare.ProtoReflect.Descriptor instead.
+func (*PublicShare) Descriptor() ([]byte, []int) {
+	return file_recap_v1_recap_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *PublicShare) GetShareId() string {
+	if x != nil {
+		return x.ShareId
+	}
+	return ""
+}
+
+func (x *PublicShare) GetYear() uint32 {
+	if x != nil {
+		return x.Year
+	}
+	return 0
+}
+
+func (x *PublicShare) GetBehaviorTitle() string {
+	if x != nil {
+		return x.BehaviorTitle
+	}
+	return ""
+}
+
+func (x *PublicShare) GetAchievementTitle() string {
+	if x != nil && x.AchievementTitle != nil {
+		return *x.AchievementTitle
+	}
+	return ""
+}
+
+func (x *PublicShare) GetTopCategory() string {
+	if x != nil && x.TopCategory != nil {
+		return *x.TopCategory
 	}
 	return ""
 }
@@ -2744,146 +2374,58 @@ var File_recap_v1_recap_proto protoreflect.FileDescriptor
 
 const file_recap_v1_recap_proto_rawDesc = "" +
 	"\n" +
-	"\x14recap/v1/recap.proto\x12\brecap.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x15\n" +
+	"\x14recap/v1/recap.proto\x12\brecap.v1\"\x15\n" +
 	"\x13ListProfilesRequest\"E\n" +
 	"\x14ListProfilesResponse\x12-\n" +
-	"\bprofiles\x18\x01 \x03(\v2\x11.recap.v1.ProfileR\bprofiles\"I\n" +
-	"\x14GenerateRecapRequest\x12\x1d\n" +
+	"\bprofiles\x18\x01 \x03(\v2\x11.recap.v1.ProfileR\bprofiles\"M\n" +
+	"\x14GenerateRecapRequest\x12!\n" +
+	"\fprofile_code\x18\x01 \x01(\tR\vprofileCode\x12\x12\n" +
+	"\x04year\x18\x02 \x01(\rR\x04year\"H\n" +
+	"\x0fGetRecapRequest\x12!\n" +
+	"\fprofile_code\x18\x01 \x01(\tR\vprofileCode\x12\x12\n" +
+	"\x04year\x18\x02 \x01(\rR\x04year\"2\n" +
+	"\x15GetPublicShareRequest\x12\x19\n" +
+	"\bshare_id\x18\x01 \x01(\tR\ashareId\"c\n" +
+	"\rRecapResponse\x12+\n" +
+	"\aprofile\x18\x01 \x01(\v2\x11.recap.v1.ProfileR\aprofile\x12%\n" +
+	"\x05recap\x18\x02 \x01(\v2\x0f.recap.v1.RecapR\x05recap\"E\n" +
+	"\x16GetPublicShareResponse\x12+\n" +
+	"\x05share\x18\x01 \x01(\v2\x15.recap.v1.PublicShareR\x05share\"\x81\x01\n" +
+	"\aProfile\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\">\n" +
-	"\x15GenerateRecapResponse\x12%\n" +
-	"\x05recap\x18\x01 \x01(\v2\x0f.recap.v1.RecapR\x05recap\"=\n" +
-	"\x0fGetRecapRequest\x12*\n" +
-	"\x11internal_recap_id\x18\x01 \x01(\tR\x0finternalRecapId\"9\n" +
-	"\x10GetRecapResponse\x12%\n" +
-	"\x05recap\x18\x01 \x01(\v2\x0f.recap.v1.RecapR\x05recap\"0\n" +
-	"\x13GetShareCardRequest\x12\x19\n" +
-	"\bshare_id\x18\x01 \x01(\tR\ashareId\"J\n" +
-	"\x14GetShareCardResponse\x122\n" +
-	"\n" +
-	"share_card\x18\x01 \x01(\v2\x13.recap.v1.ShareCardR\tshareCard\"\xa5\x01\n" +
-	"\aProfile\x12\x0e\n" +
+	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\x12!\n" +
+	"\fprofile_code\x18\x04 \x01(\tR\vprofileCode\"\xeb\x01\n" +
+	"\x05Recap\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\x12!\n" +
-	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\"\n" +
-	"\n" +
-	"avatar_url\x18\x05 \x01(\tH\x00R\tavatarUrl\x88\x01\x01B\r\n" +
-	"\v_avatar_url\"\xa1\x01\n" +
-	"\vRecapPeriod\x12\x12\n" +
-	"\x04year\x18\x01 \x01(\rR\x04year\x125\n" +
-	"\bstart_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\astartAt\x121\n" +
-	"\x06end_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05endAt\x12\x14\n" +
-	"\x05final\x18\x04 \x01(\bR\x05final\"\xc7\x04\n" +
-	"\x05Recap\x12\x1f\n" +
-	"\vinternal_id\x18\x01 \x01(\tR\n" +
-	"internalId\x12+\n" +
-	"\aprofile\x18\x02 \x01(\v2\x11.recap.v1.ProfileR\aprofile\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\rR\x04year\x12#\n" +
-	"\rrules_version\x18\x04 \x01(\tR\frulesVersion\x12+\n" +
-	"\ametrics\x18\x05 \x01(\v2\x11.recap.v1.MetricsR\ametrics\x12.\n" +
-	"\bbehavior\x18\x06 \x01(\v2\x12.recap.v1.BehaviorR\bbehavior\x129\n" +
-	"\fachievements\x18\a \x03(\v2\x15.recap.v1.AchievementR\fachievements\x12$\n" +
-	"\x05cards\x18\b \x03(\v2\x0e.recap.v1.CardR\x05cards\x125\n" +
-	"\vnext_action\x18\t \x01(\v2\x14.recap.v1.NextActionR\n" +
-	"nextAction\x12=\n" +
-	"\fgenerated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\vgeneratedAt\x12\x19\n" +
-	"\bshare_id\x18\v \x01(\tR\ashareId\x12-\n" +
-	"\x06period\x18\f \x01(\v2\x15.recap.v1.RecapPeriodR\x06period\x12!\n" +
-	"\frules_digest\x18\x0e \x01(\tR\vrulesDigestJ\x04\b\r\x10\x0eR\x10actionable_state\"\xa9\b\n" +
-	"\aMetrics\x12!\n" +
-	"\ftotal_events\x18\x01 \x01(\x04R\vtotalEvents\x12\x1a\n" +
-	"\bsearches\x18\x02 \x01(\x04R\bsearches\x12\x1f\n" +
-	"\vtotal_views\x18\x03 \x01(\x04R\n" +
-	"totalViews\x12'\n" +
-	"\x0funique_listings\x18\x04 \x01(\x04R\x0euniqueListings\x12%\n" +
-	"\x0erepeated_views\x18\x05 \x01(\x04R\rrepeatedViews\x12'\n" +
-	"\x0ffavorites_added\x18\x06 \x01(\x04R\x0efavoritesAdded\x12#\n" +
-	"\rchats_started\x18\a \x01(\x04R\fchatsStarted\x12)\n" +
-	"\x10listings_created\x18\b \x01(\x04R\x0flistingsCreated\x12-\n" +
-	"\x12listings_published\x18\t \x01(\x04R\x11listingsPublished\x12/\n" +
-	"\x13purchases_completed\x18\n" +
-	" \x01(\x04R\x12purchasesCompleted\x12'\n" +
-	"\x0fsales_completed\x18\v \x01(\x04R\x0esalesCompleted\x12\x1f\n" +
-	"\vactive_days\x18\f \x01(\x04R\n" +
-	"activeDays\x12)\n" +
-	"\x10categories_count\x18\r \x01(\x04R\x0fcategoriesCount\x12/\n" +
-	"\x11top_category_code\x18\x0e \x01(\tH\x00R\x0ftopCategoryCode\x88\x01\x01\x12&\n" +
-	"\ftop_category\x18\x0f \x01(\tH\x01R\vtopCategory\x88\x01\x01\x12,\n" +
-	"\x12top_category_views\x18\x10 \x01(\x04R\x10topCategoryViews\x124\n" +
-	"\x16top_category_shareable\x18\x11 \x01(\bR\x14topCategoryShareable\x12*\n" +
-	"\x11most_active_month\x18\x12 \x01(\rR\x0fmostActiveMonth\x12\x1f\n" +
-	"\vrepeat_rate\x18\x15 \x01(\x01R\n" +
-	"repeatRate\x12#\n" +
-	"\rpurchase_rate\x18\x18 \x01(\x01R\fpurchaseRate\x12.\n" +
-	"\x13chats_with_purchase\x18\x19 \x01(\x04R\x11chatsWithPurchase\x12K\n" +
-	"\x13category_activities\x18\x1a \x03(\v2\x1a.recap.v1.CategoryActivityR\x12categoryActivitiesB\x14\n" +
-	"\x12_top_category_codeB\x0f\n" +
-	"\r_top_categoryJ\x04\b\x13\x10\x14J\x04\b\x14\x10\x15J\x04\b\x16\x10\x17J\x04\b\x17\x10\x18R\rfavorite_rateR\tchat_rateR\x10publication_rateR\tsale_rate\"\xe1\x01\n" +
-	"\x10CategoryActivity\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\x12\x1a\n" +
-	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x1c\n" +
-	"\tshareable\x18\x03 \x01(\bR\tshareable\x12\x14\n" +
-	"\x05views\x18\x04 \x01(\x04R\x05views\x12'\n" +
-	"\x0ffavorites_added\x18\x05 \x01(\x04R\x0efavoritesAdded\x12/\n" +
-	"\x13purchases_completed\x18\x06 \x01(\x04R\x12purchasesCompleted\"\x86\x01\n" +
-	"\x10BehaviorEvidence\x12\x16\n" +
-	"\x06metric\x18\x01 \x01(\tR\x06metric\x12\x16\n" +
-	"\x06actual\x18\x02 \x01(\x01R\x06actual\x12\x1c\n" +
-	"\tthreshold\x18\x03 \x01(\x01R\tthreshold\x12\x16\n" +
-	"\x06detail\x18\x05 \x01(\tR\x06detailJ\x04\b\x04\x10\x05R\x06points\"\xcb\x01\n" +
-	"\bBehavior\x12*\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x16.recap.v1.BehaviorCodeR\x04code\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
-	"\x06reason\x18\x04 \x01(\tR\x06reason\x126\n" +
-	"\bevidence\x18\x06 \x03(\v2\x1a.recap.v1.BehaviorEvidenceR\bevidenceJ\x04\b\x05\x10\x06R\x05score\"\xe5\x01\n" +
-	"\vAchievement\x12-\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x19.recap.v1.AchievementCodeR\x04code\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
-	"\x06reason\x18\x04 \x01(\tR\x06reason\x12\x1c\n" +
-	"\tshareable\x18\x05 \x01(\bR\tshareable\x129\n" +
-	"\bcategory\x18\x06 \x01(\x0e2\x1d.recap.v1.AchievementCategoryR\bcategory\"#\n" +
-	"\vRouteTarget\x12\x14\n" +
-	"\x05route\x18\x01 \x01(\tR\x05route\"5\n" +
-	"\x0eCategoryTarget\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\".\n" +
-	"\rListingTarget\x12\x1d\n" +
-	"\n" +
-	"listing_id\x18\x01 \x01(\tR\tlistingId\"+\n" +
-	"\fDialogTarget\x12\x1b\n" +
-	"\tdialog_id\x18\x01 \x01(\tR\bdialogId\"3\n" +
-	"\fSearchTarget\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"\x9d\x02\n" +
-	"\fActionTarget\x12-\n" +
-	"\x05route\x18\x01 \x01(\v2\x15.recap.v1.RouteTargetH\x00R\x05route\x126\n" +
-	"\bcategory\x18\x02 \x01(\v2\x18.recap.v1.CategoryTargetH\x00R\bcategory\x123\n" +
-	"\alisting\x18\x03 \x01(\v2\x17.recap.v1.ListingTargetH\x00R\alisting\x120\n" +
-	"\x06dialog\x18\x04 \x01(\v2\x16.recap.v1.DialogTargetH\x00R\x06dialog\x120\n" +
-	"\x06search\x18\x05 \x01(\v2\x16.recap.v1.SearchTargetH\x00R\x06searchB\r\n" +
-	"\vdestination\"\xd7\x01\n" +
-	"\n" +
-	"NextAction\x12(\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1f\n" +
-	"\vbutton_text\x18\x04 \x01(\tR\n" +
-	"buttonText\x12\x16\n" +
-	"\x06reason\x18\x05 \x01(\tR\x06reason\x12.\n" +
-	"\x06target\x18\x06 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\x98\x02\n" +
-	"\x04Card\x12\x0e\n" +
+	"\x04year\x18\x02 \x01(\rR\x04year\x12!\n" +
+	"\frule_version\x18\x03 \x01(\tR\vruleVersion\x12)\n" +
+	"\x05cards\x18\x04 \x03(\v2\x13.recap.v1.RecapCardR\x05cards\x129\n" +
+	"\fachievements\x18\x05 \x03(\v2\x15.recap.v1.AchievementR\fachievements\x125\n" +
+	"\vnext_action\x18\x06 \x01(\v2\x14.recap.v1.NextActionR\n" +
+	"nextAction\"\x9e\x06\n" +
+	"\tRecapCard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x12.recap.v1.CardTypeR\x04type\x12\x1a\n" +
 	"\bposition\x18\x03 \x01(\rR\bposition\x12\x14\n" +
 	"\x05title\x18\x04 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\x12%\n" +
-	"\vexplanation\x18\x06 \x01(\tH\x00R\vexplanation\x88\x01\x01\x12\x1c\n" +
-	"\tshareable\x18\a \x01(\bR\tshareable\x12/\n" +
-	"\apayload\x18\b \x01(\v2\x15.recap.v1.CardPayloadR\apayloadB\x0e\n" +
-	"\f_explanation\"\xcc\x02\n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\x12 \n" +
+	"\vexplanation\x18\x06 \x01(\tR\vexplanation\x12\x1c\n" +
+	"\tshareable\x18\a \x01(\bR\tshareable\x12.\n" +
+	"\x05intro\x18\n" +
+	" \x01(\v2\x16.recap.v1.IntroPayloadH\x00R\x05intro\x12D\n" +
+	"\ryear_activity\x18\v \x01(\v2\x1d.recap.v1.YearActivityPayloadH\x00R\fyearActivity\x12A\n" +
+	"\ftop_category\x18\f \x01(\v2\x1c.recap.v1.TopCategoryPayloadH\x00R\vtopCategory\x12A\n" +
+	"\factive_month\x18\r \x01(\v2\x1c.recap.v1.ActiveMonthPayloadH\x00R\vactiveMonth\x127\n" +
+	"\bbehavior\x18\x0e \x01(\v2\x19.recap.v1.BehaviorPayloadH\x00R\bbehavior\x12@\n" +
+	"\vachievement\x18\x0f \x01(\v2\x1c.recap.v1.AchievementPayloadH\x00R\vachievement\x12S\n" +
+	"\x12missed_opportunity\x18\x10 \x01(\v2\".recap.v1.MissedOpportunityPayloadH\x00R\x11missedOpportunity\x12>\n" +
+	"\vnext_action\x18\x11 \x01(\v2\x1b.recap.v1.NextActionPayloadH\x00R\n" +
+	"nextAction\x12.\n" +
+	"\x05share\x18\x12 \x01(\v2\x16.recap.v1.SharePayloadH\x00R\x05shareB\t\n" +
+	"\apayload\"\x0e\n" +
+	"\fIntroPayload\"\xcc\x02\n" +
 	"\x13YearActivityPayload\x12!\n" +
 	"\ftotal_events\x18\x01 \x01(\x04R\vtotalEvents\x12\x1a\n" +
 	"\bsearches\x18\x02 \x01(\x04R\bsearches\x12\x1f\n" +
@@ -2899,33 +2441,88 @@ const file_recap_v1_recap_proto_rawDesc = "" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12%\n" +
 	"\x0ecategory_views\x18\x03 \x01(\x04R\rcategoryViews\"*\n" +
 	"\x12ActiveMonthPayload\x12\x14\n" +
-	"\x05month\x18\x01 \x01(\rR\x05month\"\x82\x01\n" +
+	"\x05month\x18\x01 \x01(\rR\x05month\"\xf9\x01\n" +
+	"\x10BehaviorEvidence\x12\x16\n" +
+	"\x06metric\x18\x01 \x01(\tR\x06metric\x12\x14\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\x12!\n" +
+	"\factual_value\x18\x03 \x01(\x01R\vactualValue\x12\x1c\n" +
+	"\tthreshold\x18\x04 \x01(\x01R\tthreshold\x12<\n" +
+	"\n" +
+	"comparison\x18\x05 \x01(\x0e2\x1c.recap.v1.EvidenceComparisonR\n" +
+	"comparison\x12\x16\n" +
+	"\x06points\x18\x06 \x01(\x05R\x06points\x12 \n" +
+	"\vexplanation\x18\a \x01(\tR\vexplanation\"\x8b\x01\n" +
 	"\x0fBehaviorPayload\x12*\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x16.recap.v1.BehaviorCodeR\x04code\x126\n" +
-	"\bevidence\x18\x03 \x03(\v2\x1a.recap.v1.BehaviorEvidenceR\bevidenceJ\x04\b\x02\x10\x03R\x05score\"E\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x16.recap.v1.BehaviorCodeR\x04code\x12\x14\n" +
+	"\x05score\x18\x02 \x01(\x05R\x05score\x126\n" +
+	"\bevidence\x18\x03 \x03(\v2\x1a.recap.v1.BehaviorEvidenceR\bevidence\"E\n" +
 	"\x12AchievementPayload\x12/\n" +
-	"\x05codes\x18\x01 \x03(\x0e2\x19.recap.v1.AchievementCodeR\x05codes\"i\n" +
-	"\rActionPayload\x12(\n" +
+	"\x05codes\x18\x01 \x03(\x0e2\x19.recap.v1.AchievementCodeR\x05codes\"\x88\x01\n" +
+	"\vAchievement\x12-\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x19.recap.v1.AchievementCodeR\x04code\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x1c\n" +
+	"\tshareable\x18\x04 \x01(\bR\tshareable\".\n" +
+	"\rListingTarget\x12\x1d\n" +
+	"\n" +
+	"listing_id\x18\x01 \x01(\tR\tlistingId\"+\n" +
+	"\fDialogTarget\x12\x1b\n" +
+	"\tdialog_id\x18\x01 \x01(\tR\bdialogId\"5\n" +
+	"\x0eCategoryTarget\x12#\n" +
+	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"3\n" +
+	"\fSearchTarget\x12#\n" +
+	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"!\n" +
+	"\vRouteTarget\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\"\x98\x02\n" +
+	"\fActionTarget\x123\n" +
+	"\alisting\x18\x01 \x01(\v2\x17.recap.v1.ListingTargetH\x00R\alisting\x120\n" +
+	"\x06dialog\x18\x02 \x01(\v2\x16.recap.v1.DialogTargetH\x00R\x06dialog\x126\n" +
+	"\bcategory\x18\x03 \x01(\v2\x18.recap.v1.CategoryTargetH\x00R\bcategory\x120\n" +
+	"\x06search\x18\x04 \x01(\v2\x16.recap.v1.SearchTargetH\x00R\x06search\x12-\n" +
+	"\x05route\x18\x05 \x01(\v2\x15.recap.v1.RouteTargetH\x00R\x05routeB\b\n" +
+	"\x06target\"t\n" +
+	"\x18MissedOpportunityPayload\x12(\n" +
 	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n" +
-	"\x06target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\xb3\x05\n" +
-	"\vCardPayload\x12D\n" +
-	"\ryear_activity\x18\x14 \x01(\v2\x1d.recap.v1.YearActivityPayloadH\x00R\fyearActivity\x12A\n" +
-	"\ftop_category\x18\x15 \x01(\v2\x1c.recap.v1.TopCategoryPayloadH\x00R\vtopCategory\x12A\n" +
-	"\factive_month\x18\x16 \x01(\v2\x1c.recap.v1.ActiveMonthPayloadH\x00R\vactiveMonth\x127\n" +
-	"\bbehavior\x18\x17 \x01(\v2\x19.recap.v1.BehaviorPayloadH\x00R\bbehavior\x12@\n" +
-	"\vachievement\x18\x18 \x01(\v2\x1c.recap.v1.AchievementPayloadH\x00R\vachievement\x121\n" +
-	"\x06action\x18\x19 \x01(\v2\x17.recap.v1.ActionPayloadH\x00R\x06action\x12+\n" +
-	"\x05share\x18\x1a \x01(\v2\x13.recap.v1.ShareCardH\x00R\x05shareB\a\n" +
-	"\x05valueJ\x04\b\x01\x10\x11R\ftotal_eventsR\bsearchesR\vtotal_viewsR\x0ffavorites_addedR\rchats_startedR\x12listings_publishedR\x13purchases_completedR\x0fsales_completedR\rcategory_codeR\bcategoryR\x0ecategory_viewsR\x05monthR\rbehavior_codeR\x10achievement_codeR\x11achievement_codesR\vaction_code\"\x8b\x02\n" +
-	"\tShareCard\x12\x19\n" +
+	"\x06target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"m\n" +
+	"\x11NextActionPayload\x12(\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n" +
+	"\x06target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\xe1\x01\n" +
+	"\n" +
+	"NextAction\x12(\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12 \n" +
+	"\vexplanation\x18\x04 \x01(\tR\vexplanation\x12\x1f\n" +
+	"\vbutton_text\x18\x05 \x01(\tR\n" +
+	"buttonText\x12.\n" +
+	"\x06target\x18\x06 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\xe5\x01\n" +
+	"\fSharePayload\x12\x19\n" +
 	"\bshare_id\x18\x01 \x01(\tR\ashareId\x12\x12\n" +
 	"\x04year\x18\x02 \x01(\rR\x04year\x12%\n" +
 	"\x0ebehavior_title\x18\x03 \x01(\tR\rbehaviorTitle\x120\n" +
 	"\x11achievement_title\x18\x04 \x01(\tH\x00R\x10achievementTitle\x88\x01\x01\x12&\n" +
-	"\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01\x12'\n" +
-	"\x0fprivacy_version\x18\x06 \x01(\tR\x0eprivacyVersionB\x14\n" +
+	"\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01B\x14\n" +
 	"\x12_achievement_titleB\x0f\n" +
-	"\r_top_category*\xf2\x01\n" +
+	"\r_top_category\"\xe4\x01\n" +
+	"\vPublicShare\x12\x19\n" +
+	"\bshare_id\x18\x01 \x01(\tR\ashareId\x12\x12\n" +
+	"\x04year\x18\x02 \x01(\rR\x04year\x12%\n" +
+	"\x0ebehavior_title\x18\x03 \x01(\tR\rbehaviorTitle\x120\n" +
+	"\x11achievement_title\x18\x04 \x01(\tH\x00R\x10achievementTitle\x88\x01\x01\x12&\n" +
+	"\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01B\x14\n" +
+	"\x12_achievement_titleB\x0f\n" +
+	"\r_top_category*\x94\x02\n" +
+	"\bCardType\x12\x19\n" +
+	"\x15CARD_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fCARD_TYPE_INTRO\x10\x01\x12\x1b\n" +
+	"\x17CARD_TYPE_YEAR_ACTIVITY\x10\x02\x12\x1a\n" +
+	"\x16CARD_TYPE_TOP_CATEGORY\x10\x03\x12\x1a\n" +
+	"\x16CARD_TYPE_ACTIVE_MONTH\x10\x04\x12\x16\n" +
+	"\x12CARD_TYPE_BEHAVIOR\x10\x05\x12\x19\n" +
+	"\x15CARD_TYPE_ACHIEVEMENT\x10\x06\x12 \n" +
+	"\x1cCARD_TYPE_MISSED_OPPORTUNITY\x10\a\x12\x19\n" +
+	"\x15CARD_TYPE_NEXT_ACTION\x10\b\x12\x13\n" +
+	"\x0fCARD_TYPE_SHARE\x10\t*\xf2\x01\n" +
 	"\fBehaviorCode\x12\x1d\n" +
 	"\x19BEHAVIOR_CODE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bBEHAVIOR_CODE_ACTIVE_SELLER\x10\x01\x12!\n" +
@@ -2933,15 +2530,11 @@ const file_recap_v1_recap_proto_rawDesc = "" +
 	"\x1cBEHAVIOR_CODE_DECISIVE_BUYER\x10\x03\x12\x1d\n" +
 	"\x19BEHAVIOR_CODE_FIND_HUNTER\x10\x04\x12\x1c\n" +
 	"\x18BEHAVIOR_CODE_RESEARCHER\x10\x05\x12 \n" +
-	"\x1cBEHAVIOR_CODE_UNIVERSAL_USER\x10\x06*\x90\x02\n" +
-	"\x13AchievementCategory\x12$\n" +
-	" ACHIEVEMENT_CATEGORY_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cACHIEVEMENT_CATEGORY_SELLING\x10\x01\x12\x1f\n" +
-	"\x1bACHIEVEMENT_CATEGORY_BUYING\x10\x02\x12\"\n" +
-	"\x1eACHIEVEMENT_CATEGORY_DISCOVERY\x10\x03\x12#\n" +
-	"\x1fACHIEVEMENT_CATEGORY_COLLECTION\x10\x04\x12$\n" +
-	" ACHIEVEMENT_CATEGORY_VERSATILITY\x10\x05\x12!\n" +
-	"\x1dACHIEVEMENT_CATEGORY_INTEREST\x10\x06*\xa5\x06\n" +
+	"\x1cBEHAVIOR_CODE_UNIVERSAL_USER\x10\x06*s\n" +
+	"\x12EvidenceComparison\x12#\n" +
+	"\x1fEVIDENCE_COMPARISON_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17EVIDENCE_COMPARISON_GTE\x10\x01\x12\x1b\n" +
+	"\x17EVIDENCE_COMPARISON_LTE\x10\x02*\xa5\x06\n" +
 	"\x0fAchievementCode\x12 \n" +
 	"\x1cACHIEVEMENT_CODE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"ACHIEVEMENT_CODE_SUCCESSFUL_SELLER\x10\x01\x12)\n" +
@@ -2964,7 +2557,15 @@ const file_recap_v1_recap_proto_rawDesc = "" +
 	"\x1eACHIEVEMENT_CODE_WORLD_OF_PLAY\x10\x11\x12!\n" +
 	"\x1dACHIEVEMENT_CODE_MASTER_CRAFT\x10\x12\x12!\n" +
 	"\x1dACHIEVEMENT_CODE_CARING_OWNER\x10\x13\x12'\n" +
-	"#ACHIEVEMENT_CODE_LITTLE_DISCOVERIES\x10\x14*\x81\x03\n" +
+	"#ACHIEVEMENT_CODE_LITTLE_DISCOVERIES\x10\x14*\x90\x02\n" +
+	"\x13AchievementCategory\x12$\n" +
+	" ACHIEVEMENT_CATEGORY_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cACHIEVEMENT_CATEGORY_SELLING\x10\x01\x12\x1f\n" +
+	"\x1bACHIEVEMENT_CATEGORY_BUYING\x10\x02\x12\"\n" +
+	"\x1eACHIEVEMENT_CATEGORY_DISCOVERY\x10\x03\x12#\n" +
+	"\x1fACHIEVEMENT_CATEGORY_COLLECTION\x10\x04\x12$\n" +
+	" ACHIEVEMENT_CATEGORY_VERSATILITY\x10\x05\x12!\n" +
+	"\x1dACHIEVEMENT_CATEGORY_INTEREST\x10\x06*\x85\x03\n" +
 	"\n" +
 	"ActionCode\x12\x1b\n" +
 	"\x17ACTION_CODE_UNSPECIFIED\x10\x00\x12\x1c\n" +
@@ -2972,30 +2573,18 @@ const file_recap_v1_recap_proto_rawDesc = "" +
 	"\x1aACTION_CODE_OPEN_FAVORITES\x10\x02\x12 \n" +
 	"\x1cACTION_CODE_IMPROVE_LISTINGS\x10\x03\x12 \n" +
 	"\x1cACTION_CODE_CONTINUE_DIALOGS\x10\x04\x12!\n" +
-	"\x1dACTION_CODE_OPEN_TOP_CATEGORY\x10\x05\x12$\n" +
-	" ACTION_CODE_CREATE_FIRST_LISTING\x10\x06\x12\x1e\n" +
-	"\x1aACTION_CODE_CREATE_LISTING\x10\a\x12\x1b\n" +
-	"\x17ACTION_CODE_SAVE_SEARCH\x10\b\x12%\n" +
-	"!ACTION_CODE_VIEW_SIMILAR_LISTINGS\x10\t\x12'\n" +
-	"#ACTION_CODE_EXPLORE_RECOMMENDATIONS\x10\n" +
-	"*\xad\x02\n" +
-	"\bCardType\x12\x19\n" +
-	"\x15CARD_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fCARD_TYPE_INTRO\x10\x01\x12\x1b\n" +
-	"\x17CARD_TYPE_YEAR_ACTIVITY\x10\x02\x12\x1a\n" +
-	"\x16CARD_TYPE_TOP_CATEGORY\x10\x03\x12\x1a\n" +
-	"\x16CARD_TYPE_ACTIVE_MONTH\x10\x04\x12\x16\n" +
-	"\x12CARD_TYPE_BEHAVIOR\x10\x05\x12\x19\n" +
-	"\x15CARD_TYPE_ACHIEVEMENT\x10\x06\x12 \n" +
-	"\x1cCARD_TYPE_MISSED_OPPORTUNITY\x10\a\x12\x19\n" +
-	"\x15CARD_TYPE_NEXT_ACTION\x10\b\x12\x13\n" +
-	"\x0fCARD_TYPE_SHARE\x10\n" +
-	"\"\x04\b\t\x10\t*\x11CARD_TYPE_SUMMARY2\xc1\x02\n" +
+	"\x1dACTION_CODE_OPEN_TOP_CATEGORY\x10\x05\x12\x1e\n" +
+	"\x1aACTION_CODE_CREATE_LISTING\x10\x06\x12\x1b\n" +
+	"\x17ACTION_CODE_SAVE_SEARCH\x10\a\x12%\n" +
+	"!ACTION_CODE_VIEW_SIMILAR_LISTINGS\x10\b\x12'\n" +
+	"#ACTION_CODE_EXPLORE_RECOMMENDATIONS\x10\t\x12(\n" +
+	" ACTION_CODE_CREATE_FIRST_LISTING\x10\n" +
+	"\x1a\x02\b\x012\xbc\x02\n" +
 	"\fRecapService\x12M\n" +
-	"\fListProfiles\x12\x1d.recap.v1.ListProfilesRequest\x1a\x1e.recap.v1.ListProfilesResponse\x12P\n" +
-	"\rGenerateRecap\x12\x1e.recap.v1.GenerateRecapRequest\x1a\x1f.recap.v1.GenerateRecapResponse\x12A\n" +
-	"\bGetRecap\x12\x19.recap.v1.GetRecapRequest\x1a\x1a.recap.v1.GetRecapResponse\x12M\n" +
-	"\fGetShareCard\x12\x1d.recap.v1.GetShareCardRequest\x1a\x1e.recap.v1.GetShareCardResponseB/Z-github.com/year-recap/gen/go/recap/v1;recapv1b\x06proto3"
+	"\fListProfiles\x12\x1d.recap.v1.ListProfilesRequest\x1a\x1e.recap.v1.ListProfilesResponse\x12H\n" +
+	"\rGenerateRecap\x12\x1e.recap.v1.GenerateRecapRequest\x1a\x17.recap.v1.RecapResponse\x12>\n" +
+	"\bGetRecap\x12\x19.recap.v1.GetRecapRequest\x1a\x17.recap.v1.RecapResponse\x12S\n" +
+	"\x0eGetPublicShare\x12\x1f.recap.v1.GetPublicShareRequest\x1a .recap.v1.GetPublicShareResponseB/Z-github.com/year-recap/gen/go/recap/v1;recapv1b\x06proto3"
 
 var (
 	file_recap_v1_recap_proto_rawDescOnce sync.Once
@@ -3009,102 +2598,92 @@ func file_recap_v1_recap_proto_rawDescGZIP() []byte {
 	return file_recap_v1_recap_proto_rawDescData
 }
 
-var file_recap_v1_recap_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_recap_v1_recap_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_recap_v1_recap_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_recap_v1_recap_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_recap_v1_recap_proto_goTypes = []any{
-	(BehaviorCode)(0),             // 0: recap.v1.BehaviorCode
-	(AchievementCategory)(0),      // 1: recap.v1.AchievementCategory
-	(AchievementCode)(0),          // 2: recap.v1.AchievementCode
-	(ActionCode)(0),               // 3: recap.v1.ActionCode
-	(CardType)(0),                 // 4: recap.v1.CardType
-	(*ListProfilesRequest)(nil),   // 5: recap.v1.ListProfilesRequest
-	(*ListProfilesResponse)(nil),  // 6: recap.v1.ListProfilesResponse
-	(*GenerateRecapRequest)(nil),  // 7: recap.v1.GenerateRecapRequest
-	(*GenerateRecapResponse)(nil), // 8: recap.v1.GenerateRecapResponse
-	(*GetRecapRequest)(nil),       // 9: recap.v1.GetRecapRequest
-	(*GetRecapResponse)(nil),      // 10: recap.v1.GetRecapResponse
-	(*GetShareCardRequest)(nil),   // 11: recap.v1.GetShareCardRequest
-	(*GetShareCardResponse)(nil),  // 12: recap.v1.GetShareCardResponse
-	(*Profile)(nil),               // 13: recap.v1.Profile
-	(*RecapPeriod)(nil),           // 14: recap.v1.RecapPeriod
-	(*Recap)(nil),                 // 15: recap.v1.Recap
-	(*Metrics)(nil),               // 16: recap.v1.Metrics
-	(*CategoryActivity)(nil),      // 17: recap.v1.CategoryActivity
-	(*BehaviorEvidence)(nil),      // 18: recap.v1.BehaviorEvidence
-	(*Behavior)(nil),              // 19: recap.v1.Behavior
-	(*Achievement)(nil),           // 20: recap.v1.Achievement
-	(*RouteTarget)(nil),           // 21: recap.v1.RouteTarget
-	(*CategoryTarget)(nil),        // 22: recap.v1.CategoryTarget
-	(*ListingTarget)(nil),         // 23: recap.v1.ListingTarget
-	(*DialogTarget)(nil),          // 24: recap.v1.DialogTarget
-	(*SearchTarget)(nil),          // 25: recap.v1.SearchTarget
-	(*ActionTarget)(nil),          // 26: recap.v1.ActionTarget
-	(*NextAction)(nil),            // 27: recap.v1.NextAction
-	(*Card)(nil),                  // 28: recap.v1.Card
-	(*YearActivityPayload)(nil),   // 29: recap.v1.YearActivityPayload
-	(*TopCategoryPayload)(nil),    // 30: recap.v1.TopCategoryPayload
-	(*ActiveMonthPayload)(nil),    // 31: recap.v1.ActiveMonthPayload
-	(*BehaviorPayload)(nil),       // 32: recap.v1.BehaviorPayload
-	(*AchievementPayload)(nil),    // 33: recap.v1.AchievementPayload
-	(*ActionPayload)(nil),         // 34: recap.v1.ActionPayload
-	(*CardPayload)(nil),           // 35: recap.v1.CardPayload
-	(*ShareCard)(nil),             // 36: recap.v1.ShareCard
-	(*timestamppb.Timestamp)(nil), // 37: google.protobuf.Timestamp
+	(CardType)(0),                    // 0: recap.v1.CardType
+	(BehaviorCode)(0),                // 1: recap.v1.BehaviorCode
+	(EvidenceComparison)(0),          // 2: recap.v1.EvidenceComparison
+	(AchievementCode)(0),             // 3: recap.v1.AchievementCode
+	(AchievementCategory)(0),         // 4: recap.v1.AchievementCategory
+	(ActionCode)(0),                  // 5: recap.v1.ActionCode
+	(*ListProfilesRequest)(nil),      // 6: recap.v1.ListProfilesRequest
+	(*ListProfilesResponse)(nil),     // 7: recap.v1.ListProfilesResponse
+	(*GenerateRecapRequest)(nil),     // 8: recap.v1.GenerateRecapRequest
+	(*GetRecapRequest)(nil),          // 9: recap.v1.GetRecapRequest
+	(*GetPublicShareRequest)(nil),    // 10: recap.v1.GetPublicShareRequest
+	(*RecapResponse)(nil),            // 11: recap.v1.RecapResponse
+	(*GetPublicShareResponse)(nil),   // 12: recap.v1.GetPublicShareResponse
+	(*Profile)(nil),                  // 13: recap.v1.Profile
+	(*Recap)(nil),                    // 14: recap.v1.Recap
+	(*RecapCard)(nil),                // 15: recap.v1.RecapCard
+	(*IntroPayload)(nil),             // 16: recap.v1.IntroPayload
+	(*YearActivityPayload)(nil),      // 17: recap.v1.YearActivityPayload
+	(*TopCategoryPayload)(nil),       // 18: recap.v1.TopCategoryPayload
+	(*ActiveMonthPayload)(nil),       // 19: recap.v1.ActiveMonthPayload
+	(*BehaviorEvidence)(nil),         // 20: recap.v1.BehaviorEvidence
+	(*BehaviorPayload)(nil),          // 21: recap.v1.BehaviorPayload
+	(*AchievementPayload)(nil),       // 22: recap.v1.AchievementPayload
+	(*Achievement)(nil),              // 23: recap.v1.Achievement
+	(*ListingTarget)(nil),            // 24: recap.v1.ListingTarget
+	(*DialogTarget)(nil),             // 25: recap.v1.DialogTarget
+	(*CategoryTarget)(nil),           // 26: recap.v1.CategoryTarget
+	(*SearchTarget)(nil),             // 27: recap.v1.SearchTarget
+	(*RouteTarget)(nil),              // 28: recap.v1.RouteTarget
+	(*ActionTarget)(nil),             // 29: recap.v1.ActionTarget
+	(*MissedOpportunityPayload)(nil), // 30: recap.v1.MissedOpportunityPayload
+	(*NextActionPayload)(nil),        // 31: recap.v1.NextActionPayload
+	(*NextAction)(nil),               // 32: recap.v1.NextAction
+	(*SharePayload)(nil),             // 33: recap.v1.SharePayload
+	(*PublicShare)(nil),              // 34: recap.v1.PublicShare
 }
 var file_recap_v1_recap_proto_depIdxs = []int32{
 	13, // 0: recap.v1.ListProfilesResponse.profiles:type_name -> recap.v1.Profile
-	15, // 1: recap.v1.GenerateRecapResponse.recap:type_name -> recap.v1.Recap
-	15, // 2: recap.v1.GetRecapResponse.recap:type_name -> recap.v1.Recap
-	36, // 3: recap.v1.GetShareCardResponse.share_card:type_name -> recap.v1.ShareCard
-	37, // 4: recap.v1.RecapPeriod.start_at:type_name -> google.protobuf.Timestamp
-	37, // 5: recap.v1.RecapPeriod.end_at:type_name -> google.protobuf.Timestamp
-	13, // 6: recap.v1.Recap.profile:type_name -> recap.v1.Profile
-	16, // 7: recap.v1.Recap.metrics:type_name -> recap.v1.Metrics
-	19, // 8: recap.v1.Recap.behavior:type_name -> recap.v1.Behavior
-	20, // 9: recap.v1.Recap.achievements:type_name -> recap.v1.Achievement
-	28, // 10: recap.v1.Recap.cards:type_name -> recap.v1.Card
-	27, // 11: recap.v1.Recap.next_action:type_name -> recap.v1.NextAction
-	37, // 12: recap.v1.Recap.generated_at:type_name -> google.protobuf.Timestamp
-	14, // 13: recap.v1.Recap.period:type_name -> recap.v1.RecapPeriod
-	17, // 14: recap.v1.Metrics.category_activities:type_name -> recap.v1.CategoryActivity
-	0,  // 15: recap.v1.Behavior.code:type_name -> recap.v1.BehaviorCode
-	18, // 16: recap.v1.Behavior.evidence:type_name -> recap.v1.BehaviorEvidence
-	2,  // 17: recap.v1.Achievement.code:type_name -> recap.v1.AchievementCode
-	1,  // 18: recap.v1.Achievement.category:type_name -> recap.v1.AchievementCategory
-	21, // 19: recap.v1.ActionTarget.route:type_name -> recap.v1.RouteTarget
-	22, // 20: recap.v1.ActionTarget.category:type_name -> recap.v1.CategoryTarget
-	23, // 21: recap.v1.ActionTarget.listing:type_name -> recap.v1.ListingTarget
-	24, // 22: recap.v1.ActionTarget.dialog:type_name -> recap.v1.DialogTarget
-	25, // 23: recap.v1.ActionTarget.search:type_name -> recap.v1.SearchTarget
-	3,  // 24: recap.v1.NextAction.code:type_name -> recap.v1.ActionCode
-	26, // 25: recap.v1.NextAction.target:type_name -> recap.v1.ActionTarget
-	4,  // 26: recap.v1.Card.type:type_name -> recap.v1.CardType
-	35, // 27: recap.v1.Card.payload:type_name -> recap.v1.CardPayload
-	0,  // 28: recap.v1.BehaviorPayload.code:type_name -> recap.v1.BehaviorCode
-	18, // 29: recap.v1.BehaviorPayload.evidence:type_name -> recap.v1.BehaviorEvidence
-	2,  // 30: recap.v1.AchievementPayload.codes:type_name -> recap.v1.AchievementCode
-	3,  // 31: recap.v1.ActionPayload.code:type_name -> recap.v1.ActionCode
-	26, // 32: recap.v1.ActionPayload.target:type_name -> recap.v1.ActionTarget
-	29, // 33: recap.v1.CardPayload.year_activity:type_name -> recap.v1.YearActivityPayload
-	30, // 34: recap.v1.CardPayload.top_category:type_name -> recap.v1.TopCategoryPayload
-	31, // 35: recap.v1.CardPayload.active_month:type_name -> recap.v1.ActiveMonthPayload
-	32, // 36: recap.v1.CardPayload.behavior:type_name -> recap.v1.BehaviorPayload
-	33, // 37: recap.v1.CardPayload.achievement:type_name -> recap.v1.AchievementPayload
-	34, // 38: recap.v1.CardPayload.action:type_name -> recap.v1.ActionPayload
-	36, // 39: recap.v1.CardPayload.share:type_name -> recap.v1.ShareCard
-	5,  // 40: recap.v1.RecapService.ListProfiles:input_type -> recap.v1.ListProfilesRequest
-	7,  // 41: recap.v1.RecapService.GenerateRecap:input_type -> recap.v1.GenerateRecapRequest
-	9,  // 42: recap.v1.RecapService.GetRecap:input_type -> recap.v1.GetRecapRequest
-	11, // 43: recap.v1.RecapService.GetShareCard:input_type -> recap.v1.GetShareCardRequest
-	6,  // 44: recap.v1.RecapService.ListProfiles:output_type -> recap.v1.ListProfilesResponse
-	8,  // 45: recap.v1.RecapService.GenerateRecap:output_type -> recap.v1.GenerateRecapResponse
-	10, // 46: recap.v1.RecapService.GetRecap:output_type -> recap.v1.GetRecapResponse
-	12, // 47: recap.v1.RecapService.GetShareCard:output_type -> recap.v1.GetShareCardResponse
-	44, // [44:48] is the sub-list for method output_type
-	40, // [40:44] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	13, // 1: recap.v1.RecapResponse.profile:type_name -> recap.v1.Profile
+	14, // 2: recap.v1.RecapResponse.recap:type_name -> recap.v1.Recap
+	34, // 3: recap.v1.GetPublicShareResponse.share:type_name -> recap.v1.PublicShare
+	15, // 4: recap.v1.Recap.cards:type_name -> recap.v1.RecapCard
+	23, // 5: recap.v1.Recap.achievements:type_name -> recap.v1.Achievement
+	32, // 6: recap.v1.Recap.next_action:type_name -> recap.v1.NextAction
+	0,  // 7: recap.v1.RecapCard.type:type_name -> recap.v1.CardType
+	16, // 8: recap.v1.RecapCard.intro:type_name -> recap.v1.IntroPayload
+	17, // 9: recap.v1.RecapCard.year_activity:type_name -> recap.v1.YearActivityPayload
+	18, // 10: recap.v1.RecapCard.top_category:type_name -> recap.v1.TopCategoryPayload
+	19, // 11: recap.v1.RecapCard.active_month:type_name -> recap.v1.ActiveMonthPayload
+	21, // 12: recap.v1.RecapCard.behavior:type_name -> recap.v1.BehaviorPayload
+	22, // 13: recap.v1.RecapCard.achievement:type_name -> recap.v1.AchievementPayload
+	30, // 14: recap.v1.RecapCard.missed_opportunity:type_name -> recap.v1.MissedOpportunityPayload
+	31, // 15: recap.v1.RecapCard.next_action:type_name -> recap.v1.NextActionPayload
+	33, // 16: recap.v1.RecapCard.share:type_name -> recap.v1.SharePayload
+	2,  // 17: recap.v1.BehaviorEvidence.comparison:type_name -> recap.v1.EvidenceComparison
+	1,  // 18: recap.v1.BehaviorPayload.code:type_name -> recap.v1.BehaviorCode
+	20, // 19: recap.v1.BehaviorPayload.evidence:type_name -> recap.v1.BehaviorEvidence
+	3,  // 20: recap.v1.AchievementPayload.codes:type_name -> recap.v1.AchievementCode
+	3,  // 21: recap.v1.Achievement.code:type_name -> recap.v1.AchievementCode
+	24, // 22: recap.v1.ActionTarget.listing:type_name -> recap.v1.ListingTarget
+	25, // 23: recap.v1.ActionTarget.dialog:type_name -> recap.v1.DialogTarget
+	26, // 24: recap.v1.ActionTarget.category:type_name -> recap.v1.CategoryTarget
+	27, // 25: recap.v1.ActionTarget.search:type_name -> recap.v1.SearchTarget
+	28, // 26: recap.v1.ActionTarget.route:type_name -> recap.v1.RouteTarget
+	5,  // 27: recap.v1.MissedOpportunityPayload.code:type_name -> recap.v1.ActionCode
+	29, // 28: recap.v1.MissedOpportunityPayload.target:type_name -> recap.v1.ActionTarget
+	5,  // 29: recap.v1.NextActionPayload.code:type_name -> recap.v1.ActionCode
+	29, // 30: recap.v1.NextActionPayload.target:type_name -> recap.v1.ActionTarget
+	5,  // 31: recap.v1.NextAction.code:type_name -> recap.v1.ActionCode
+	29, // 32: recap.v1.NextAction.target:type_name -> recap.v1.ActionTarget
+	6,  // 33: recap.v1.RecapService.ListProfiles:input_type -> recap.v1.ListProfilesRequest
+	8,  // 34: recap.v1.RecapService.GenerateRecap:input_type -> recap.v1.GenerateRecapRequest
+	9,  // 35: recap.v1.RecapService.GetRecap:input_type -> recap.v1.GetRecapRequest
+	10, // 36: recap.v1.RecapService.GetPublicShare:input_type -> recap.v1.GetPublicShareRequest
+	7,  // 37: recap.v1.RecapService.ListProfiles:output_type -> recap.v1.ListProfilesResponse
+	11, // 38: recap.v1.RecapService.GenerateRecap:output_type -> recap.v1.RecapResponse
+	11, // 39: recap.v1.RecapService.GetRecap:output_type -> recap.v1.RecapResponse
+	12, // 40: recap.v1.RecapService.GetPublicShare:output_type -> recap.v1.GetPublicShareResponse
+	37, // [37:41] is the sub-list for method output_type
+	33, // [33:37] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_recap_v1_recap_proto_init() }
@@ -3112,33 +2691,33 @@ func file_recap_v1_recap_proto_init() {
 	if File_recap_v1_recap_proto != nil {
 		return
 	}
-	file_recap_v1_recap_proto_msgTypes[8].OneofWrappers = []any{}
-	file_recap_v1_recap_proto_msgTypes[11].OneofWrappers = []any{}
-	file_recap_v1_recap_proto_msgTypes[21].OneofWrappers = []any{
-		(*ActionTarget_Route)(nil),
-		(*ActionTarget_Category)(nil),
+	file_recap_v1_recap_proto_msgTypes[9].OneofWrappers = []any{
+		(*RecapCard_Intro)(nil),
+		(*RecapCard_YearActivity)(nil),
+		(*RecapCard_TopCategory)(nil),
+		(*RecapCard_ActiveMonth)(nil),
+		(*RecapCard_Behavior)(nil),
+		(*RecapCard_Achievement)(nil),
+		(*RecapCard_MissedOpportunity)(nil),
+		(*RecapCard_NextAction)(nil),
+		(*RecapCard_Share)(nil),
+	}
+	file_recap_v1_recap_proto_msgTypes[23].OneofWrappers = []any{
 		(*ActionTarget_Listing)(nil),
 		(*ActionTarget_Dialog)(nil),
+		(*ActionTarget_Category)(nil),
 		(*ActionTarget_Search)(nil),
+		(*ActionTarget_Route)(nil),
 	}
-	file_recap_v1_recap_proto_msgTypes[23].OneofWrappers = []any{}
-	file_recap_v1_recap_proto_msgTypes[30].OneofWrappers = []any{
-		(*CardPayload_YearActivity)(nil),
-		(*CardPayload_TopCategory)(nil),
-		(*CardPayload_ActiveMonth)(nil),
-		(*CardPayload_Behavior)(nil),
-		(*CardPayload_Achievement)(nil),
-		(*CardPayload_Action)(nil),
-		(*CardPayload_Share)(nil),
-	}
-	file_recap_v1_recap_proto_msgTypes[31].OneofWrappers = []any{}
+	file_recap_v1_recap_proto_msgTypes[27].OneofWrappers = []any{}
+	file_recap_v1_recap_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_recap_v1_recap_proto_rawDesc), len(file_recap_v1_recap_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   32,
+			NumEnums:      6,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

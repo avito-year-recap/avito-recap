@@ -41,23 +41,21 @@ const (
 	RecapServiceGenerateRecapProcedure = "/recap.v1.RecapService/GenerateRecap"
 	// RecapServiceGetRecapProcedure is the fully-qualified name of the RecapService's GetRecap RPC.
 	RecapServiceGetRecapProcedure = "/recap.v1.RecapService/GetRecap"
-	// RecapServiceGetShareCardProcedure is the fully-qualified name of the RecapService's GetShareCard
-	// RPC.
-	RecapServiceGetShareCardProcedure = "/recap.v1.RecapService/GetShareCard"
+	// RecapServiceGetPublicShareProcedure is the fully-qualified name of the RecapService's
+	// GetPublicShare RPC.
+	RecapServiceGetPublicShareProcedure = "/recap.v1.RecapService/GetPublicShare"
 )
 
 // RecapServiceClient is a client for the recap.v1.RecapService service.
 type RecapServiceClient interface {
-	// ListProfiles returns the demo/profile catalogue available to the client.
+	// Test/MVP profile picker.
 	ListProfiles(context.Context, *connect.Request[v1.ListProfilesRequest]) (*connect.Response[v1.ListProfilesResponse], error)
-	// GenerateRecap creates or returns the immutable recap for the idempotency
-	// key (profile_id, year, current rules version, current rules digest).
-	GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.GenerateRecapResponse], error)
-	// GetRecap returns a private recap by its opaque internal recap identifier.
-	GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.GetRecapResponse], error)
-	// GetShareCard returns only the allow-listed public projection identified by
-	// share_id. It never returns private recap data or actionable-state details.
-	GetShareCard(context.Context, *connect.Request[v1.GetShareCardRequest]) (*connect.Response[v1.GetShareCardResponse], error)
+	// Generates (or returns an already generated immutable) recap for a profile/year.
+	GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.RecapResponse], error)
+	// Returns an existing recap for a profile/year.
+	GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.RecapResponse], error)
+	// Public endpoint. Returns only data that is safe to expose in SHARE.
+	GetPublicShare(context.Context, *connect.Request[v1.GetPublicShareRequest]) (*connect.Response[v1.GetPublicShareResponse], error)
 }
 
 // NewRecapServiceClient constructs a client for the recap.v1.RecapService service. By default, it
@@ -77,22 +75,22 @@ func NewRecapServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(recapServiceMethods.ByName("ListProfiles")),
 			connect.WithClientOptions(opts...),
 		),
-		generateRecap: connect.NewClient[v1.GenerateRecapRequest, v1.GenerateRecapResponse](
+		generateRecap: connect.NewClient[v1.GenerateRecapRequest, v1.RecapResponse](
 			httpClient,
 			baseURL+RecapServiceGenerateRecapProcedure,
 			connect.WithSchema(recapServiceMethods.ByName("GenerateRecap")),
 			connect.WithClientOptions(opts...),
 		),
-		getRecap: connect.NewClient[v1.GetRecapRequest, v1.GetRecapResponse](
+		getRecap: connect.NewClient[v1.GetRecapRequest, v1.RecapResponse](
 			httpClient,
 			baseURL+RecapServiceGetRecapProcedure,
 			connect.WithSchema(recapServiceMethods.ByName("GetRecap")),
 			connect.WithClientOptions(opts...),
 		),
-		getShareCard: connect.NewClient[v1.GetShareCardRequest, v1.GetShareCardResponse](
+		getPublicShare: connect.NewClient[v1.GetPublicShareRequest, v1.GetPublicShareResponse](
 			httpClient,
-			baseURL+RecapServiceGetShareCardProcedure,
-			connect.WithSchema(recapServiceMethods.ByName("GetShareCard")),
+			baseURL+RecapServiceGetPublicShareProcedure,
+			connect.WithSchema(recapServiceMethods.ByName("GetPublicShare")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -100,10 +98,10 @@ func NewRecapServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // recapServiceClient implements RecapServiceClient.
 type recapServiceClient struct {
-	listProfiles  *connect.Client[v1.ListProfilesRequest, v1.ListProfilesResponse]
-	generateRecap *connect.Client[v1.GenerateRecapRequest, v1.GenerateRecapResponse]
-	getRecap      *connect.Client[v1.GetRecapRequest, v1.GetRecapResponse]
-	getShareCard  *connect.Client[v1.GetShareCardRequest, v1.GetShareCardResponse]
+	listProfiles   *connect.Client[v1.ListProfilesRequest, v1.ListProfilesResponse]
+	generateRecap  *connect.Client[v1.GenerateRecapRequest, v1.RecapResponse]
+	getRecap       *connect.Client[v1.GetRecapRequest, v1.RecapResponse]
+	getPublicShare *connect.Client[v1.GetPublicShareRequest, v1.GetPublicShareResponse]
 }
 
 // ListProfiles calls recap.v1.RecapService.ListProfiles.
@@ -112,32 +110,30 @@ func (c *recapServiceClient) ListProfiles(ctx context.Context, req *connect.Requ
 }
 
 // GenerateRecap calls recap.v1.RecapService.GenerateRecap.
-func (c *recapServiceClient) GenerateRecap(ctx context.Context, req *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.GenerateRecapResponse], error) {
+func (c *recapServiceClient) GenerateRecap(ctx context.Context, req *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.RecapResponse], error) {
 	return c.generateRecap.CallUnary(ctx, req)
 }
 
 // GetRecap calls recap.v1.RecapService.GetRecap.
-func (c *recapServiceClient) GetRecap(ctx context.Context, req *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.GetRecapResponse], error) {
+func (c *recapServiceClient) GetRecap(ctx context.Context, req *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.RecapResponse], error) {
 	return c.getRecap.CallUnary(ctx, req)
 }
 
-// GetShareCard calls recap.v1.RecapService.GetShareCard.
-func (c *recapServiceClient) GetShareCard(ctx context.Context, req *connect.Request[v1.GetShareCardRequest]) (*connect.Response[v1.GetShareCardResponse], error) {
-	return c.getShareCard.CallUnary(ctx, req)
+// GetPublicShare calls recap.v1.RecapService.GetPublicShare.
+func (c *recapServiceClient) GetPublicShare(ctx context.Context, req *connect.Request[v1.GetPublicShareRequest]) (*connect.Response[v1.GetPublicShareResponse], error) {
+	return c.getPublicShare.CallUnary(ctx, req)
 }
 
 // RecapServiceHandler is an implementation of the recap.v1.RecapService service.
 type RecapServiceHandler interface {
-	// ListProfiles returns the demo/profile catalogue available to the client.
+	// Test/MVP profile picker.
 	ListProfiles(context.Context, *connect.Request[v1.ListProfilesRequest]) (*connect.Response[v1.ListProfilesResponse], error)
-	// GenerateRecap creates or returns the immutable recap for the idempotency
-	// key (profile_id, year, current rules version, current rules digest).
-	GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.GenerateRecapResponse], error)
-	// GetRecap returns a private recap by its opaque internal recap identifier.
-	GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.GetRecapResponse], error)
-	// GetShareCard returns only the allow-listed public projection identified by
-	// share_id. It never returns private recap data or actionable-state details.
-	GetShareCard(context.Context, *connect.Request[v1.GetShareCardRequest]) (*connect.Response[v1.GetShareCardResponse], error)
+	// Generates (or returns an already generated immutable) recap for a profile/year.
+	GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.RecapResponse], error)
+	// Returns an existing recap for a profile/year.
+	GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.RecapResponse], error)
+	// Public endpoint. Returns only data that is safe to expose in SHARE.
+	GetPublicShare(context.Context, *connect.Request[v1.GetPublicShareRequest]) (*connect.Response[v1.GetPublicShareResponse], error)
 }
 
 // NewRecapServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -165,10 +161,10 @@ func NewRecapServiceHandler(svc RecapServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(recapServiceMethods.ByName("GetRecap")),
 		connect.WithHandlerOptions(opts...),
 	)
-	recapServiceGetShareCardHandler := connect.NewUnaryHandler(
-		RecapServiceGetShareCardProcedure,
-		svc.GetShareCard,
-		connect.WithSchema(recapServiceMethods.ByName("GetShareCard")),
+	recapServiceGetPublicShareHandler := connect.NewUnaryHandler(
+		RecapServiceGetPublicShareProcedure,
+		svc.GetPublicShare,
+		connect.WithSchema(recapServiceMethods.ByName("GetPublicShare")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/recap.v1.RecapService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -179,8 +175,8 @@ func NewRecapServiceHandler(svc RecapServiceHandler, opts ...connect.HandlerOpti
 			recapServiceGenerateRecapHandler.ServeHTTP(w, r)
 		case RecapServiceGetRecapProcedure:
 			recapServiceGetRecapHandler.ServeHTTP(w, r)
-		case RecapServiceGetShareCardProcedure:
-			recapServiceGetShareCardHandler.ServeHTTP(w, r)
+		case RecapServiceGetPublicShareProcedure:
+			recapServiceGetPublicShareHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -194,14 +190,14 @@ func (UnimplementedRecapServiceHandler) ListProfiles(context.Context, *connect.R
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recap.v1.RecapService.ListProfiles is not implemented"))
 }
 
-func (UnimplementedRecapServiceHandler) GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.GenerateRecapResponse], error) {
+func (UnimplementedRecapServiceHandler) GenerateRecap(context.Context, *connect.Request[v1.GenerateRecapRequest]) (*connect.Response[v1.RecapResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recap.v1.RecapService.GenerateRecap is not implemented"))
 }
 
-func (UnimplementedRecapServiceHandler) GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.GetRecapResponse], error) {
+func (UnimplementedRecapServiceHandler) GetRecap(context.Context, *connect.Request[v1.GetRecapRequest]) (*connect.Response[v1.RecapResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recap.v1.RecapService.GetRecap is not implemented"))
 }
 
-func (UnimplementedRecapServiceHandler) GetShareCard(context.Context, *connect.Request[v1.GetShareCardRequest]) (*connect.Response[v1.GetShareCardResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recap.v1.RecapService.GetShareCard is not implemented"))
+func (UnimplementedRecapServiceHandler) GetPublicShare(context.Context, *connect.Request[v1.GetPublicShareRequest]) (*connect.Response[v1.GetPublicShareResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recap.v1.RecapService.GetPublicShare is not implemented"))
 }

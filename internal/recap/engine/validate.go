@@ -7,7 +7,7 @@ import (
 
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 type comparableAchievement struct {
@@ -27,36 +27,36 @@ func (e *Engine) ValidateStored(value model.Recap, now time.Time) (model.Recap, 
 	now = now.UTC()
 
 	if value.RulesVersion != e.rules.Version || value.RulesDigest != e.digest {
-		return model.Recap{}, fmt.Errorf("%w: rules identity mismatch", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: rules identity mismatch", structural.ErrInvalidRecap)
 	}
-	if err := validation.ValidateRecap(value); err != nil {
+	if err := structural.ValidateRecap(value); err != nil {
 		return model.Recap{}, err
 	}
 	if value.GeneratedAt.After(now) {
-		return model.Recap{}, fmt.Errorf("%w: generated time is in the future", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: generated time is in the future", structural.ErrInvalidRecap)
 	}
 	if value.Period.EndAt.After(now) {
-		return model.Recap{}, fmt.Errorf("%w: recap period is not complete at read time", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: recap period is not complete at read time", structural.ErrInvalidRecap)
 	}
 	if err := e.ensureEligible(value.Metrics); err != nil {
-		return model.Recap{}, fmt.Errorf("%w: %w", validation.ErrInvalidRecap, err)
+		return model.Recap{}, fmt.Errorf("%w: %w", structural.ErrInvalidRecap, err)
 	}
 	if err := e.validateAchievementSelection(value.Achievements); err != nil {
-		return model.Recap{}, fmt.Errorf("%w: stored achievement selection is invalid: %w", validation.ErrInvalidRecap, err)
+		return model.Recap{}, fmt.Errorf("%w: stored achievement selection is invalid: %w", structural.ErrInvalidRecap, err)
 	}
 
 	expected := e.derive(value.Profile, value.Year, value.ShareID, value.Metrics, value.ActionableState)
 	if !reflect.DeepEqual(value.Behavior, expected.Behavior) {
-		return model.Recap{}, fmt.Errorf("%w: stored behavior differs from engine result", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: stored behavior differs from engine result", structural.ErrInvalidRecap)
 	}
 	if !equalAchievements(value.Achievements, expected.Achievements) {
-		return model.Recap{}, fmt.Errorf("%w: stored achievements differ from engine result", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: stored achievements differ from engine result", structural.ErrInvalidRecap)
 	}
 	if !reflect.DeepEqual(value.NextAction, expected.NextAction) {
-		return model.Recap{}, fmt.Errorf("%w: stored next action differs from engine result", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: stored next action differs from engine result", structural.ErrInvalidRecap)
 	}
 	if !reflect.DeepEqual(value.Cards, expected.Cards) {
-		return model.Recap{}, fmt.Errorf("%w: stored cards differ from deterministic projection", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: stored cards differ from deterministic projection", structural.ErrInvalidRecap)
 	}
 	return value, nil
 }

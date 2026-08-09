@@ -11,7 +11,7 @@ import (
 	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 func TestRandomValidMetricsProperties(t *testing.T) {
@@ -56,7 +56,7 @@ func TestBuildNormalizesBoundaryStringsOnce(t *testing.T) {
 		t.Fatalf("build: %v", err)
 	}
 	assertRecapStringsNormalized(t, value)
-	if err := validation.ValidateRecap(value); err != nil {
+	if err := structural.ValidateRecap(value); err != nil {
 		t.Fatalf("normalized recap must remain valid: %v", err)
 	}
 }
@@ -73,7 +73,7 @@ func assertPipelineInvariants(t testing.TB, metrics model.Metrics, state model.A
 	}
 	assertRateInUnitInterval(t, "repeat rate", value.Metrics.RepeatRate)
 	assertRateInUnitInterval(t, "purchase rate", value.Metrics.PurchaseRate)
-	if err := validation.ValidateCards(value.Cards); err != nil {
+	if err := structural.ValidateCards(value.Cards); err != nil {
 		t.Fatalf("cards violate invariants: %v", err)
 	}
 	if _, err := core.ValidateStored(value, testkit.Clock()); err != nil {

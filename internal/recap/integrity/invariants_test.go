@@ -14,7 +14,6 @@ import (
 	"github.com/year-recap/internal/recap/integrity"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/nextaction"
-	"github.com/year-recap/internal/recap/presentation/cards"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
 	"github.com/year-recap/internal/recap/validation/structural"
@@ -32,10 +31,10 @@ func TestSameRulesetAndSnapshotProduceSameResult(t *testing.T) {
 	metrics := analytics.EnrichMetrics(testkit.Metrics())
 	state := testkit.ActionableState()
 	build := func() (model.Behavior, []model.Achievement, model.NextAction, []model.Card) {
-		detected := behavior.DetectWithRuleset(configured, metrics)
-		achievements := achievement.BuildWithRuleset(configured, metrics)
-		action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
-		story := cards.BuildWithRuleset(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
+		detected := behavior.Detect(configured, metrics)
+		achievements := achievement.Build(configured, metrics)
+		action := nextaction.Build(configured, metrics, state, detected)
+		story := buildCards(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
 		return detected, achievements, action, story
 	}
 	b1, a1, n1, c1 := build()
@@ -57,14 +56,14 @@ func TestGeneratedUserFacingTextHasNoBoundaryWhitespace(t *testing.T) {
 	metrics = analytics.EnrichMetrics(metrics)
 	state := testkit.ActionableState()
 	configured := ruleset.DefaultRuleset()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	achievements := achievement.BuildWithRuleset(configured, metrics)
-	action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
+	detected := behavior.Detect(configured, metrics)
+	achievements := achievement.Build(configured, metrics)
+	action := nextaction.Build(configured, metrics, state, detected)
 	value := model.Recap{
 		ID: testkit.RecapID, ShareID: testkit.ShareID, Profile: profile, Year: 2025, Period: testkit.Period(),
 		RulesVersion: "  " + configured.Version + "\n", RulesDigest: "  " + configured.Digest() + "\n",
 		Metrics: metrics, ActionableState: state, Behavior: detected, Achievements: achievements,
-		Cards:      cards.BuildWithRuleset(configured, profile, 2025, testkit.ShareID, metrics, detected, achievements, action),
+		Cards:      buildCards(configured, profile, 2025, testkit.ShareID, metrics, detected, achievements, action),
 		NextAction: action, GeneratedAt: testkit.Clock(),
 	}
 	value = model.NormalizeRecap(value)
@@ -82,19 +81,19 @@ func assertPipelineInvariants(t testing.TB, metrics model.Metrics, state model.A
 	assertRateInUnitInterval(t, "repeat rate", metrics.RepeatRate)
 	assertRateInUnitInterval(t, "purchase rate", metrics.PurchaseRate)
 	configured := ruleset.DefaultRuleset()
-	detected := behavior.DetectWithRuleset(configured, metrics)
-	achievements := achievement.BuildWithRuleset(configured, metrics)
+	detected := behavior.Detect(configured, metrics)
+	achievements := achievement.Build(configured, metrics)
 	if len(achievements) > ruleset.MaxAchievements {
 		t.Fatalf("awarded %d achievements, maximum is %d", len(achievements), ruleset.MaxAchievements)
 	}
 	if err := integrity.ValidateAchievementSelection(achievements, configured.AchievementPolicy); err != nil {
 		t.Fatalf("achievement selection is invalid: %v", err)
 	}
-	action := nextaction.BuildWithRuleset(configured, metrics, state, detected)
+	action := nextaction.Build(configured, metrics, state, detected)
 	if err := structural.ValidateNextAction(action); err != nil {
 		t.Fatalf("action does not contain a valid required target: %+v: %v", action, err)
 	}
-	story := cards.BuildWithRuleset(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
+	story := buildCards(configured, testkit.Profile(), 2025, testkit.ShareID, metrics, detected, achievements, action)
 	if err := structural.ValidateCards(story); err != nil {
 		t.Fatalf("cards violate invariants: %v", err)
 	}

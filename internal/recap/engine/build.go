@@ -12,7 +12,7 @@ import (
 	"github.com/year-recap/internal/recap/nextaction"
 	"github.com/year-recap/internal/recap/presentation/cards"
 	"github.com/year-recap/internal/recap/presentation/share"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 type BuildInput struct {
@@ -41,34 +41,34 @@ func (e *Engine) Build(input BuildInput) (model.Recap, error) {
 	input.ActionableState = model.NormalizeActionableState(input.ActionableState)
 
 	if input.RecapID == uuid.Nil {
-		return model.Recap{}, fmt.Errorf("%w: internal id is required", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: internal id is required", structural.ErrInvalidRecap)
 	}
 	if input.ShareID == uuid.Nil {
-		return model.Recap{}, fmt.Errorf("%w: public share id is required", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: public share id is required", structural.ErrInvalidRecap)
 	}
 	if input.RecapID == input.ShareID {
-		return model.Recap{}, fmt.Errorf("%w: internal and public ids must differ", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: internal and public ids must differ", structural.ErrInvalidRecap)
 	}
-	if err := validation.ValidateProfile(input.Profile); err != nil {
+	if err := structural.ValidateProfile(input.Profile); err != nil {
 		return model.Recap{}, err
 	}
 	if input.Year == 0 || input.Period.Year != input.Year {
-		return model.Recap{}, fmt.Errorf("%w: year and period are inconsistent", validation.ErrInvalidRecap)
+		return model.Recap{}, fmt.Errorf("%w: year and period are inconsistent", structural.ErrInvalidRecap)
 	}
-	if err := validation.ValidatePeriod(input.Period); err != nil {
-		return model.Recap{}, fmt.Errorf("%w: period: %w", validation.ErrInvalidRecap, err)
+	if err := structural.ValidatePeriod(input.Period); err != nil {
+		return model.Recap{}, fmt.Errorf("%w: period: %w", structural.ErrInvalidRecap, err)
 	}
-	if err := validation.ValidateMetricsForPeriod(input.Metrics, input.Period); err != nil {
+	if err := structural.ValidateMetricsForPeriod(input.Metrics, input.Period); err != nil {
 		return model.Recap{}, err
 	}
 	if err := e.ensureEligible(input.Metrics); err != nil {
 		return model.Recap{}, err
 	}
-	if err := validation.ValidateActionableState(input.ActionableState); err != nil {
+	if err := structural.ValidateActionableState(input.ActionableState); err != nil {
 		return model.Recap{}, err
 	}
 	if !input.ActionableState.CapturedAt.Equal(input.GeneratedAt) {
-		return model.Recap{}, fmt.Errorf("%w: snapshot captured at %s, generated at %s", validation.ErrInvalidActionableState, input.ActionableState.CapturedAt, input.GeneratedAt)
+		return model.Recap{}, fmt.Errorf("%w: snapshot captured at %s, generated at %s", structural.ErrInvalidActionableState, input.ActionableState.CapturedAt, input.GeneratedAt)
 	}
 
 	// Canonicalization is deliberately centralized here. Domain modules receive
@@ -92,11 +92,11 @@ func (e *Engine) Build(input BuildInput) (model.Recap, error) {
 		NextAction:      result.NextAction,
 		GeneratedAt:     input.GeneratedAt,
 	}
-	if err := validation.ValidateRecap(recap); err != nil {
+	if err := structural.ValidateRecap(recap); err != nil {
 		return model.Recap{}, err
 	}
 	if err := e.validateAchievementSelection(recap.Achievements); err != nil {
-		return model.Recap{}, fmt.Errorf("%w: achievement selection: %w", validation.ErrInvalidRecap, err)
+		return model.Recap{}, fmt.Errorf("%w: achievement selection: %w", structural.ErrInvalidRecap, err)
 	}
 	return recap, nil
 }

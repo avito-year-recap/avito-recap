@@ -4,15 +4,13 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file recap/v1/recap.proto.
  */
 export const file_recap_v1_recap: GenFile = /*@__PURE__*/
-  fileDesc("ChRyZWNhcC92MS9yZWNhcC5wcm90bxIIcmVjYXAudjEiFQoTTGlzdFByb2ZpbGVzUmVxdWVzdCI7ChRMaXN0UHJvZmlsZXNSZXNwb25zZRIjCghwcm9maWxlcxgBIAMoCzIRLnJlY2FwLnYxLlByb2ZpbGUiOAoUR2VuZXJhdGVSZWNhcFJlcXVlc3QSEgoKcHJvZmlsZV9pZBgBIAEoCRIMCgR5ZWFyGAIgASgNIjcKFUdlbmVyYXRlUmVjYXBSZXNwb25zZRIeCgVyZWNhcBgBIAEoCzIPLnJlY2FwLnYxLlJlY2FwIiwKD0dldFJlY2FwUmVxdWVzdBIZChFpbnRlcm5hbF9yZWNhcF9pZBgBIAEoCSIyChBHZXRSZWNhcFJlc3BvbnNlEh4KBXJlY2FwGAEgASgLMg8ucmVjYXAudjEuUmVjYXAiJwoTR2V0U2hhcmVDYXJkUmVxdWVzdBIQCghzaGFyZV9pZBgBIAEoCSI/ChRHZXRTaGFyZUNhcmRSZXNwb25zZRInCgpzaGFyZV9jYXJkGAEgASgLMhMucmVjYXAudjEuU2hhcmVDYXJkInYKB1Byb2ZpbGUSCgoCaWQYASABKAkSDAoEY29kZRgCIAEoCRIUCgxkaXNwbGF5X25hbWUYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSFwoKYXZhdGFyX3VybBgFIAEoCUgAiAEBQg0KC19hdmF0YXJfdXJsIoQBCgtSZWNhcFBlcmlvZBIMCgR5ZWFyGAEgASgNEiwKCHN0YXJ0X2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIqCgZlbmRfYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWZpbmFsGAQgASgIIr8DCgVSZWNhcBITCgtpbnRlcm5hbF9pZBgBIAEoCRIiCgdwcm9maWxlGAIgASgLMhEucmVjYXAudjEuUHJvZmlsZRIMCgR5ZWFyGAMgASgNEhUKDXJ1bGVzX3ZlcnNpb24YBCABKAkSIgoHbWV0cmljcxgFIAEoCzIRLnJlY2FwLnYxLk1ldHJpY3MSJAoIYmVoYXZpb3IYBiABKAsyEi5yZWNhcC52MS5CZWhhdmlvchIrCgxhY2hpZXZlbWVudHMYByADKAsyFS5yZWNhcC52MS5BY2hpZXZlbWVudBIdCgVjYXJkcxgIIAMoCzIOLnJlY2FwLnYxLkNhcmQSKQoLbmV4dF9hY3Rpb24YCSABKAsyFC5yZWNhcC52MS5OZXh0QWN0aW9uEjAKDGdlbmVyYXRlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIc2hhcmVfaWQYCyABKAkSJQoGcGVyaW9kGAwgASgLMhUucmVjYXAudjEuUmVjYXBQZXJpb2QSFAoMcnVsZXNfZGlnZXN0GA4gASgJSgQIDRAOUhBhY3Rpb25hYmxlX3N0YXRlIswFCgdNZXRyaWNzEhQKDHRvdGFsX2V2ZW50cxgBIAEoBBIQCghzZWFyY2hlcxgCIAEoBBITCgt0b3RhbF92aWV3cxgDIAEoBBIXCg91bmlxdWVfbGlzdGluZ3MYBCABKAQSFgoOcmVwZWF0ZWRfdmlld3MYBSABKAQSFwoPZmF2b3JpdGVzX2FkZGVkGAYgASgEEhUKDWNoYXRzX3N0YXJ0ZWQYByABKAQSGAoQbGlzdGluZ3NfY3JlYXRlZBgIIAEoBBIaChJsaXN0aW5nc19wdWJsaXNoZWQYCSABKAQSGwoTcHVyY2hhc2VzX2NvbXBsZXRlZBgKIAEoBBIXCg9zYWxlc19jb21wbGV0ZWQYCyABKAQSEwoLYWN0aXZlX2RheXMYDCABKAQSGAoQY2F0ZWdvcmllc19jb3VudBgNIAEoBBIeChF0b3BfY2F0ZWdvcnlfY29kZRgOIAEoCUgAiAEBEhkKDHRvcF9jYXRlZ29yeRgPIAEoCUgBiAEBEhoKEnRvcF9jYXRlZ29yeV92aWV3cxgQIAEoBBIeChZ0b3BfY2F0ZWdvcnlfc2hhcmVhYmxlGBEgASgIEhkKEW1vc3RfYWN0aXZlX21vbnRoGBIgASgNEhMKC3JlcGVhdF9yYXRlGBUgASgBEhUKDXB1cmNoYXNlX3JhdGUYGCABKAESGwoTY2hhdHNfd2l0aF9wdXJjaGFzZRgZIAEoBBI3ChNjYXRlZ29yeV9hY3Rpdml0aWVzGBogAygLMhoucmVjYXAudjEuQ2F0ZWdvcnlBY3Rpdml0eUIUChJfdG9wX2NhdGVnb3J5X2NvZGVCDwoNX3RvcF9jYXRlZ29yeUoECBMQFEoECBQQFUoECBYQF0oECBcQGFINZmF2b3JpdGVfcmF0ZVIJY2hhdF9yYXRlUhBwdWJsaWNhdGlvbl9yYXRlUglzYWxlX3JhdGUikwEKEENhdGVnb3J5QWN0aXZpdHkSFQoNY2F0ZWdvcnlfY29kZRgBIAEoCRIQCghjYXRlZ29yeRgCIAEoCRIRCglzaGFyZWFibGUYAyABKAgSDQoFdmlld3MYBCABKAQSFwoPZmF2b3JpdGVzX2FkZGVkGAUgASgEEhsKE3B1cmNoYXNlc19jb21wbGV0ZWQYBiABKAQiYwoQQmVoYXZpb3JFdmlkZW5jZRIOCgZtZXRyaWMYASABKAkSDgoGYWN0dWFsGAIgASgBEhEKCXRocmVzaG9sZBgDIAEoARIOCgZkZXRhaWwYBSABKAlKBAgEEAVSBnBvaW50cyKfAQoIQmVoYXZpb3ISJAoEY29kZRgBIAEoDjIWLnJlY2FwLnYxLkJlaGF2aW9yQ29kZRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIOCgZyZWFzb24YBCABKAkSLAoIZXZpZGVuY2UYBiADKAsyGi5yZWNhcC52MS5CZWhhdmlvckV2aWRlbmNlSgQIBRAGUgVzY29yZSKuAQoLQWNoaWV2ZW1lbnQSJwoEY29kZRgBIAEoDjIZLnJlY2FwLnYxLkFjaGlldmVtZW50Q29kZRINCgV0aXRsZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIOCgZyZWFzb24YBCABKAkSEQoJc2hhcmVhYmxlGAUgASgIEi8KCGNhdGVnb3J5GAYgASgOMh0ucmVjYXAudjEuQWNoaWV2ZW1lbnRDYXRlZ29yeSIcCgtSb3V0ZVRhcmdldBINCgVyb3V0ZRgBIAEoCSInCg5DYXRlZ29yeVRhcmdldBIVCg1jYXRlZ29yeV9jb2RlGAEgASgJIiMKDUxpc3RpbmdUYXJnZXQSEgoKbGlzdGluZ19pZBgBIAEoCSIhCgxEaWFsb2dUYXJnZXQSEQoJZGlhbG9nX2lkGAEgASgJIiUKDFNlYXJjaFRhcmdldBIVCg1jYXRlZ29yeV9jb2RlGAEgASgJIvMBCgxBY3Rpb25UYXJnZXQSJgoFcm91dGUYASABKAsyFS5yZWNhcC52MS5Sb3V0ZVRhcmdldEgAEiwKCGNhdGVnb3J5GAIgASgLMhgucmVjYXAudjEuQ2F0ZWdvcnlUYXJnZXRIABIqCgdsaXN0aW5nGAMgASgLMhcucmVjYXAudjEuTGlzdGluZ1RhcmdldEgAEigKBmRpYWxvZxgEIAEoCzIWLnJlY2FwLnYxLkRpYWxvZ1RhcmdldEgAEigKBnNlYXJjaBgFIAEoCzIWLnJlY2FwLnYxLlNlYXJjaFRhcmdldEgAQg0KC2Rlc3RpbmF0aW9uIqEBCgpOZXh0QWN0aW9uEiIKBGNvZGUYASABKA4yFC5yZWNhcC52MS5BY3Rpb25Db2RlEg0KBXRpdGxlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhMKC2J1dHRvbl90ZXh0GAQgASgJEg4KBnJlYXNvbhgFIAEoCRImCgZ0YXJnZXQYBiABKAsyFi5yZWNhcC52MS5BY3Rpb25UYXJnZXQizwEKBENhcmQSCgoCaWQYASABKAkSIAoEdHlwZRgCIAEoDjISLnJlY2FwLnYxLkNhcmRUeXBlEhAKCHBvc2l0aW9uGAMgASgNEg0KBXRpdGxlGAQgASgJEhMKC2Rlc2NyaXB0aW9uGAUgASgJEhgKC2V4cGxhbmF0aW9uGAYgASgJSACIAQESEQoJc2hhcmVhYmxlGAcgASgIEiYKB3BheWxvYWQYCCABKAsyFS5yZWNhcC52MS5DYXJkUGF5bG9hZEIOCgxfZXhwbGFuYXRpb24i1AEKE1llYXJBY3Rpdml0eVBheWxvYWQSFAoMdG90YWxfZXZlbnRzGAEgASgEEhAKCHNlYXJjaGVzGAIgASgEEhMKC3RvdGFsX3ZpZXdzGAMgASgEEhcKD2Zhdm9yaXRlc19hZGRlZBgEIAEoBBIVCg1jaGF0c19zdGFydGVkGAUgASgEEhoKEmxpc3RpbmdzX3B1Ymxpc2hlZBgGIAEoBBIbChNwdXJjaGFzZXNfY29tcGxldGVkGAcgASgEEhcKD3NhbGVzX2NvbXBsZXRlZBgIIAEoBCJVChJUb3BDYXRlZ29yeVBheWxvYWQSFQoNY2F0ZWdvcnlfY29kZRgBIAEoCRIQCghjYXRlZ29yeRgCIAEoCRIWCg5jYXRlZ29yeV92aWV3cxgDIAEoBCIjChJBY3RpdmVNb250aFBheWxvYWQSDQoFbW9udGgYASABKA0icgoPQmVoYXZpb3JQYXlsb2FkEiQKBGNvZGUYASABKA4yFi5yZWNhcC52MS5CZWhhdmlvckNvZGUSLAoIZXZpZGVuY2UYAyADKAsyGi5yZWNhcC52MS5CZWhhdmlvckV2aWRlbmNlSgQIAhADUgVzY29yZSI+ChJBY2hpZXZlbWVudFBheWxvYWQSKAoFY29kZXMYASADKA4yGS5yZWNhcC52MS5BY2hpZXZlbWVudENvZGUiWwoNQWN0aW9uUGF5bG9hZBIiCgRjb2RlGAEgASgOMhQucmVjYXAudjEuQWN0aW9uQ29kZRImCgZ0YXJnZXQYAiABKAsyFi5yZWNhcC52MS5BY3Rpb25UYXJnZXQi5QQKC0NhcmRQYXlsb2FkEjYKDXllYXJfYWN0aXZpdHkYFCABKAsyHS5yZWNhcC52MS5ZZWFyQWN0aXZpdHlQYXlsb2FkSAASNAoMdG9wX2NhdGVnb3J5GBUgASgLMhwucmVjYXAudjEuVG9wQ2F0ZWdvcnlQYXlsb2FkSAASNAoMYWN0aXZlX21vbnRoGBYgASgLMhwucmVjYXAudjEuQWN0aXZlTW9udGhQYXlsb2FkSAASLQoIYmVoYXZpb3IYFyABKAsyGS5yZWNhcC52MS5CZWhhdmlvclBheWxvYWRIABIzCgthY2hpZXZlbWVudBgYIAEoCzIcLnJlY2FwLnYxLkFjaGlldmVtZW50UGF5bG9hZEgAEikKBmFjdGlvbhgZIAEoCzIXLnJlY2FwLnYxLkFjdGlvblBheWxvYWRIABIkCgVzaGFyZRgaIAEoCzITLnJlY2FwLnYxLlNoYXJlQ2FyZEgAQgcKBXZhbHVlSgQIARARUgx0b3RhbF9ldmVudHNSCHNlYXJjaGVzUgt0b3RhbF92aWV3c1IPZmF2b3JpdGVzX2FkZGVkUg1jaGF0c19zdGFydGVkUhJsaXN0aW5nc19wdWJsaXNoZWRSE3B1cmNoYXNlc19jb21wbGV0ZWRSD3NhbGVzX2NvbXBsZXRlZFINY2F0ZWdvcnlfY29kZVIIY2F0ZWdvcnlSDmNhdGVnb3J5X3ZpZXdzUgVtb250aFINYmVoYXZpb3JfY29kZVIQYWNoaWV2ZW1lbnRfY29kZVIRYWNoaWV2ZW1lbnRfY29kZXNSC2FjdGlvbl9jb2RlIr4BCglTaGFyZUNhcmQSEAoIc2hhcmVfaWQYASABKAkSDAoEeWVhchgCIAEoDRIWCg5iZWhhdmlvcl90aXRsZRgDIAEoCRIeChFhY2hpZXZlbWVudF90aXRsZRgEIAEoCUgAiAEBEhkKDHRvcF9jYXRlZ29yeRgFIAEoCUgBiAEBEhcKD3ByaXZhY3lfdmVyc2lvbhgGIAEoCUIUChJfYWNoaWV2ZW1lbnRfdGl0bGVCDwoNX3RvcF9jYXRlZ29yeSryAQoMQmVoYXZpb3JDb2RlEh0KGUJFSEFWSU9SX0NPREVfVU5TUEVDSUZJRUQQABIfChtCRUhBVklPUl9DT0RFX0FDVElWRV9TRUxMRVIQARIhCh1CRUhBVklPUl9DT0RFX1NUQVJUSU5HX1NFTExFUhACEiAKHEJFSEFWSU9SX0NPREVfREVDSVNJVkVfQlVZRVIQAxIdChlCRUhBVklPUl9DT0RFX0ZJTkRfSFVOVEVSEAQSHAoYQkVIQVZJT1JfQ09ERV9SRVNFQVJDSEVSEAUSIAocQkVIQVZJT1JfQ09ERV9VTklWRVJTQUxfVVNFUhAGKpACChNBY2hpZXZlbWVudENhdGVnb3J5EiQKIEFDSElFVkVNRU5UX0NBVEVHT1JZX1VOU1BFQ0lGSUVEEAASIAocQUNISUVWRU1FTlRfQ0FURUdPUllfU0VMTElORxABEh8KG0FDSElFVkVNRU5UX0NBVEVHT1JZX0JVWUlORxACEiIKHkFDSElFVkVNRU5UX0NBVEVHT1JZX0RJU0NPVkVSWRADEiMKH0FDSElFVkVNRU5UX0NBVEVHT1JZX0NPTExFQ1RJT04QBBIkCiBBQ0hJRVZFTUVOVF9DQVRFR09SWV9WRVJTQVRJTElUWRAFEiEKHUFDSElFVkVNRU5UX0NBVEVHT1JZX0lOVEVSRVNUEAYqpQYKD0FjaGlldmVtZW50Q29kZRIgChxBQ0hJRVZFTUVOVF9DT0RFX1VOU1BFQ0lGSUVEEAASJgoiQUNISUVWRU1FTlRfQ09ERV9TVUNDRVNTRlVMX1NFTExFUhABEikKJUFDSElFVkVNRU5UX0NPREVfQ09OU0lTVEVOVF9QVUJMSVNIRVIQAhIpCiVBQ0hJRVZFTUVOVF9DT0RFX0FUVEVOVElWRV9SRVNFQVJDSEVSEAMSKAokQUNISUVWRU1FTlRfQ09ERV9NQVNURVJfT0ZfRkFWT1JJVEVTEAQSJAogQUNISUVWRU1FTlRfQ09ERV9CUk9BRF9JTlRFUkVTVFMQBRIgChxBQ0hJRVZFTUVOVF9DT0RFX0FMTF9ST1VOREVSEAYSKAokQUNISUVWRU1FTlRfQ09ERV9GSVJTVF9TRUxMSU5HX1NURVBTEAcSIAocQUNISUVWRU1FTlRfQ09ERV9ERUFMX0NMT1NFUhAIEiMKH0FDSElFVkVNRU5UX0NPREVfUVVJQ0tfREVDSVNJT04QCRIfChtBQ0hJRVZFTUVOVF9DT0RFX1NUWUxFX0lDT04QChIkCiBBQ0hJRVZFTUVOVF9DT0RFX0ZBU0hJT05BQkxFX01BThALEh0KGUFDSElFVkVNRU5UX0NPREVfVFJBVkVMRVIQDBIhCh1BQ0hJRVZFTUVOVF9DT0RFX0ZPUl9USEVfU09VTBANEh0KGUFDSElFVkVNRU5UX0NPREVfQk9PS1dPUk0QDhInCiNBQ0hJRVZFTUVOVF9DT0RFX0JFQVVUWV9DT05OT0lTU0VVUhAPEisKJ0FDSElFVkVNRU5UX0NPREVfSU5fVEhFX1JIWVRITV9PRl9NVVNJQxAQEiIKHkFDSElFVkVNRU5UX0NPREVfV09STERfT0ZfUExBWRAREiEKHUFDSElFVkVNRU5UX0NPREVfTUFTVEVSX0NSQUZUEBISIQodQUNISUVWRU1FTlRfQ09ERV9DQVJJTkdfT1dORVIQExInCiNBQ0hJRVZFTUVOVF9DT0RFX0xJVFRMRV9ESVNDT1ZFUklFUxAUKoEDCgpBY3Rpb25Db2RlEhsKF0FDVElPTl9DT0RFX1VOU1BFQ0lGSUVEEAASHAoYQUNUSU9OX0NPREVfRklOSVNIX0RSQUZUEAESHgoaQUNUSU9OX0NPREVfT1BFTl9GQVZPUklURVMQAhIgChxBQ1RJT05fQ09ERV9JTVBST1ZFX0xJU1RJTkdTEAMSIAocQUNUSU9OX0NPREVfQ09OVElOVUVfRElBTE9HUxAEEiEKHUFDVElPTl9DT0RFX09QRU5fVE9QX0NBVEVHT1JZEAUSJAogQUNUSU9OX0NPREVfQ1JFQVRFX0ZJUlNUX0xJU1RJTkcQBhIeChpBQ1RJT05fQ09ERV9DUkVBVEVfTElTVElORxAHEhsKF0FDVElPTl9DT0RFX1NBVkVfU0VBUkNIEAgSJQohQUNUSU9OX0NPREVfVklFV19TSU1JTEFSX0xJU1RJTkdTEAkSJwojQUNUSU9OX0NPREVfRVhQTE9SRV9SRUNPTU1FTkRBVElPTlMQCiqtAgoIQ2FyZFR5cGUSGQoVQ0FSRF9UWVBFX1VOU1BFQ0lGSUVEEAASEwoPQ0FSRF9UWVBFX0lOVFJPEAESGwoXQ0FSRF9UWVBFX1lFQVJfQUNUSVZJVFkQAhIaChZDQVJEX1RZUEVfVE9QX0NBVEVHT1JZEAMSGgoWQ0FSRF9UWVBFX0FDVElWRV9NT05USBAEEhYKEkNBUkRfVFlQRV9CRUhBVklPUhAFEhkKFUNBUkRfVFlQRV9BQ0hJRVZFTUVOVBAGEiAKHENBUkRfVFlQRV9NSVNTRURfT1BQT1JUVU5JVFkQBxIZChVDQVJEX1RZUEVfTkVYVF9BQ1RJT04QCBITCg9DQVJEX1RZUEVfU0hBUkUQCiIECAkQCSoRQ0FSRF9UWVBFX1NVTU1BUlkywQIKDFJlY2FwU2VydmljZRJNCgxMaXN0UHJvZmlsZXMSHS5yZWNhcC52MS5MaXN0UHJvZmlsZXNSZXF1ZXN0Gh4ucmVjYXAudjEuTGlzdFByb2ZpbGVzUmVzcG9uc2USUAoNR2VuZXJhdGVSZWNhcBIeLnJlY2FwLnYxLkdlbmVyYXRlUmVjYXBSZXF1ZXN0Gh8ucmVjYXAudjEuR2VuZXJhdGVSZWNhcFJlc3BvbnNlEkEKCEdldFJlY2FwEhkucmVjYXAudjEuR2V0UmVjYXBSZXF1ZXN0GhoucmVjYXAudjEuR2V0UmVjYXBSZXNwb25zZRJNCgxHZXRTaGFyZUNhcmQSHS5yZWNhcC52MS5HZXRTaGFyZUNhcmRSZXF1ZXN0Gh4ucmVjYXAudjEuR2V0U2hhcmVDYXJkUmVzcG9uc2VCL1otZ2l0aHViLmNvbS95ZWFyLXJlY2FwL2dlbi9nby9yZWNhcC92MTtyZWNhcHYxYgZwcm90bzM", [file_google_protobuf_timestamp]);
+  fileDesc("ChRyZWNhcC92MS9yZWNhcC5wcm90bxIIcmVjYXAudjEiFQoTTGlzdFByb2ZpbGVzUmVxdWVzdCI7ChRMaXN0UHJvZmlsZXNSZXNwb25zZRIjCghwcm9maWxlcxgBIAMoCzIRLnJlY2FwLnYxLlByb2ZpbGUiOgoUR2VuZXJhdGVSZWNhcFJlcXVlc3QSFAoMcHJvZmlsZV9jb2RlGAEgASgJEgwKBHllYXIYAiABKA0iNQoPR2V0UmVjYXBSZXF1ZXN0EhQKDHByb2ZpbGVfY29kZRgBIAEoCRIMCgR5ZWFyGAIgASgNIikKFUdldFB1YmxpY1NoYXJlUmVxdWVzdBIQCghzaGFyZV9pZBgBIAEoCSJTCg1SZWNhcFJlc3BvbnNlEiIKB3Byb2ZpbGUYASABKAsyES5yZWNhcC52MS5Qcm9maWxlEh4KBXJlY2FwGAIgASgLMg8ucmVjYXAudjEuUmVjYXAiPgoWR2V0UHVibGljU2hhcmVSZXNwb25zZRIkCgVzaGFyZRgBIAEoCzIVLnJlY2FwLnYxLlB1YmxpY1NoYXJlIlYKB1Byb2ZpbGUSDAoEbmFtZRgBIAEoCRITCgtkZXNjcmlwdGlvbhgCIAEoCRISCgphdmF0YXJfdXJsGAMgASgJEhQKDHByb2ZpbGVfY29kZRgEIAEoCSKzAQoFUmVjYXASCgoCaWQYASABKAkSDAoEeWVhchgCIAEoDRIUCgxydWxlX3ZlcnNpb24YAyABKAkSIgoFY2FyZHMYBCADKAsyEy5yZWNhcC52MS5SZWNhcENhcmQSKwoMYWNoaWV2ZW1lbnRzGAUgAygLMhUucmVjYXAudjEuQWNoaWV2ZW1lbnQSKQoLbmV4dF9hY3Rpb24YBiABKAsyFC5yZWNhcC52MS5OZXh0QWN0aW9uIvIECglSZWNhcENhcmQSCgoCaWQYASABKAkSIAoEdHlwZRgCIAEoDjISLnJlY2FwLnYxLkNhcmRUeXBlEhAKCHBvc2l0aW9uGAMgASgNEg0KBXRpdGxlGAQgASgJEhMKC2Rlc2NyaXB0aW9uGAUgASgJEhMKC2V4cGxhbmF0aW9uGAYgASgJEhEKCXNoYXJlYWJsZRgHIAEoCBInCgVpbnRybxgKIAEoCzIWLnJlY2FwLnYxLkludHJvUGF5bG9hZEgAEjYKDXllYXJfYWN0aXZpdHkYCyABKAsyHS5yZWNhcC52MS5ZZWFyQWN0aXZpdHlQYXlsb2FkSAASNAoMdG9wX2NhdGVnb3J5GAwgASgLMhwucmVjYXAudjEuVG9wQ2F0ZWdvcnlQYXlsb2FkSAASNAoMYWN0aXZlX21vbnRoGA0gASgLMhwucmVjYXAudjEuQWN0aXZlTW9udGhQYXlsb2FkSAASLQoIYmVoYXZpb3IYDiABKAsyGS5yZWNhcC52MS5CZWhhdmlvclBheWxvYWRIABIzCgthY2hpZXZlbWVudBgPIAEoCzIcLnJlY2FwLnYxLkFjaGlldmVtZW50UGF5bG9hZEgAEkAKEm1pc3NlZF9vcHBvcnR1bml0eRgQIAEoCzIiLnJlY2FwLnYxLk1pc3NlZE9wcG9ydHVuaXR5UGF5bG9hZEgAEjIKC25leHRfYWN0aW9uGBEgASgLMhsucmVjYXAudjEuTmV4dEFjdGlvblBheWxvYWRIABInCgVzaGFyZRgSIAEoCzIWLnJlY2FwLnYxLlNoYXJlUGF5bG9hZEgAQgkKB3BheWxvYWQiDgoMSW50cm9QYXlsb2FkItQBChNZZWFyQWN0aXZpdHlQYXlsb2FkEhQKDHRvdGFsX2V2ZW50cxgBIAEoBBIQCghzZWFyY2hlcxgCIAEoBBITCgt0b3RhbF92aWV3cxgDIAEoBBIXCg9mYXZvcml0ZXNfYWRkZWQYBCABKAQSFQoNY2hhdHNfc3RhcnRlZBgFIAEoBBIaChJsaXN0aW5nc19wdWJsaXNoZWQYBiABKAQSGwoTcHVyY2hhc2VzX2NvbXBsZXRlZBgHIAEoBBIXCg9zYWxlc19jb21wbGV0ZWQYCCABKAQiVQoSVG9wQ2F0ZWdvcnlQYXlsb2FkEhUKDWNhdGVnb3J5X2NvZGUYASABKAkSEAoIY2F0ZWdvcnkYAiABKAkSFgoOY2F0ZWdvcnlfdmlld3MYAyABKAQiIwoSQWN0aXZlTW9udGhQYXlsb2FkEg0KBW1vbnRoGAEgASgNIrEBChBCZWhhdmlvckV2aWRlbmNlEg4KBm1ldHJpYxgBIAEoCRINCgVsYWJlbBgCIAEoCRIUCgxhY3R1YWxfdmFsdWUYAyABKAESEQoJdGhyZXNob2xkGAQgASgBEjAKCmNvbXBhcmlzb24YBSABKA4yHC5yZWNhcC52MS5FdmlkZW5jZUNvbXBhcmlzb24SDgoGcG9pbnRzGAYgASgFEhMKC2V4cGxhbmF0aW9uGAcgASgJInQKD0JlaGF2aW9yUGF5bG9hZBIkCgRjb2RlGAEgASgOMhYucmVjYXAudjEuQmVoYXZpb3JDb2RlEg0KBXNjb3JlGAIgASgFEiwKCGV2aWRlbmNlGAMgAygLMhoucmVjYXAudjEuQmVoYXZpb3JFdmlkZW5jZSI+ChJBY2hpZXZlbWVudFBheWxvYWQSKAoFY29kZXMYASADKA4yGS5yZWNhcC52MS5BY2hpZXZlbWVudENvZGUiaAoLQWNoaWV2ZW1lbnQSJwoEY29kZRgBIAEoDjIZLnJlY2FwLnYxLkFjaGlldmVtZW50Q29kZRINCgV0aXRsZRgCIAEoCRIOCgZyZWFzb24YAyABKAkSEQoJc2hhcmVhYmxlGAQgASgIIiMKDUxpc3RpbmdUYXJnZXQSEgoKbGlzdGluZ19pZBgBIAEoCSIhCgxEaWFsb2dUYXJnZXQSEQoJZGlhbG9nX2lkGAEgASgJIicKDkNhdGVnb3J5VGFyZ2V0EhUKDWNhdGVnb3J5X2NvZGUYASABKAkiJQoMU2VhcmNoVGFyZ2V0EhUKDWNhdGVnb3J5X2NvZGUYASABKAkiGwoLUm91dGVUYXJnZXQSDAoEcGF0aBgBIAEoCSLuAQoMQWN0aW9uVGFyZ2V0EioKB2xpc3RpbmcYASABKAsyFy5yZWNhcC52MS5MaXN0aW5nVGFyZ2V0SAASKAoGZGlhbG9nGAIgASgLMhYucmVjYXAudjEuRGlhbG9nVGFyZ2V0SAASLAoIY2F0ZWdvcnkYAyABKAsyGC5yZWNhcC52MS5DYXRlZ29yeVRhcmdldEgAEigKBnNlYXJjaBgEIAEoCzIWLnJlY2FwLnYxLlNlYXJjaFRhcmdldEgAEiYKBXJvdXRlGAUgASgLMhUucmVjYXAudjEuUm91dGVUYXJnZXRIAEIICgZ0YXJnZXQiZgoYTWlzc2VkT3Bwb3J0dW5pdHlQYXlsb2FkEiIKBGNvZGUYASABKA4yFC5yZWNhcC52MS5BY3Rpb25Db2RlEiYKBnRhcmdldBgCIAEoCzIWLnJlY2FwLnYxLkFjdGlvblRhcmdldCJfChFOZXh0QWN0aW9uUGF5bG9hZBIiCgRjb2RlGAEgASgOMhQucmVjYXAudjEuQWN0aW9uQ29kZRImCgZ0YXJnZXQYAiABKAsyFi5yZWNhcC52MS5BY3Rpb25UYXJnZXQipgEKCk5leHRBY3Rpb24SIgoEY29kZRgBIAEoDjIULnJlY2FwLnYxLkFjdGlvbkNvZGUSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEwoLZXhwbGFuYXRpb24YBCABKAkSEwoLYnV0dG9uX3RleHQYBSABKAkSJgoGdGFyZ2V0GAYgASgLMhYucmVjYXAudjEuQWN0aW9uVGFyZ2V0IqgBCgxTaGFyZVBheWxvYWQSEAoIc2hhcmVfaWQYASABKAkSDAoEeWVhchgCIAEoDRIWCg5iZWhhdmlvcl90aXRsZRgDIAEoCRIeChFhY2hpZXZlbWVudF90aXRsZRgEIAEoCUgAiAEBEhkKDHRvcF9jYXRlZ29yeRgFIAEoCUgBiAEBQhQKEl9hY2hpZXZlbWVudF90aXRsZUIPCg1fdG9wX2NhdGVnb3J5IqcBCgtQdWJsaWNTaGFyZRIQCghzaGFyZV9pZBgBIAEoCRIMCgR5ZWFyGAIgASgNEhYKDmJlaGF2aW9yX3RpdGxlGAMgASgJEh4KEWFjaGlldmVtZW50X3RpdGxlGAQgASgJSACIAQESGQoMdG9wX2NhdGVnb3J5GAUgASgJSAGIAQFCFAoSX2FjaGlldmVtZW50X3RpdGxlQg8KDV90b3BfY2F0ZWdvcnkqlAIKCENhcmRUeXBlEhkKFUNBUkRfVFlQRV9VTlNQRUNJRklFRBAAEhMKD0NBUkRfVFlQRV9JTlRSTxABEhsKF0NBUkRfVFlQRV9ZRUFSX0FDVElWSVRZEAISGgoWQ0FSRF9UWVBFX1RPUF9DQVRFR09SWRADEhoKFkNBUkRfVFlQRV9BQ1RJVkVfTU9OVEgQBBIWChJDQVJEX1RZUEVfQkVIQVZJT1IQBRIZChVDQVJEX1RZUEVfQUNISUVWRU1FTlQQBhIgChxDQVJEX1RZUEVfTUlTU0VEX09QUE9SVFVOSVRZEAcSGQoVQ0FSRF9UWVBFX05FWFRfQUNUSU9OEAgSEwoPQ0FSRF9UWVBFX1NIQVJFEAkq8gEKDEJlaGF2aW9yQ29kZRIdChlCRUhBVklPUl9DT0RFX1VOU1BFQ0lGSUVEEAASHwobQkVIQVZJT1JfQ09ERV9BQ1RJVkVfU0VMTEVSEAESIQodQkVIQVZJT1JfQ09ERV9TVEFSVElOR19TRUxMRVIQAhIgChxCRUhBVklPUl9DT0RFX0RFQ0lTSVZFX0JVWUVSEAMSHQoZQkVIQVZJT1JfQ09ERV9GSU5EX0hVTlRFUhAEEhwKGEJFSEFWSU9SX0NPREVfUkVTRUFSQ0hFUhAFEiAKHEJFSEFWSU9SX0NPREVfVU5JVkVSU0FMX1VTRVIQBipzChJFdmlkZW5jZUNvbXBhcmlzb24SIwofRVZJREVOQ0VfQ09NUEFSSVNPTl9VTlNQRUNJRklFRBAAEhsKF0VWSURFTkNFX0NPTVBBUklTT05fR1RFEAESGwoXRVZJREVOQ0VfQ09NUEFSSVNPTl9MVEUQAiqlBgoPQWNoaWV2ZW1lbnRDb2RlEiAKHEFDSElFVkVNRU5UX0NPREVfVU5TUEVDSUZJRUQQABImCiJBQ0hJRVZFTUVOVF9DT0RFX1NVQ0NFU1NGVUxfU0VMTEVSEAESKQolQUNISUVWRU1FTlRfQ09ERV9DT05TSVNURU5UX1BVQkxJU0hFUhACEikKJUFDSElFVkVNRU5UX0NPREVfQVRURU5USVZFX1JFU0VBUkNIRVIQAxIoCiRBQ0hJRVZFTUVOVF9DT0RFX01BU1RFUl9PRl9GQVZPUklURVMQBBIkCiBBQ0hJRVZFTUVOVF9DT0RFX0JST0FEX0lOVEVSRVNUUxAFEiAKHEFDSElFVkVNRU5UX0NPREVfQUxMX1JPVU5ERVIQBhIoCiRBQ0hJRVZFTUVOVF9DT0RFX0ZJUlNUX1NFTExJTkdfU1RFUFMQBxIgChxBQ0hJRVZFTUVOVF9DT0RFX0RFQUxfQ0xPU0VSEAgSIwofQUNISUVWRU1FTlRfQ09ERV9RVUlDS19ERUNJU0lPThAJEh8KG0FDSElFVkVNRU5UX0NPREVfU1RZTEVfSUNPThAKEiQKIEFDSElFVkVNRU5UX0NPREVfRkFTSElPTkFCTEVfTUFOEAsSHQoZQUNISUVWRU1FTlRfQ09ERV9UUkFWRUxFUhAMEiEKHUFDSElFVkVNRU5UX0NPREVfRk9SX1RIRV9TT1VMEA0SHQoZQUNISUVWRU1FTlRfQ09ERV9CT09LV09STRAOEicKI0FDSElFVkVNRU5UX0NPREVfQkVBVVRZX0NPTk5PSVNTRVVSEA8SKwonQUNISUVWRU1FTlRfQ09ERV9JTl9USEVfUkhZVEhNX09GX01VU0lDEBASIgoeQUNISUVWRU1FTlRfQ09ERV9XT1JMRF9PRl9QTEFZEBESIQodQUNISUVWRU1FTlRfQ09ERV9NQVNURVJfQ1JBRlQQEhIhCh1BQ0hJRVZFTUVOVF9DT0RFX0NBUklOR19PV05FUhATEicKI0FDSElFVkVNRU5UX0NPREVfTElUVExFX0RJU0NPVkVSSUVTEBQqkAIKE0FjaGlldmVtZW50Q2F0ZWdvcnkSJAogQUNISUVWRU1FTlRfQ0FURUdPUllfVU5TUEVDSUZJRUQQABIgChxBQ0hJRVZFTUVOVF9DQVRFR09SWV9TRUxMSU5HEAESHwobQUNISUVWRU1FTlRfQ0FURUdPUllfQlVZSU5HEAISIgoeQUNISUVWRU1FTlRfQ0FURUdPUllfRElTQ09WRVJZEAMSIwofQUNISUVWRU1FTlRfQ0FURUdPUllfQ09MTEVDVElPThAEEiQKIEFDSElFVkVNRU5UX0NBVEVHT1JZX1ZFUlNBVElMSVRZEAUSIQodQUNISUVWRU1FTlRfQ0FURUdPUllfSU5URVJFU1QQBiqFAwoKQWN0aW9uQ29kZRIbChdBQ1RJT05fQ09ERV9VTlNQRUNJRklFRBAAEhwKGEFDVElPTl9DT0RFX0ZJTklTSF9EUkFGVBABEh4KGkFDVElPTl9DT0RFX09QRU5fRkFWT1JJVEVTEAISIAocQUNUSU9OX0NPREVfSU1QUk9WRV9MSVNUSU5HUxADEiAKHEFDVElPTl9DT0RFX0NPTlRJTlVFX0RJQUxPR1MQBBIhCh1BQ1RJT05fQ09ERV9PUEVOX1RPUF9DQVRFR09SWRAFEh4KGkFDVElPTl9DT0RFX0NSRUFURV9MSVNUSU5HEAYSGwoXQUNUSU9OX0NPREVfU0FWRV9TRUFSQ0gQBxIlCiFBQ1RJT05fQ09ERV9WSUVXX1NJTUlMQVJfTElTVElOR1MQCBInCiNBQ1RJT05fQ09ERV9FWFBMT1JFX1JFQ09NTUVOREFUSU9OUxAJEigKIEFDVElPTl9DT0RFX0NSRUFURV9GSVJTVF9MSVNUSU5HEAoaAggBMrwCCgxSZWNhcFNlcnZpY2USTQoMTGlzdFByb2ZpbGVzEh0ucmVjYXAudjEuTGlzdFByb2ZpbGVzUmVxdWVzdBoeLnJlY2FwLnYxLkxpc3RQcm9maWxlc1Jlc3BvbnNlEkgKDUdlbmVyYXRlUmVjYXASHi5yZWNhcC52MS5HZW5lcmF0ZVJlY2FwUmVxdWVzdBoXLnJlY2FwLnYxLlJlY2FwUmVzcG9uc2USPgoIR2V0UmVjYXASGS5yZWNhcC52MS5HZXRSZWNhcFJlcXVlc3QaFy5yZWNhcC52MS5SZWNhcFJlc3BvbnNlElMKDkdldFB1YmxpY1NoYXJlEh8ucmVjYXAudjEuR2V0UHVibGljU2hhcmVSZXF1ZXN0GiAucmVjYXAudjEuR2V0UHVibGljU2hhcmVSZXNwb25zZUIvWi1naXRodWIuY29tL3llYXItcmVjYXAvZ2VuL2dvL3JlY2FwL3YxO3JlY2FwdjFiBnByb3RvMw");
 
 /**
  * @generated from message recap.v1.ListProfilesRequest
@@ -49,16 +47,11 @@ export const ListProfilesResponseSchema: GenMessage<ListProfilesResponse> = /*@_
  */
 export type GenerateRecapRequest = Message<"recap.v1.GenerateRecapRequest"> & {
   /**
-   * Canonical UUID of a profile from the profile catalogue.
-   *
-   * @generated from field: string profile_id = 1;
+   * @generated from field: string profile_code = 1;
    */
-  profileId: string;
+  profileCode: string;
 
   /**
-   * Completed UTC calendar year. Zero, future years and the current unfinished
-   * year are rejected by the application layer.
-   *
    * @generated from field: uint32 year = 2;
    */
   year: number;
@@ -72,33 +65,18 @@ export const GenerateRecapRequestSchema: GenMessage<GenerateRecapRequest> = /*@_
   messageDesc(file_recap_v1_recap, 2);
 
 /**
- * @generated from message recap.v1.GenerateRecapResponse
- */
-export type GenerateRecapResponse = Message<"recap.v1.GenerateRecapResponse"> & {
-  /**
-   * @generated from field: recap.v1.Recap recap = 1;
-   */
-  recap?: Recap | undefined;
-};
-
-/**
- * Describes the message recap.v1.GenerateRecapResponse.
- * Use `create(GenerateRecapResponseSchema)` to create a new message.
- */
-export const GenerateRecapResponseSchema: GenMessage<GenerateRecapResponse> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 3);
-
-/**
  * @generated from message recap.v1.GetRecapRequest
  */
 export type GetRecapRequest = Message<"recap.v1.GetRecapRequest"> & {
   /**
-   * Canonical UUID of the private recap. This identifier must never be used as
-   * the public sharing identifier.
-   *
-   * @generated from field: string internal_recap_id = 1;
+   * @generated from field: string profile_code = 1;
    */
-  internalRecapId: string;
+  profileCode: string;
+
+  /**
+   * @generated from field: uint32 year = 2;
+   */
+  year: number;
 };
 
 /**
@@ -106,96 +84,87 @@ export type GetRecapRequest = Message<"recap.v1.GetRecapRequest"> & {
  * Use `create(GetRecapRequestSchema)` to create a new message.
  */
 export const GetRecapRequestSchema: GenMessage<GetRecapRequest> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 4);
+  messageDesc(file_recap_v1_recap, 3);
 
 /**
- * @generated from message recap.v1.GetRecapResponse
+ * @generated from message recap.v1.GetPublicShareRequest
  */
-export type GetRecapResponse = Message<"recap.v1.GetRecapResponse"> & {
+export type GetPublicShareRequest = Message<"recap.v1.GetPublicShareRequest"> & {
   /**
-   * @generated from field: recap.v1.Recap recap = 1;
-   */
-  recap?: Recap | undefined;
-};
-
-/**
- * Describes the message recap.v1.GetRecapResponse.
- * Use `create(GetRecapResponseSchema)` to create a new message.
- */
-export const GetRecapResponseSchema: GenMessage<GetRecapResponse> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 5);
-
-/**
- * @generated from message recap.v1.GetShareCardRequest
- */
-export type GetShareCardRequest = Message<"recap.v1.GetShareCardRequest"> & {
-  /**
-   * Canonical UUID of the public share projection.
-   *
    * @generated from field: string share_id = 1;
    */
   shareId: string;
 };
 
 /**
- * Describes the message recap.v1.GetShareCardRequest.
- * Use `create(GetShareCardRequestSchema)` to create a new message.
+ * Describes the message recap.v1.GetPublicShareRequest.
+ * Use `create(GetPublicShareRequestSchema)` to create a new message.
  */
-export const GetShareCardRequestSchema: GenMessage<GetShareCardRequest> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 6);
+export const GetPublicShareRequestSchema: GenMessage<GetPublicShareRequest> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 4);
 
 /**
- * @generated from message recap.v1.GetShareCardResponse
+ * @generated from message recap.v1.RecapResponse
  */
-export type GetShareCardResponse = Message<"recap.v1.GetShareCardResponse"> & {
+export type RecapResponse = Message<"recap.v1.RecapResponse"> & {
   /**
-   * @generated from field: recap.v1.ShareCard share_card = 1;
+   * @generated from field: recap.v1.Profile profile = 1;
    */
-  shareCard?: ShareCard | undefined;
+  profile?: Profile | undefined;
+
+  /**
+   * @generated from field: recap.v1.Recap recap = 2;
+   */
+  recap?: Recap | undefined;
 };
 
 /**
- * Describes the message recap.v1.GetShareCardResponse.
- * Use `create(GetShareCardResponseSchema)` to create a new message.
+ * Describes the message recap.v1.RecapResponse.
+ * Use `create(RecapResponseSchema)` to create a new message.
  */
-export const GetShareCardResponseSchema: GenMessage<GetShareCardResponse> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 7);
+export const RecapResponseSchema: GenMessage<RecapResponse> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 5);
+
+/**
+ * @generated from message recap.v1.GetPublicShareResponse
+ */
+export type GetPublicShareResponse = Message<"recap.v1.GetPublicShareResponse"> & {
+  /**
+   * @generated from field: recap.v1.PublicShare share = 1;
+   */
+  share?: PublicShare | undefined;
+};
+
+/**
+ * Describes the message recap.v1.GetPublicShareResponse.
+ * Use `create(GetPublicShareResponseSchema)` to create a new message.
+ */
+export const GetPublicShareResponseSchema: GenMessage<GetPublicShareResponse> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 6);
 
 /**
  * @generated from message recap.v1.Profile
  */
 export type Profile = Message<"recap.v1.Profile"> & {
   /**
-   * Canonical UUID.
-   *
-   * @generated from field: string id = 1;
+   * @generated from field: string name = 1;
    */
-  id: string;
+  name: string;
 
   /**
-   * Stable machine-readable profile code used by fixtures/demo clients.
-   *
-   * @generated from field: string code = 2;
-   */
-  code: string;
-
-  /**
-   * @generated from field: string display_name = 3;
-   */
-  displayName: string;
-
-  /**
-   * @generated from field: string description = 4;
+   * @generated from field: string description = 2;
    */
   description: string;
 
   /**
-   * Relative or absolute URL. Absence is distinct from an explicitly supplied
-   * empty value at the API boundary.
-   *
-   * @generated from field: optional string avatar_url = 5;
+   * @generated from field: string avatar_url = 3;
    */
-  avatarUrl?: string | undefined;
+  avatarUrl: string;
+
+  /**
+   * @generated from field: string profile_code = 4;
+   */
+  profileCode: string;
 };
 
 /**
@@ -203,131 +172,41 @@ export type Profile = Message<"recap.v1.Profile"> & {
  * Use `create(ProfileSchema)` to create a new message.
  */
 export const ProfileSchema: GenMessage<Profile> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 8);
+  messageDesc(file_recap_v1_recap, 7);
 
 /**
- * RecapPeriod is a final half-open UTC interval [start_at, end_at).
- *
- * @generated from message recap.v1.RecapPeriod
- */
-export type RecapPeriod = Message<"recap.v1.RecapPeriod"> & {
-  /**
-   * @generated from field: uint32 year = 1;
-   */
-  year: number;
-
-  /**
-   * Inclusive, always UTC.
-   *
-   * @generated from field: google.protobuf.Timestamp start_at = 2;
-   */
-  startAt?: Timestamp | undefined;
-
-  /**
-   * Exclusive, always UTC.
-   *
-   * @generated from field: google.protobuf.Timestamp end_at = 3;
-   */
-  endAt?: Timestamp | undefined;
-
-  /**
-   * Always true for a valid annual recap.
-   *
-   * @generated from field: bool final = 4;
-   */
-  final: boolean;
-};
-
-/**
- * Describes the message recap.v1.RecapPeriod.
- * Use `create(RecapPeriodSchema)` to create a new message.
- */
-export const RecapPeriodSchema: GenMessage<RecapPeriod> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 9);
-
-/**
- * Recap is the private, authenticated representation returned to the recap
- * client. The ActionableState snapshot is intentionally not part of this API.
- *
  * @generated from message recap.v1.Recap
  */
 export type Recap = Message<"recap.v1.Recap"> & {
   /**
-   * Private opaque UUID used only by authenticated recap APIs.
-   *
-   * @generated from field: string internal_id = 1;
+   * @generated from field: string id = 1;
    */
-  internalId: string;
+  id: string;
 
   /**
-   * @generated from field: recap.v1.Profile profile = 2;
-   */
-  profile?: Profile | undefined;
-
-  /**
-   * @generated from field: uint32 year = 3;
+   * @generated from field: uint32 year = 2;
    */
   year: number;
 
   /**
-   * Semantic version of the executable rules contract.
-   *
-   * @generated from field: string rules_version = 4;
+   * @generated from field: string rule_version = 3;
    */
-  rulesVersion: string;
+  ruleVersion: string;
 
   /**
-   * @generated from field: recap.v1.Metrics metrics = 5;
+   * @generated from field: repeated recap.v1.RecapCard cards = 4;
    */
-  metrics?: Metrics | undefined;
+  cards: RecapCard[];
 
   /**
-   * @generated from field: recap.v1.Behavior behavior = 6;
-   */
-  behavior?: Behavior | undefined;
-
-  /**
-   * @generated from field: repeated recap.v1.Achievement achievements = 7;
+   * @generated from field: repeated recap.v1.Achievement achievements = 5;
    */
   achievements: Achievement[];
 
   /**
-   * Ordered story cards. Positions are contiguous and start at 1. Exactly one
-   * SHARE card exists and it is always the last card.
-   *
-   * @generated from field: repeated recap.v1.Card cards = 8;
-   */
-  cards: Card[];
-
-  /**
-   * @generated from field: recap.v1.NextAction next_action = 9;
+   * @generated from field: recap.v1.NextAction next_action = 6;
    */
   nextAction?: NextAction | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp generated_at = 10;
-   */
-  generatedAt?: Timestamp | undefined;
-
-  /**
-   * Public opaque UUID. It is intentionally distinct from internal_id.
-   *
-   * @generated from field: string share_id = 11;
-   */
-  shareId: string;
-
-  /**
-   * @generated from field: recap.v1.RecapPeriod period = 12;
-   */
-  period?: RecapPeriod | undefined;
-
-  /**
-   * Lowercase hex SHA-256 fingerprint of the complete executable ruleset,
-   * including thresholds, priorities and privacy policy.
-   *
-   * @generated from field: string rules_digest = 14;
-   */
-  rulesDigest: string;
 };
 
 /**
@@ -335,497 +214,12 @@ export type Recap = Message<"recap.v1.Recap"> & {
  * Use `create(RecapSchema)` to create a new message.
  */
 export const RecapSchema: GenMessage<Recap> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 10);
+  messageDesc(file_recap_v1_recap, 8);
 
 /**
- * @generated from message recap.v1.Metrics
+ * @generated from message recap.v1.RecapCard
  */
-export type Metrics = Message<"recap.v1.Metrics"> & {
-  /**
-   * @generated from field: uint64 total_events = 1;
-   */
-  totalEvents: bigint;
-
-  /**
-   * @generated from field: uint64 searches = 2;
-   */
-  searches: bigint;
-
-  /**
-   * @generated from field: uint64 total_views = 3;
-   */
-  totalViews: bigint;
-
-  /**
-   * @generated from field: uint64 unique_listings = 4;
-   */
-  uniqueListings: bigint;
-
-  /**
-   * @generated from field: uint64 repeated_views = 5;
-   */
-  repeatedViews: bigint;
-
-  /**
-   * @generated from field: uint64 favorites_added = 6;
-   */
-  favoritesAdded: bigint;
-
-  /**
-   * @generated from field: uint64 chats_started = 7;
-   */
-  chatsStarted: bigint;
-
-  /**
-   * @generated from field: uint64 listings_created = 8;
-   */
-  listingsCreated: bigint;
-
-  /**
-   * @generated from field: uint64 listings_published = 9;
-   */
-  listingsPublished: bigint;
-
-  /**
-   * @generated from field: uint64 purchases_completed = 10;
-   */
-  purchasesCompleted: bigint;
-
-  /**
-   * @generated from field: uint64 sales_completed = 11;
-   */
-  salesCompleted: bigint;
-
-  /**
-   * @generated from field: uint64 active_days = 12;
-   */
-  activeDays: bigint;
-
-  /**
-   * @generated from field: uint64 categories_count = 13;
-   */
-  categoriesCount: bigint;
-
-  /**
-   * Top-category fields are either all populated consistently or all absent / 0.
-   *
-   * @generated from field: optional string top_category_code = 14;
-   */
-  topCategoryCode?: string | undefined;
-
-  /**
-   * @generated from field: optional string top_category = 15;
-   */
-  topCategory?: string | undefined;
-
-  /**
-   * @generated from field: uint64 top_category_views = 16;
-   */
-  topCategoryViews: bigint;
-
-  /**
-   * Internal-to-private-recap privacy signal. This is never copied directly to
-   * ShareCard; the share builder additionally applies the versioned allow-list.
-   *
-   * @generated from field: bool top_category_shareable = 17;
-   */
-  topCategoryShareable: boolean;
-
-  /**
-   * Calendar month in [1, 12] for a valid recap.
-   *
-   * @generated from field: uint32 most_active_month = 18;
-   */
-  mostActiveMonth: number;
-
-  /**
-   * repeated_views / total_views, in [0, 1].
-   *
-   * @generated from field: double repeat_rate = 21;
-   */
-  repeatRate: number;
-
-  /**
-   * chats_with_purchase / chats_started, in [0, 1].
-   *
-   * @generated from field: double purchase_rate = 24;
-   */
-  purchaseRate: number;
-
-  /**
-   * @generated from field: uint64 chats_with_purchase = 25;
-   */
-  chatsWithPurchase: bigint;
-
-  /**
-   * Normalized by category_code. Used as evidence for thematic achievements.
-   *
-   * @generated from field: repeated recap.v1.CategoryActivity category_activities = 26;
-   */
-  categoryActivities: CategoryActivity[];
-};
-
-/**
- * Describes the message recap.v1.Metrics.
- * Use `create(MetricsSchema)` to create a new message.
- */
-export const MetricsSchema: GenMessage<Metrics> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 11);
-
-/**
- * @generated from message recap.v1.CategoryActivity
- */
-export type CategoryActivity = Message<"recap.v1.CategoryActivity"> & {
-  /**
-   * @generated from field: string category_code = 1;
-   */
-  categoryCode: string;
-
-  /**
-   * @generated from field: string category = 2;
-   */
-  category: string;
-
-  /**
-   * @generated from field: bool shareable = 3;
-   */
-  shareable: boolean;
-
-  /**
-   * @generated from field: uint64 views = 4;
-   */
-  views: bigint;
-
-  /**
-   * @generated from field: uint64 favorites_added = 5;
-   */
-  favoritesAdded: bigint;
-
-  /**
-   * @generated from field: uint64 purchases_completed = 6;
-   */
-  purchasesCompleted: bigint;
-};
-
-/**
- * Describes the message recap.v1.CategoryActivity.
- * Use `create(CategoryActivitySchema)` to create a new message.
- */
-export const CategoryActivitySchema: GenMessage<CategoryActivity> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 12);
-
-/**
- * BehaviorEvidence explains a deterministic rule match. It is not a
- * probability/confidence score.
- *
- * @generated from message recap.v1.BehaviorEvidence
- */
-export type BehaviorEvidence = Message<"recap.v1.BehaviorEvidence"> & {
-  /**
-   * Stable metric key such as "total_views", "repeat_rate" or
-   * "listings_published".
-   *
-   * @generated from field: string metric = 1;
-   */
-  metric: string;
-
-  /**
-   * @generated from field: double actual = 2;
-   */
-  actual: number;
-
-  /**
-   * @generated from field: double threshold = 3;
-   */
-  threshold: number;
-
-  /**
-   * Human-readable explanation generated by the ruleset.
-   *
-   * @generated from field: string detail = 5;
-   */
-  detail: string;
-};
-
-/**
- * Describes the message recap.v1.BehaviorEvidence.
- * Use `create(BehaviorEvidenceSchema)` to create a new message.
- */
-export const BehaviorEvidenceSchema: GenMessage<BehaviorEvidence> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 13);
-
-/**
- * @generated from message recap.v1.Behavior
- */
-export type Behavior = Message<"recap.v1.Behavior"> & {
-  /**
-   * @generated from field: recap.v1.BehaviorCode code = 1;
-   */
-  code: BehaviorCode;
-
-  /**
-   * @generated from field: string title = 2;
-   */
-  title: string;
-
-  /**
-   * @generated from field: string description = 3;
-   */
-  description: string;
-
-  /**
-   * @generated from field: string reason = 4;
-   */
-  reason: string;
-
-  /**
-   * @generated from field: repeated recap.v1.BehaviorEvidence evidence = 6;
-   */
-  evidence: BehaviorEvidence[];
-};
-
-/**
- * Describes the message recap.v1.Behavior.
- * Use `create(BehaviorSchema)` to create a new message.
- */
-export const BehaviorSchema: GenMessage<Behavior> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 14);
-
-/**
- * @generated from message recap.v1.Achievement
- */
-export type Achievement = Message<"recap.v1.Achievement"> & {
-  /**
-   * @generated from field: recap.v1.AchievementCode code = 1;
-   */
-  code: AchievementCode;
-
-  /**
-   * @generated from field: string title = 2;
-   */
-  title: string;
-
-  /**
-   * @generated from field: string description = 3;
-   */
-  description: string;
-
-  /**
-   * @generated from field: string reason = 4;
-   */
-  reason: string;
-
-  /**
-   * Whether this achievement may be considered by the current share policy.
-   * The public ShareCard is still built from an explicit allow-list projection.
-   *
-   * @generated from field: bool shareable = 5;
-   */
-  shareable: boolean;
-
-  /**
-   * @generated from field: recap.v1.AchievementCategory category = 6;
-   */
-  category: AchievementCategory;
-};
-
-/**
- * Describes the message recap.v1.Achievement.
- * Use `create(AchievementSchema)` to create a new message.
- */
-export const AchievementSchema: GenMessage<Achievement> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 15);
-
-/**
- * @generated from message recap.v1.RouteTarget
- */
-export type RouteTarget = Message<"recap.v1.RouteTarget"> & {
-  /**
-   * Only routes allowed by the application ruleset may be returned.
-   *
-   * @generated from field: string route = 1;
-   */
-  route: string;
-};
-
-/**
- * Describes the message recap.v1.RouteTarget.
- * Use `create(RouteTargetSchema)` to create a new message.
- */
-export const RouteTargetSchema: GenMessage<RouteTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 16);
-
-/**
- * @generated from message recap.v1.CategoryTarget
- */
-export type CategoryTarget = Message<"recap.v1.CategoryTarget"> & {
-  /**
-   * @generated from field: string category_code = 1;
-   */
-  categoryCode: string;
-};
-
-/**
- * Describes the message recap.v1.CategoryTarget.
- * Use `create(CategoryTargetSchema)` to create a new message.
- */
-export const CategoryTargetSchema: GenMessage<CategoryTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 17);
-
-/**
- * @generated from message recap.v1.ListingTarget
- */
-export type ListingTarget = Message<"recap.v1.ListingTarget"> & {
-  /**
-   * Canonical UUID of an addressable listing.
-   *
-   * @generated from field: string listing_id = 1;
-   */
-  listingId: string;
-};
-
-/**
- * Describes the message recap.v1.ListingTarget.
- * Use `create(ListingTargetSchema)` to create a new message.
- */
-export const ListingTargetSchema: GenMessage<ListingTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 18);
-
-/**
- * @generated from message recap.v1.DialogTarget
- */
-export type DialogTarget = Message<"recap.v1.DialogTarget"> & {
-  /**
-   * Canonical UUID of an addressable dialog.
-   *
-   * @generated from field: string dialog_id = 1;
-   */
-  dialogId: string;
-};
-
-/**
- * Describes the message recap.v1.DialogTarget.
- * Use `create(DialogTargetSchema)` to create a new message.
- */
-export const DialogTargetSchema: GenMessage<DialogTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 19);
-
-/**
- * @generated from message recap.v1.SearchTarget
- */
-export type SearchTarget = Message<"recap.v1.SearchTarget"> & {
-  /**
-   * @generated from field: string category_code = 1;
-   */
-  categoryCode: string;
-};
-
-/**
- * Describes the message recap.v1.SearchTarget.
- * Use `create(SearchTargetSchema)` to create a new message.
- */
-export const SearchTargetSchema: GenMessage<SearchTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 20);
-
-/**
- * Exactly one executable destination is present.
- *
- * @generated from message recap.v1.ActionTarget
- */
-export type ActionTarget = Message<"recap.v1.ActionTarget"> & {
-  /**
-   * @generated from oneof recap.v1.ActionTarget.destination
-   */
-  destination: {
-    /**
-     * @generated from field: recap.v1.RouteTarget route = 1;
-     */
-    value: RouteTarget;
-    case: "route";
-  } | {
-    /**
-     * @generated from field: recap.v1.CategoryTarget category = 2;
-     */
-    value: CategoryTarget;
-    case: "category";
-  } | {
-    /**
-     * @generated from field: recap.v1.ListingTarget listing = 3;
-     */
-    value: ListingTarget;
-    case: "listing";
-  } | {
-    /**
-     * @generated from field: recap.v1.DialogTarget dialog = 4;
-     */
-    value: DialogTarget;
-    case: "dialog";
-  } | {
-    /**
-     * @generated from field: recap.v1.SearchTarget search = 5;
-     */
-    value: SearchTarget;
-    case: "search";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message recap.v1.ActionTarget.
- * Use `create(ActionTargetSchema)` to create a new message.
- */
-export const ActionTargetSchema: GenMessage<ActionTarget> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 21);
-
-/**
- * @generated from message recap.v1.NextAction
- */
-export type NextAction = Message<"recap.v1.NextAction"> & {
-  /**
-   * @generated from field: recap.v1.ActionCode code = 1;
-   */
-  code: ActionCode;
-
-  /**
-   * @generated from field: string title = 2;
-   */
-  title: string;
-
-  /**
-   * @generated from field: string description = 3;
-   */
-  description: string;
-
-  /**
-   * @generated from field: string button_text = 4;
-   */
-  buttonText: string;
-
-  /**
-   * @generated from field: string reason = 5;
-   */
-  reason: string;
-
-  /**
-   * The application validates the action-code/target combination. For example,
-   * FINISH_DRAFT requires a listing target, CONTINUE_DIALOGS a dialog target,
-   * and OPEN_FAVORITES an allow-listed route target.
-   *
-   * @generated from field: recap.v1.ActionTarget target = 6;
-   */
-  target?: ActionTarget | undefined;
-};
-
-/**
- * Describes the message recap.v1.NextAction.
- * Use `create(NextActionSchema)` to create a new message.
- */
-export const NextActionSchema: GenMessage<NextAction> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 22);
-
-/**
- * @generated from message recap.v1.Card
- */
-export type Card = Message<"recap.v1.Card"> & {
+export type RecapCard = Message<"recap.v1.RecapCard"> & {
   /**
    * @generated from field: string id = 1;
    */
@@ -837,8 +231,6 @@ export type Card = Message<"recap.v1.Card"> & {
   type: CardType;
 
   /**
-   * Contiguous 1-based position in the recap story.
-   *
    * @generated from field: uint32 position = 3;
    */
   position: number;
@@ -854,32 +246,98 @@ export type Card = Message<"recap.v1.Card"> & {
   description: string;
 
   /**
-   * @generated from field: optional string explanation = 6;
+   * @generated from field: string explanation = 6;
    */
-  explanation?: string | undefined;
+  explanation: string;
 
   /**
-   * Exactly one final SHARE card is true; all other cards are false.
-   *
    * @generated from field: bool shareable = 7;
    */
   shareable: boolean;
 
   /**
-   * INTRO has no payload. Every other card has exactly the payload variant that
-   * corresponds to type; transport mapping must reject mismatched pairs.
+   * Typed payload prevents the UI from reading fields that do not belong to
+   * the current card type. `type` is kept as an explicit product field; the
+   * payload case is the source of data for rendering.
    *
-   * @generated from field: recap.v1.CardPayload payload = 8;
+   * @generated from oneof recap.v1.RecapCard.payload
    */
-  payload?: CardPayload | undefined;
+  payload: {
+    /**
+     * @generated from field: recap.v1.IntroPayload intro = 10;
+     */
+    value: IntroPayload;
+    case: "intro";
+  } | {
+    /**
+     * @generated from field: recap.v1.YearActivityPayload year_activity = 11;
+     */
+    value: YearActivityPayload;
+    case: "yearActivity";
+  } | {
+    /**
+     * @generated from field: recap.v1.TopCategoryPayload top_category = 12;
+     */
+    value: TopCategoryPayload;
+    case: "topCategory";
+  } | {
+    /**
+     * @generated from field: recap.v1.ActiveMonthPayload active_month = 13;
+     */
+    value: ActiveMonthPayload;
+    case: "activeMonth";
+  } | {
+    /**
+     * @generated from field: recap.v1.BehaviorPayload behavior = 14;
+     */
+    value: BehaviorPayload;
+    case: "behavior";
+  } | {
+    /**
+     * @generated from field: recap.v1.AchievementPayload achievement = 15;
+     */
+    value: AchievementPayload;
+    case: "achievement";
+  } | {
+    /**
+     * @generated from field: recap.v1.MissedOpportunityPayload missed_opportunity = 16;
+     */
+    value: MissedOpportunityPayload;
+    case: "missedOpportunity";
+  } | {
+    /**
+     * @generated from field: recap.v1.NextActionPayload next_action = 17;
+     */
+    value: NextActionPayload;
+    case: "nextAction";
+  } | {
+    /**
+     * @generated from field: recap.v1.SharePayload share = 18;
+     */
+    value: SharePayload;
+    case: "share";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
- * Describes the message recap.v1.Card.
- * Use `create(CardSchema)` to create a new message.
+ * Describes the message recap.v1.RecapCard.
+ * Use `create(RecapCardSchema)` to create a new message.
  */
-export const CardSchema: GenMessage<Card> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 23);
+export const RecapCardSchema: GenMessage<RecapCard> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 9);
+
+/**
+ * @generated from message recap.v1.IntroPayload
+ */
+export type IntroPayload = Message<"recap.v1.IntroPayload"> & {
+};
+
+/**
+ * Describes the message recap.v1.IntroPayload.
+ * Use `create(IntroPayloadSchema)` to create a new message.
+ */
+export const IntroPayloadSchema: GenMessage<IntroPayload> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 10);
 
 /**
  * @generated from message recap.v1.YearActivityPayload
@@ -931,7 +389,7 @@ export type YearActivityPayload = Message<"recap.v1.YearActivityPayload"> & {
  * Use `create(YearActivityPayloadSchema)` to create a new message.
  */
 export const YearActivityPayloadSchema: GenMessage<YearActivityPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 24);
+  messageDesc(file_recap_v1_recap, 11);
 
 /**
  * @generated from message recap.v1.TopCategoryPayload
@@ -958,14 +416,14 @@ export type TopCategoryPayload = Message<"recap.v1.TopCategoryPayload"> & {
  * Use `create(TopCategoryPayloadSchema)` to create a new message.
  */
 export const TopCategoryPayloadSchema: GenMessage<TopCategoryPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 25);
+  messageDesc(file_recap_v1_recap, 12);
 
 /**
  * @generated from message recap.v1.ActiveMonthPayload
  */
 export type ActiveMonthPayload = Message<"recap.v1.ActiveMonthPayload"> & {
   /**
-   * Calendar month in [1, 12].
+   * 1..12. The frontend must not infer an event count from this field.
    *
    * @generated from field: uint32 month = 1;
    */
@@ -977,7 +435,54 @@ export type ActiveMonthPayload = Message<"recap.v1.ActiveMonthPayload"> & {
  * Use `create(ActiveMonthPayloadSchema)` to create a new message.
  */
 export const ActiveMonthPayloadSchema: GenMessage<ActiveMonthPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 26);
+  messageDesc(file_recap_v1_recap, 13);
+
+/**
+ * @generated from message recap.v1.BehaviorEvidence
+ */
+export type BehaviorEvidence = Message<"recap.v1.BehaviorEvidence"> & {
+  /**
+   * @generated from field: string metric = 1;
+   */
+  metric: string;
+
+  /**
+   * @generated from field: string label = 2;
+   */
+  label: string;
+
+  /**
+   * @generated from field: double actual_value = 3;
+   */
+  actualValue: number;
+
+  /**
+   * @generated from field: double threshold = 4;
+   */
+  threshold: number;
+
+  /**
+   * @generated from field: recap.v1.EvidenceComparison comparison = 5;
+   */
+  comparison: EvidenceComparison;
+
+  /**
+   * @generated from field: int32 points = 6;
+   */
+  points: number;
+
+  /**
+   * @generated from field: string explanation = 7;
+   */
+  explanation: string;
+};
+
+/**
+ * Describes the message recap.v1.BehaviorEvidence.
+ * Use `create(BehaviorEvidenceSchema)` to create a new message.
+ */
+export const BehaviorEvidenceSchema: GenMessage<BehaviorEvidence> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 14);
 
 /**
  * @generated from message recap.v1.BehaviorPayload
@@ -987,6 +492,11 @@ export type BehaviorPayload = Message<"recap.v1.BehaviorPayload"> & {
    * @generated from field: recap.v1.BehaviorCode code = 1;
    */
   code: BehaviorCode;
+
+  /**
+   * @generated from field: int32 score = 2;
+   */
+  score: number;
 
   /**
    * @generated from field: repeated recap.v1.BehaviorEvidence evidence = 3;
@@ -999,15 +509,13 @@ export type BehaviorPayload = Message<"recap.v1.BehaviorPayload"> & {
  * Use `create(BehaviorPayloadSchema)` to create a new message.
  */
 export const BehaviorPayloadSchema: GenMessage<BehaviorPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 27);
+  messageDesc(file_recap_v1_recap, 15);
 
 /**
  * @generated from message recap.v1.AchievementPayload
  */
 export type AchievementPayload = Message<"recap.v1.AchievementPayload"> & {
   /**
-   * One to three distinct achievement codes, in presentation order.
-   *
    * @generated from field: repeated recap.v1.AchievementCode codes = 1;
    */
   codes: AchievementCode[];
@@ -1018,12 +526,200 @@ export type AchievementPayload = Message<"recap.v1.AchievementPayload"> & {
  * Use `create(AchievementPayloadSchema)` to create a new message.
  */
 export const AchievementPayloadSchema: GenMessage<AchievementPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 28);
+  messageDesc(file_recap_v1_recap, 16);
 
 /**
- * @generated from message recap.v1.ActionPayload
+ * @generated from message recap.v1.Achievement
  */
-export type ActionPayload = Message<"recap.v1.ActionPayload"> & {
+export type Achievement = Message<"recap.v1.Achievement"> & {
+  /**
+   * @generated from field: recap.v1.AchievementCode code = 1;
+   */
+  code: AchievementCode;
+
+  /**
+   * @generated from field: string title = 2;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string reason = 3;
+   */
+  reason: string;
+
+  /**
+   * @generated from field: bool shareable = 4;
+   */
+  shareable: boolean;
+};
+
+/**
+ * Describes the message recap.v1.Achievement.
+ * Use `create(AchievementSchema)` to create a new message.
+ */
+export const AchievementSchema: GenMessage<Achievement> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 17);
+
+/**
+ * @generated from message recap.v1.ListingTarget
+ */
+export type ListingTarget = Message<"recap.v1.ListingTarget"> & {
+  /**
+   * @generated from field: string listing_id = 1;
+   */
+  listingId: string;
+};
+
+/**
+ * Describes the message recap.v1.ListingTarget.
+ * Use `create(ListingTargetSchema)` to create a new message.
+ */
+export const ListingTargetSchema: GenMessage<ListingTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 18);
+
+/**
+ * @generated from message recap.v1.DialogTarget
+ */
+export type DialogTarget = Message<"recap.v1.DialogTarget"> & {
+  /**
+   * @generated from field: string dialog_id = 1;
+   */
+  dialogId: string;
+};
+
+/**
+ * Describes the message recap.v1.DialogTarget.
+ * Use `create(DialogTargetSchema)` to create a new message.
+ */
+export const DialogTargetSchema: GenMessage<DialogTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 19);
+
+/**
+ * @generated from message recap.v1.CategoryTarget
+ */
+export type CategoryTarget = Message<"recap.v1.CategoryTarget"> & {
+  /**
+   * @generated from field: string category_code = 1;
+   */
+  categoryCode: string;
+};
+
+/**
+ * Describes the message recap.v1.CategoryTarget.
+ * Use `create(CategoryTargetSchema)` to create a new message.
+ */
+export const CategoryTargetSchema: GenMessage<CategoryTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 20);
+
+/**
+ * @generated from message recap.v1.SearchTarget
+ */
+export type SearchTarget = Message<"recap.v1.SearchTarget"> & {
+  /**
+   * @generated from field: string category_code = 1;
+   */
+  categoryCode: string;
+};
+
+/**
+ * Describes the message recap.v1.SearchTarget.
+ * Use `create(SearchTargetSchema)` to create a new message.
+ */
+export const SearchTargetSchema: GenMessage<SearchTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 21);
+
+/**
+ * @generated from message recap.v1.RouteTarget
+ */
+export type RouteTarget = Message<"recap.v1.RouteTarget"> & {
+  /**
+   * @generated from field: string path = 1;
+   */
+  path: string;
+};
+
+/**
+ * Describes the message recap.v1.RouteTarget.
+ * Use `create(RouteTargetSchema)` to create a new message.
+ */
+export const RouteTargetSchema: GenMessage<RouteTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 22);
+
+/**
+ * @generated from message recap.v1.ActionTarget
+ */
+export type ActionTarget = Message<"recap.v1.ActionTarget"> & {
+  /**
+   * @generated from oneof recap.v1.ActionTarget.target
+   */
+  target: {
+    /**
+     * @generated from field: recap.v1.ListingTarget listing = 1;
+     */
+    value: ListingTarget;
+    case: "listing";
+  } | {
+    /**
+     * @generated from field: recap.v1.DialogTarget dialog = 2;
+     */
+    value: DialogTarget;
+    case: "dialog";
+  } | {
+    /**
+     * @generated from field: recap.v1.CategoryTarget category = 3;
+     */
+    value: CategoryTarget;
+    case: "category";
+  } | {
+    /**
+     * @generated from field: recap.v1.SearchTarget search = 4;
+     */
+    value: SearchTarget;
+    case: "search";
+  } | {
+    /**
+     * @generated from field: recap.v1.RouteTarget route = 5;
+     */
+    value: RouteTarget;
+    case: "route";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message recap.v1.ActionTarget.
+ * Use `create(ActionTargetSchema)` to create a new message.
+ */
+export const ActionTargetSchema: GenMessage<ActionTarget> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 23);
+
+/**
+ * @generated from message recap.v1.MissedOpportunityPayload
+ */
+export type MissedOpportunityPayload = Message<"recap.v1.MissedOpportunityPayload"> & {
+  /**
+   * Current rules only emit SAVE_SEARCH or FINISH_DRAFT here.
+   *
+   * @generated from field: recap.v1.ActionCode code = 1;
+   */
+  code: ActionCode;
+
+  /**
+   * @generated from field: recap.v1.ActionTarget target = 2;
+   */
+  target?: ActionTarget | undefined;
+};
+
+/**
+ * Describes the message recap.v1.MissedOpportunityPayload.
+ * Use `create(MissedOpportunityPayloadSchema)` to create a new message.
+ */
+export const MissedOpportunityPayloadSchema: GenMessage<MissedOpportunityPayload> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 24);
+
+/**
+ * @generated from message recap.v1.NextActionPayload
+ */
+export type NextActionPayload = Message<"recap.v1.NextActionPayload"> & {
   /**
    * @generated from field: recap.v1.ActionCode code = 1;
    */
@@ -1036,89 +732,59 @@ export type ActionPayload = Message<"recap.v1.ActionPayload"> & {
 };
 
 /**
- * Describes the message recap.v1.ActionPayload.
- * Use `create(ActionPayloadSchema)` to create a new message.
+ * Describes the message recap.v1.NextActionPayload.
+ * Use `create(NextActionPayloadSchema)` to create a new message.
  */
-export const ActionPayloadSchema: GenMessage<ActionPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 29);
+export const NextActionPayloadSchema: GenMessage<NextActionPayload> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 25);
 
 /**
- * Closed payload union for story cards. Legacy sparse payload field numbers are
- * reserved permanently to prevent accidental wire reuse.
- *
- * @generated from message recap.v1.CardPayload
+ * @generated from message recap.v1.NextAction
  */
-export type CardPayload = Message<"recap.v1.CardPayload"> & {
+export type NextAction = Message<"recap.v1.NextAction"> & {
   /**
-   * @generated from oneof recap.v1.CardPayload.value
+   * @generated from field: recap.v1.ActionCode code = 1;
    */
-  value: {
-    /**
-     * @generated from field: recap.v1.YearActivityPayload year_activity = 20;
-     */
-    value: YearActivityPayload;
-    case: "yearActivity";
-  } | {
-    /**
-     * @generated from field: recap.v1.TopCategoryPayload top_category = 21;
-     */
-    value: TopCategoryPayload;
-    case: "topCategory";
-  } | {
-    /**
-     * @generated from field: recap.v1.ActiveMonthPayload active_month = 22;
-     */
-    value: ActiveMonthPayload;
-    case: "activeMonth";
-  } | {
-    /**
-     * @generated from field: recap.v1.BehaviorPayload behavior = 23;
-     */
-    value: BehaviorPayload;
-    case: "behavior";
-  } | {
-    /**
-     * @generated from field: recap.v1.AchievementPayload achievement = 24;
-     */
-    value: AchievementPayload;
-    case: "achievement";
-  } | {
-    /**
-     * Used by MISSED_OPPORTUNITY and NEXT_ACTION cards.
-     *
-     * @generated from field: recap.v1.ActionPayload action = 25;
-     */
-    value: ActionPayload;
-    case: "action";
-  } | {
-    /**
-     * The final story card embeds the exact same allow-listed DTO returned by
-     * GetShareCard, guaranteeing that preview and public link cannot drift.
-     *
-     * @generated from field: recap.v1.ShareCard share = 26;
-     */
-    value: ShareCard;
-    case: "share";
-  } | { case: undefined; value?: undefined };
+  code: ActionCode;
+
+  /**
+   * @generated from field: string title = 2;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string description = 3;
+   */
+  description: string;
+
+  /**
+   * @generated from field: string explanation = 4;
+   */
+  explanation: string;
+
+  /**
+   * @generated from field: string button_text = 5;
+   */
+  buttonText: string;
+
+  /**
+   * @generated from field: recap.v1.ActionTarget target = 6;
+   */
+  target?: ActionTarget | undefined;
 };
 
 /**
- * Describes the message recap.v1.CardPayload.
- * Use `create(CardPayloadSchema)` to create a new message.
+ * Describes the message recap.v1.NextAction.
+ * Use `create(NextActionSchema)` to create a new message.
  */
-export const CardPayloadSchema: GenMessage<CardPayload> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 30);
+export const NextActionSchema: GenMessage<NextAction> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 26);
 
 /**
- * Strict public DTO. It intentionally contains neither internal recap ID,
- * profile ID, raw metrics, action targets nor ActionableState snapshot fields.
- *
- * @generated from message recap.v1.ShareCard
+ * @generated from message recap.v1.SharePayload
  */
-export type ShareCard = Message<"recap.v1.ShareCard"> & {
+export type SharePayload = Message<"recap.v1.SharePayload"> & {
   /**
-   * Canonical public UUID.
-   *
    * @generated from field: string share_id = 1;
    */
   shareId: string;
@@ -1134,33 +800,122 @@ export type ShareCard = Message<"recap.v1.ShareCard"> & {
   behaviorTitle: string;
 
   /**
-   * Omitted when no awarded achievement is allowed by the share policy.
-   *
    * @generated from field: optional string achievement_title = 4;
    */
   achievementTitle?: string | undefined;
 
   /**
-   * Omitted when top-category sharing is disallowed by policy or source data.
-   *
    * @generated from field: optional string top_category = 5;
    */
   topCategory?: string | undefined;
-
-  /**
-   * Version of the allow-list/privacy projection used to construct this DTO.
-   *
-   * @generated from field: string privacy_version = 6;
-   */
-  privacyVersion: string;
 };
 
 /**
- * Describes the message recap.v1.ShareCard.
- * Use `create(ShareCardSchema)` to create a new message.
+ * Describes the message recap.v1.SharePayload.
+ * Use `create(SharePayloadSchema)` to create a new message.
  */
-export const ShareCardSchema: GenMessage<ShareCard> = /*@__PURE__*/
-  messageDesc(file_recap_v1_recap, 31);
+export const SharePayloadSchema: GenMessage<SharePayload> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 27);
+
+/**
+ * The public RPC intentionally returns the same minimal shape as SHARE payload.
+ *
+ * @generated from message recap.v1.PublicShare
+ */
+export type PublicShare = Message<"recap.v1.PublicShare"> & {
+  /**
+   * @generated from field: string share_id = 1;
+   */
+  shareId: string;
+
+  /**
+   * @generated from field: uint32 year = 2;
+   */
+  year: number;
+
+  /**
+   * @generated from field: string behavior_title = 3;
+   */
+  behaviorTitle: string;
+
+  /**
+   * @generated from field: optional string achievement_title = 4;
+   */
+  achievementTitle?: string | undefined;
+
+  /**
+   * @generated from field: optional string top_category = 5;
+   */
+  topCategory?: string | undefined;
+};
+
+/**
+ * Describes the message recap.v1.PublicShare.
+ * Use `create(PublicShareSchema)` to create a new message.
+ */
+export const PublicShareSchema: GenMessage<PublicShare> = /*@__PURE__*/
+  messageDesc(file_recap_v1_recap, 28);
+
+/**
+ * @generated from enum recap.v1.CardType
+ */
+export enum CardType {
+  /**
+   * @generated from enum value: CARD_TYPE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: CARD_TYPE_INTRO = 1;
+   */
+  INTRO = 1,
+
+  /**
+   * @generated from enum value: CARD_TYPE_YEAR_ACTIVITY = 2;
+   */
+  YEAR_ACTIVITY = 2,
+
+  /**
+   * @generated from enum value: CARD_TYPE_TOP_CATEGORY = 3;
+   */
+  TOP_CATEGORY = 3,
+
+  /**
+   * @generated from enum value: CARD_TYPE_ACTIVE_MONTH = 4;
+   */
+  ACTIVE_MONTH = 4,
+
+  /**
+   * @generated from enum value: CARD_TYPE_BEHAVIOR = 5;
+   */
+  BEHAVIOR = 5,
+
+  /**
+   * @generated from enum value: CARD_TYPE_ACHIEVEMENT = 6;
+   */
+  ACHIEVEMENT = 6,
+
+  /**
+   * @generated from enum value: CARD_TYPE_MISSED_OPPORTUNITY = 7;
+   */
+  MISSED_OPPORTUNITY = 7,
+
+  /**
+   * @generated from enum value: CARD_TYPE_NEXT_ACTION = 8;
+   */
+  NEXT_ACTION = 8,
+
+  /**
+   * @generated from enum value: CARD_TYPE_SHARE = 9;
+   */
+  SHARE = 9,
+}
+
+/**
+ * Describes the enum recap.v1.CardType.
+ */
+export const CardTypeSchema: GenEnum<CardType> = /*@__PURE__*/
+  enumDesc(file_recap_v1_recap, 0);
 
 /**
  * @generated from enum recap.v1.BehaviorCode
@@ -1206,55 +961,38 @@ export enum BehaviorCode {
  * Describes the enum recap.v1.BehaviorCode.
  */
 export const BehaviorCodeSchema: GenEnum<BehaviorCode> = /*@__PURE__*/
-  enumDesc(file_recap_v1_recap, 0);
+  enumDesc(file_recap_v1_recap, 1);
 
 /**
- * @generated from enum recap.v1.AchievementCategory
+ * @generated from enum recap.v1.EvidenceComparison
  */
-export enum AchievementCategory {
+export enum EvidenceComparison {
   /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_UNSPECIFIED = 0;
+   * @generated from enum value: EVIDENCE_COMPARISON_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_SELLING = 1;
+   * @generated from enum value: EVIDENCE_COMPARISON_GTE = 1;
    */
-  SELLING = 1,
+  GTE = 1,
 
   /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_BUYING = 2;
+   * @generated from enum value: EVIDENCE_COMPARISON_LTE = 2;
    */
-  BUYING = 2,
-
-  /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_DISCOVERY = 3;
-   */
-  DISCOVERY = 3,
-
-  /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_COLLECTION = 4;
-   */
-  COLLECTION = 4,
-
-  /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_VERSATILITY = 5;
-   */
-  VERSATILITY = 5,
-
-  /**
-   * @generated from enum value: ACHIEVEMENT_CATEGORY_INTEREST = 6;
-   */
-  INTEREST = 6,
+  LTE = 2,
 }
 
 /**
- * Describes the enum recap.v1.AchievementCategory.
+ * Describes the enum recap.v1.EvidenceComparison.
  */
-export const AchievementCategorySchema: GenEnum<AchievementCategory> = /*@__PURE__*/
-  enumDesc(file_recap_v1_recap, 1);
+export const EvidenceComparisonSchema: GenEnum<EvidenceComparison> = /*@__PURE__*/
+  enumDesc(file_recap_v1_recap, 2);
 
 /**
+ * Mirrors internal/recap/model.AchievementCode. The frontend treats the code
+ * as an opaque string key, so this enum is free to grow.
+ *
  * @generated from enum recap.v1.AchievementCode
  */
 export enum AchievementCode {
@@ -1368,7 +1106,53 @@ export enum AchievementCode {
  * Describes the enum recap.v1.AchievementCode.
  */
 export const AchievementCodeSchema: GenEnum<AchievementCode> = /*@__PURE__*/
-  enumDesc(file_recap_v1_recap, 2);
+  enumDesc(file_recap_v1_recap, 3);
+
+/**
+ * @generated from enum recap.v1.AchievementCategory
+ */
+export enum AchievementCategory {
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_SELLING = 1;
+   */
+  SELLING = 1,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_BUYING = 2;
+   */
+  BUYING = 2,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_DISCOVERY = 3;
+   */
+  DISCOVERY = 3,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_COLLECTION = 4;
+   */
+  COLLECTION = 4,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_VERSATILITY = 5;
+   */
+  VERSATILITY = 5,
+
+  /**
+   * @generated from enum value: ACHIEVEMENT_CATEGORY_INTEREST = 6;
+   */
+  INTEREST = 6,
+}
+
+/**
+ * Describes the enum recap.v1.AchievementCategory.
+ */
+export const AchievementCategorySchema: GenEnum<AchievementCategory> = /*@__PURE__*/
+  enumDesc(file_recap_v1_recap, 4);
 
 /**
  * @generated from enum recap.v1.ActionCode
@@ -1405,118 +1189,46 @@ export enum ActionCode {
   OPEN_TOP_CATEGORY = 5,
 
   /**
-   * @generated from enum value: ACTION_CODE_CREATE_FIRST_LISTING = 6;
+   * @generated from enum value: ACTION_CODE_CREATE_LISTING = 6;
    */
-  CREATE_FIRST_LISTING = 6,
+  CREATE_LISTING = 6,
 
   /**
-   * @generated from enum value: ACTION_CODE_CREATE_LISTING = 7;
+   * @generated from enum value: ACTION_CODE_SAVE_SEARCH = 7;
    */
-  CREATE_LISTING = 7,
+  SAVE_SEARCH = 7,
 
   /**
-   * @generated from enum value: ACTION_CODE_SAVE_SEARCH = 8;
+   * @generated from enum value: ACTION_CODE_VIEW_SIMILAR_LISTINGS = 8;
    */
-  SAVE_SEARCH = 8,
+  VIEW_SIMILAR_LISTINGS = 8,
 
   /**
-   * @generated from enum value: ACTION_CODE_VIEW_SIMILAR_LISTINGS = 9;
+   * @generated from enum value: ACTION_CODE_EXPLORE_RECOMMENDATIONS = 9;
    */
-  VIEW_SIMILAR_LISTINGS = 9,
+  EXPLORE_RECOMMENDATIONS = 9,
 
   /**
-   * @generated from enum value: ACTION_CODE_EXPLORE_RECOMMENDATIONS = 10;
+   * Kept only for wire compatibility with older integrations.
+   *
+   * @generated from enum value: ACTION_CODE_CREATE_FIRST_LISTING = 10 [deprecated = true];
+   * @deprecated
    */
-  EXPLORE_RECOMMENDATIONS = 10,
+  CREATE_FIRST_LISTING = 10,
 }
 
 /**
  * Describes the enum recap.v1.ActionCode.
  */
 export const ActionCodeSchema: GenEnum<ActionCode> = /*@__PURE__*/
-  enumDesc(file_recap_v1_recap, 3);
+  enumDesc(file_recap_v1_recap, 5);
 
 /**
- * @generated from enum recap.v1.CardType
- */
-export enum CardType {
-  /**
-   * @generated from enum value: CARD_TYPE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: CARD_TYPE_INTRO = 1;
-   */
-  INTRO = 1,
-
-  /**
-   * @generated from enum value: CARD_TYPE_YEAR_ACTIVITY = 2;
-   */
-  YEAR_ACTIVITY = 2,
-
-  /**
-   * @generated from enum value: CARD_TYPE_TOP_CATEGORY = 3;
-   */
-  TOP_CATEGORY = 3,
-
-  /**
-   * @generated from enum value: CARD_TYPE_ACTIVE_MONTH = 4;
-   */
-  ACTIVE_MONTH = 4,
-
-  /**
-   * @generated from enum value: CARD_TYPE_BEHAVIOR = 5;
-   */
-  BEHAVIOR = 5,
-
-  /**
-   * @generated from enum value: CARD_TYPE_ACHIEVEMENT = 6;
-   */
-  ACHIEVEMENT = 6,
-
-  /**
-   * @generated from enum value: CARD_TYPE_MISSED_OPPORTUNITY = 7;
-   */
-  MISSED_OPPORTUNITY = 7,
-
-  /**
-   * @generated from enum value: CARD_TYPE_NEXT_ACTION = 8;
-   */
-  NEXT_ACTION = 8,
-
-  /**
-   * @generated from enum value: CARD_TYPE_SHARE = 10;
-   */
-  SHARE = 10,
-}
-
-/**
- * Describes the enum recap.v1.CardType.
- */
-export const CardTypeSchema: GenEnum<CardType> = /*@__PURE__*/
-  enumDesc(file_recap_v1_recap, 4);
-
-/**
- * RecapService exposes the private yearly recap flow and the deliberately
- * minimal public share projection.
- * 
- * UUID values are transported as canonical strings. The transport adapter must
- * parse and validate every UUID before calling the application layer.
- * 
- * Application errors are returned as Connect/gRPC status errors, not embedded
- * into response messages. Recommended mapping:
- *   - invalid profile/recap/share UUID, invalid year: INVALID_ARGUMENT;
- *   - current (unfinished) year, not enough activity: FAILED_PRECONDITION;
- *   - missing profile/recap/share object: NOT_FOUND;
- *   - corrupted/inconsistent stored recap: DATA_LOSS;
- *   - storage/infrastructure failure: INTERNAL or UNAVAILABLE.
- *
  * @generated from service recap.v1.RecapService
  */
 export const RecapService: GenService<{
   /**
-   * ListProfiles returns the demo/profile catalogue available to the client.
+   * Test/MVP profile picker.
    *
    * @generated from rpc recap.v1.RecapService.ListProfiles
    */
@@ -1526,36 +1238,34 @@ export const RecapService: GenService<{
     output: typeof ListProfilesResponseSchema;
   },
   /**
-   * GenerateRecap creates or returns the immutable recap for the idempotency
-   * key (profile_id, year, current rules version, current rules digest).
+   * Generates (or returns an already generated immutable) recap for a profile/year.
    *
    * @generated from rpc recap.v1.RecapService.GenerateRecap
    */
   generateRecap: {
     methodKind: "unary";
     input: typeof GenerateRecapRequestSchema;
-    output: typeof GenerateRecapResponseSchema;
+    output: typeof RecapResponseSchema;
   },
   /**
-   * GetRecap returns a private recap by its opaque internal recap identifier.
+   * Returns an existing recap for a profile/year.
    *
    * @generated from rpc recap.v1.RecapService.GetRecap
    */
   getRecap: {
     methodKind: "unary";
     input: typeof GetRecapRequestSchema;
-    output: typeof GetRecapResponseSchema;
+    output: typeof RecapResponseSchema;
   },
   /**
-   * GetShareCard returns only the allow-listed public projection identified by
-   * share_id. It never returns private recap data or actionable-state details.
+   * Public endpoint. Returns only data that is safe to expose in SHARE.
    *
-   * @generated from rpc recap.v1.RecapService.GetShareCard
+   * @generated from rpc recap.v1.RecapService.GetPublicShare
    */
-  getShareCard: {
+  getPublicShare: {
     methodKind: "unary";
-    input: typeof GetShareCardRequestSchema;
-    output: typeof GetShareCardResponseSchema;
+    input: typeof GetPublicShareRequestSchema;
+    output: typeof GetPublicShareResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_recap_v1_recap, 0);

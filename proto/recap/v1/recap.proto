@@ -2,37 +2,27 @@ syntax = "proto3";
 
 package recap.v1;
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = "github.com/year-recap/gen/go/recap/v1;recapv1";
 
-// RecapService exposes the private yearly recap flow and the deliberately
-// minimal public share projection.
+// Frontend-facing RPC contract for the yearly recap experience.
+// The backend owns recap generation. The frontend renders the ordered cards
+// and executes the typed next action without recalculating business rules.
 //
-// UUID values are transported as canonical strings. The transport adapter must
-// parse and validate every UUID before calling the application layer.
-//
-// Application errors are returned as Connect/gRPC status errors, not embedded
-// into response messages. Recommended mapping:
-//   - invalid profile/recap/share UUID, invalid year: INVALID_ARGUMENT;
-//   - current (unfinished) year, not enough activity: FAILED_PRECONDITION;
-//   - missing profile/recap/share object: NOT_FOUND;
-//   - corrupted/inconsistent stored recap: DATA_LOSS;
-//   - storage/infrastructure failure: INTERNAL or UNAVAILABLE.
+// The frontend addresses profiles and recaps by profile_code, never by the
+// backend's internal UUIDs — those stay server-side.
+
 service RecapService {
-  // ListProfiles returns the demo/profile catalogue available to the client.
+  // Test/MVP profile picker.
   rpc ListProfiles(ListProfilesRequest) returns (ListProfilesResponse);
 
-  // GenerateRecap creates or returns the immutable recap for the idempotency
-  // key (profile_id, year, current rules version, current rules digest).
-  rpc GenerateRecap(GenerateRecapRequest) returns (GenerateRecapResponse);
+  // Generates (or returns an already generated immutable) recap for a profile/year.
+  rpc GenerateRecap(GenerateRecapRequest) returns (RecapResponse);
 
-  // GetRecap returns a private recap by its opaque internal recap identifier.
-  rpc GetRecap(GetRecapRequest) returns (GetRecapResponse);
+  // Returns an existing recap for a profile/year.
+  rpc GetRecap(GetRecapRequest) returns (RecapResponse);
 
-  // GetShareCard returns only the allow-listed public projection identified by
-  // share_id. It never returns private recap data or actionable-state details.
-  rpc GetShareCard(GetShareCardRequest) returns (GetShareCardResponse);
+  // Public endpoint. Returns only data that is safe to expose in SHARE.
+  rpc GetPublicShare(GetPublicShareRequest) returns (GetPublicShareResponse);
 }
 
 message ListProfilesRequest {}
@@ -42,148 +32,104 @@ message ListProfilesResponse {
 }
 
 message GenerateRecapRequest {
-  // Canonical UUID of a profile from the profile catalogue.
-  string profile_id = 1;
-
-  // Completed UTC calendar year. Zero, future years and the current unfinished
-  // year are rejected by the application layer.
+  string profile_code = 1;
   uint32 year = 2;
 }
 
-message GenerateRecapResponse {
-  Recap recap = 1;
-}
-
 message GetRecapRequest {
-  // Canonical UUID of the private recap. This identifier must never be used as
-  // the public sharing identifier.
-  string internal_recap_id = 1;
+  string profile_code = 1;
+  uint32 year = 2;
 }
 
-message GetRecapResponse {
-  Recap recap = 1;
-}
-
-message GetShareCardRequest {
-  // Canonical UUID of the public share projection.
+message GetPublicShareRequest {
   string share_id = 1;
 }
 
-message GetShareCardResponse {
-  ShareCard share_card = 1;
+message RecapResponse {
+  Profile profile = 1;
+  Recap recap = 2;
+}
+
+message GetPublicShareResponse {
+  PublicShare share = 1;
 }
 
 message Profile {
-  // Canonical UUID.
-  string id = 1;
-
-  // Stable machine-readable profile code used by fixtures/demo clients.
-  string code = 2;
-
-  string display_name = 3;
-  string description = 4;
-
-  // Relative or absolute URL. Absence is distinct from an explicitly supplied
-  // empty value at the API boundary.
-  optional string avatar_url = 5;
+  string name = 1;
+  string description = 2;
+  string avatar_url = 3;
+  string profile_code = 4;
 }
 
-// RecapPeriod is a final half-open UTC interval [start_at, end_at).
-message RecapPeriod {
-  uint32 year = 1;
-  google.protobuf.Timestamp start_at = 2; // Inclusive, always UTC.
-  google.protobuf.Timestamp end_at = 3;   // Exclusive, always UTC.
-  bool final = 4;                         // Always true for a valid annual recap.
-}
-
-// Recap is the private, authenticated representation returned to the recap
-// client. The ActionableState snapshot is intentionally not part of this API.
 message Recap {
-  // Private opaque UUID used only by authenticated recap APIs.
-  string internal_id = 1;
-
-  Profile profile = 2;
-  uint32 year = 3;
-
-  // Semantic version of the executable rules contract.
-  string rules_version = 4;
-
-  Metrics metrics = 5;
-  Behavior behavior = 6;
-  repeated Achievement achievements = 7;
-
-  // Ordered story cards. Positions are contiguous and start at 1. Exactly one
-  // SHARE card exists and it is always the last card.
-  repeated Card cards = 8;
-
-  NextAction next_action = 9;
-  google.protobuf.Timestamp generated_at = 10;
-
-  // Public opaque UUID. It is intentionally distinct from internal_id.
-  string share_id = 11;
-
-  RecapPeriod period = 12;
-
-  // Field 13 used to expose the internal ActionableState snapshot in an older
-  // draft. Keep both number and name reserved permanently across v1.
-  reserved 13;
-  reserved "actionable_state";
-
-  // Lowercase hex SHA-256 fingerprint of the complete executable ruleset,
-  // including thresholds, priorities and privacy policy.
-  string rules_digest = 14;
+  string id = 1;
+  uint32 year = 2;
+  string rule_version = 3;
+  repeated RecapCard cards = 4;
+  repeated Achievement achievements = 5;
+  NextAction next_action = 6;
 }
 
-message Metrics {
+enum CardType {
+  CARD_TYPE_UNSPECIFIED = 0;
+  CARD_TYPE_INTRO = 1;
+  CARD_TYPE_YEAR_ACTIVITY = 2;
+  CARD_TYPE_TOP_CATEGORY = 3;
+  CARD_TYPE_ACTIVE_MONTH = 4;
+  CARD_TYPE_BEHAVIOR = 5;
+  CARD_TYPE_ACHIEVEMENT = 6;
+  CARD_TYPE_MISSED_OPPORTUNITY = 7;
+  CARD_TYPE_NEXT_ACTION = 8;
+  CARD_TYPE_SHARE = 9;
+}
+
+message RecapCard {
+  string id = 1;
+  CardType type = 2;
+  uint32 position = 3;
+  string title = 4;
+  string description = 5;
+  string explanation = 6;
+  bool shareable = 7;
+
+  // Typed payload prevents the UI from reading fields that do not belong to
+  // the current card type. `type` is kept as an explicit product field; the
+  // payload case is the source of data for rendering.
+  oneof payload {
+    IntroPayload intro = 10;
+    YearActivityPayload year_activity = 11;
+    TopCategoryPayload top_category = 12;
+    ActiveMonthPayload active_month = 13;
+    BehaviorPayload behavior = 14;
+    AchievementPayload achievement = 15;
+    MissedOpportunityPayload missed_opportunity = 16;
+    NextActionPayload next_action = 17;
+    SharePayload share = 18;
+  }
+}
+
+message IntroPayload {}
+
+message YearActivityPayload {
   uint64 total_events = 1;
   uint64 searches = 2;
   uint64 total_views = 3;
-  uint64 unique_listings = 4;
-  uint64 repeated_views = 5;
-  uint64 favorites_added = 6;
-  uint64 chats_started = 7;
-  uint64 listings_created = 8;
-  uint64 listings_published = 9;
-  uint64 purchases_completed = 10;
-  uint64 sales_completed = 11;
-  uint64 active_days = 12;
-  uint64 categories_count = 13;
-
-  // Top-category fields are either all populated consistently or all absent / 0.
-  optional string top_category_code = 14;
-  optional string top_category = 15;
-  uint64 top_category_views = 16;
-
-  // Internal-to-private-recap privacy signal. This is never copied directly to
-  // ShareCard; the share builder additionally applies the versioned allow-list.
-  bool top_category_shareable = 17;
-
-  // Calendar month in [1, 12] for a valid recap.
-  uint32 most_active_month = 18;
-
-  // Historical rate fields removed from the public contract.
-  reserved 19, 20, 22, 23;
-  reserved "favorite_rate", "chat_rate", "publication_rate", "sale_rate";
-
-  // repeated_views / total_views, in [0, 1].
-  double repeat_rate = 21;
-
-  // chats_with_purchase / chats_started, in [0, 1].
-  double purchase_rate = 24;
-
-  uint64 chats_with_purchase = 25;
-
-  // Normalized by category_code. Used as evidence for thematic achievements.
-  repeated CategoryActivity category_activities = 26;
+  uint64 favorites_added = 4;
+  uint64 chats_started = 5;
+  uint64 listings_published = 6;
+  uint64 purchases_completed = 7;
+  uint64 sales_completed = 8;
 }
 
-message CategoryActivity {
+message TopCategoryPayload {
   string category_code = 1;
   string category = 2;
-  bool shareable = 3;
-  uint64 views = 4;
-  uint64 favorites_added = 5;
-  uint64 purchases_completed = 6;
+  uint64 category_views = 3;
+}
+
+message ActiveMonthPayload {
+  // 1..12. The frontend must not infer an event count from this field.
+  uint32 month = 1;
 }
 
 enum BehaviorCode {
@@ -196,47 +142,30 @@ enum BehaviorCode {
   BEHAVIOR_CODE_UNIVERSAL_USER = 6;
 }
 
-// BehaviorEvidence explains a deterministic rule match. It is not a
-// probability/confidence score.
+enum EvidenceComparison {
+  EVIDENCE_COMPARISON_UNSPECIFIED = 0;
+  EVIDENCE_COMPARISON_GTE = 1;
+  EVIDENCE_COMPARISON_LTE = 2;
+}
+
 message BehaviorEvidence {
-  // Stable metric key such as "total_views", "repeat_rate" or
-  // "listings_published".
   string metric = 1;
-  double actual = 2;
-  double threshold = 3;
-
-  // A previous draft exposed pseudo-points; never reuse this field.
-  reserved 4;
-  reserved "points";
-
-  // Human-readable explanation generated by the ruleset.
-  string detail = 5;
+  string label = 2;
+  double actual_value = 3;
+  double threshold = 4;
+  EvidenceComparison comparison = 5;
+  int32 points = 6;
+  string explanation = 7;
 }
 
-message Behavior {
+message BehaviorPayload {
   BehaviorCode code = 1;
-  string title = 2;
-  string description = 3;
-  string reason = 4;
-
-  // A previous draft exposed a pseudo-score; this rules engine is binary and
-  // priority-based, so the field is intentionally retired.
-  reserved 5;
-  reserved "score";
-
-  repeated BehaviorEvidence evidence = 6;
+  int32 score = 2;
+  repeated BehaviorEvidence evidence = 3;
 }
 
-enum AchievementCategory {
-  ACHIEVEMENT_CATEGORY_UNSPECIFIED = 0;
-  ACHIEVEMENT_CATEGORY_SELLING = 1;
-  ACHIEVEMENT_CATEGORY_BUYING = 2;
-  ACHIEVEMENT_CATEGORY_DISCOVERY = 3;
-  ACHIEVEMENT_CATEGORY_COLLECTION = 4;
-  ACHIEVEMENT_CATEGORY_VERSATILITY = 5;
-  ACHIEVEMENT_CATEGORY_INTEREST = 6;
-}
-
+// Mirrors internal/recap/model.AchievementCode. The frontend treats the code
+// as an opaque string key, so this enum is free to grow.
 enum AchievementCode {
   ACHIEVEMENT_CODE_UNSPECIFIED = 0;
   ACHIEVEMENT_CODE_SUCCESSFUL_SELLER = 1;
@@ -261,17 +190,25 @@ enum AchievementCode {
   ACHIEVEMENT_CODE_LITTLE_DISCOVERIES = 20;
 }
 
+enum AchievementCategory {
+  ACHIEVEMENT_CATEGORY_UNSPECIFIED = 0;
+  ACHIEVEMENT_CATEGORY_SELLING = 1;
+  ACHIEVEMENT_CATEGORY_BUYING = 2;
+  ACHIEVEMENT_CATEGORY_DISCOVERY = 3;
+  ACHIEVEMENT_CATEGORY_COLLECTION = 4;
+  ACHIEVEMENT_CATEGORY_VERSATILITY = 5;
+  ACHIEVEMENT_CATEGORY_INTEREST = 6;
+}
+
+message AchievementPayload {
+  repeated AchievementCode codes = 1;
+}
+
 message Achievement {
   AchievementCode code = 1;
   string title = 2;
-  string description = 3;
-  string reason = 4;
-
-  // Whether this achievement may be considered by the current share policy.
-  // The public ShareCard is still built from an explicit allow-list projection.
-  bool shareable = 5;
-
-  AchievementCategory category = 6;
+  string reason = 3;
+  bool shareable = 4;
 }
 
 enum ActionCode {
@@ -281,178 +218,78 @@ enum ActionCode {
   ACTION_CODE_IMPROVE_LISTINGS = 3;
   ACTION_CODE_CONTINUE_DIALOGS = 4;
   ACTION_CODE_OPEN_TOP_CATEGORY = 5;
-  ACTION_CODE_CREATE_FIRST_LISTING = 6;
-  ACTION_CODE_CREATE_LISTING = 7;
-  ACTION_CODE_SAVE_SEARCH = 8;
-  ACTION_CODE_VIEW_SIMILAR_LISTINGS = 9;
-  ACTION_CODE_EXPLORE_RECOMMENDATIONS = 10;
+  ACTION_CODE_CREATE_LISTING = 6;
+  ACTION_CODE_SAVE_SEARCH = 7;
+  ACTION_CODE_VIEW_SIMILAR_LISTINGS = 8;
+  ACTION_CODE_EXPLORE_RECOMMENDATIONS = 9;
+
+  // Kept only for wire compatibility with older integrations.
+  ACTION_CODE_CREATE_FIRST_LISTING = 10 [deprecated = true];
 }
 
-message RouteTarget {
-  // Only routes allowed by the application ruleset may be returned.
-  string route = 1;
+message ListingTarget {
+  string listing_id = 1;
+}
+
+message DialogTarget {
+  string dialog_id = 1;
 }
 
 message CategoryTarget {
   string category_code = 1;
 }
 
-message ListingTarget {
-  // Canonical UUID of an addressable listing.
-  string listing_id = 1;
-}
-
-message DialogTarget {
-  // Canonical UUID of an addressable dialog.
-  string dialog_id = 1;
-}
-
 message SearchTarget {
   string category_code = 1;
 }
 
-// Exactly one executable destination is present.
+message RouteTarget {
+  string path = 1;
+}
+
 message ActionTarget {
-  oneof destination {
-    RouteTarget route = 1;
-    CategoryTarget category = 2;
-    ListingTarget listing = 3;
-    DialogTarget dialog = 4;
-    SearchTarget search = 5;
+  oneof target {
+    ListingTarget listing = 1;
+    DialogTarget dialog = 2;
+    CategoryTarget category = 3;
+    SearchTarget search = 4;
+    RouteTarget route = 5;
   }
+}
+
+message MissedOpportunityPayload {
+  // Current rules only emit SAVE_SEARCH or FINISH_DRAFT here.
+  ActionCode code = 1;
+  ActionTarget target = 2;
+}
+
+message NextActionPayload {
+  ActionCode code = 1;
+  ActionTarget target = 2;
 }
 
 message NextAction {
   ActionCode code = 1;
   string title = 2;
   string description = 3;
-  string button_text = 4;
-  string reason = 5;
-
-  // The application validates the action-code/target combination. For example,
-  // FINISH_DRAFT requires a listing target, CONTINUE_DIALOGS a dialog target,
-  // and OPEN_FAVORITES an allow-listed route target.
+  string explanation = 4;
+  string button_text = 5;
   ActionTarget target = 6;
 }
 
-enum CardType {
-  CARD_TYPE_UNSPECIFIED = 0;
-  CARD_TYPE_INTRO = 1;
-  CARD_TYPE_YEAR_ACTIVITY = 2;
-  CARD_TYPE_TOP_CATEGORY = 3;
-  CARD_TYPE_ACTIVE_MONTH = 4;
-  CARD_TYPE_BEHAVIOR = 5;
-  CARD_TYPE_ACHIEVEMENT = 6;
-  CARD_TYPE_MISSED_OPPORTUNITY = 7;
-  CARD_TYPE_NEXT_ACTION = 8;
-
-  // Historical draft value removed before v1 stabilization.
-  reserved 9;
-  reserved "CARD_TYPE_SUMMARY";
-
-  CARD_TYPE_SHARE = 10;
-}
-
-message Card {
-  string id = 1;
-  CardType type = 2;
-
-  // Contiguous 1-based position in the recap story.
-  uint32 position = 3;
-
-  string title = 4;
-  string description = 5;
-  optional string explanation = 6;
-
-  // Exactly one final SHARE card is true; all other cards are false.
-  bool shareable = 7;
-
-  // INTRO has no payload. Every other card has exactly the payload variant that
-  // corresponds to type; transport mapping must reject mismatched pairs.
-  CardPayload payload = 8;
-}
-
-message YearActivityPayload {
-  uint64 total_events = 1;
-  uint64 searches = 2;
-  uint64 total_views = 3;
-  uint64 favorites_added = 4;
-  uint64 chats_started = 5;
-  uint64 listings_published = 6;
-  uint64 purchases_completed = 7;
-  uint64 sales_completed = 8;
-}
-
-message TopCategoryPayload {
-  string category_code = 1;
-  string category = 2;
-  uint64 category_views = 3;
-}
-
-message ActiveMonthPayload {
-  // Calendar month in [1, 12].
-  uint32 month = 1;
-}
-
-message BehaviorPayload {
-  BehaviorCode code = 1;
-
-  reserved 2;
-  reserved "score";
-
-  repeated BehaviorEvidence evidence = 3;
-}
-
-message AchievementPayload {
-  // One to three distinct achievement codes, in presentation order.
-  repeated AchievementCode codes = 1;
-}
-
-message ActionPayload {
-  ActionCode code = 1;
-  ActionTarget target = 2;
-}
-
-// Closed payload union for story cards. Legacy sparse payload field numbers are
-// reserved permanently to prevent accidental wire reuse.
-message CardPayload {
-  reserved 1 to 16;
-  reserved "total_events", "searches", "total_views", "favorites_added", "chats_started",
-    "listings_published", "purchases_completed", "sales_completed", "category_code",
-    "category", "category_views", "month", "behavior_code", "achievement_code",
-    "achievement_codes", "action_code";
-
-  oneof value {
-    YearActivityPayload year_activity = 20;
-    TopCategoryPayload top_category = 21;
-    ActiveMonthPayload active_month = 22;
-    BehaviorPayload behavior = 23;
-    AchievementPayload achievement = 24;
-
-    // Used by MISSED_OPPORTUNITY and NEXT_ACTION cards.
-    ActionPayload action = 25;
-
-    // The final story card embeds the exact same allow-listed DTO returned by
-    // GetShareCard, guaranteeing that preview and public link cannot drift.
-    ShareCard share = 26;
-  }
-}
-
-// Strict public DTO. It intentionally contains neither internal recap ID,
-// profile ID, raw metrics, action targets nor ActionableState snapshot fields.
-message ShareCard {
-  // Canonical public UUID.
+message SharePayload {
   string share_id = 1;
-
   uint32 year = 2;
   string behavior_title = 3;
-
-  // Omitted when no awarded achievement is allowed by the share policy.
   optional string achievement_title = 4;
-
-  // Omitted when top-category sharing is disallowed by policy or source data.
   optional string top_category = 5;
+}
 
-  // Version of the allow-list/privacy projection used to construct this DTO.
-  string privacy_version = 6;
+// The public RPC intentionally returns the same minimal shape as SHARE payload.
+message PublicShare {
+  string share_id = 1;
+  uint32 year = 2;
+  string behavior_title = 3;
+  optional string achievement_title = 4;
+  optional string top_category = 5;
 }

@@ -17,7 +17,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/testkit"
-	"github.com/year-recap/internal/recap/validation"
+	"github.com/year-recap/internal/recap/validation/structural"
 )
 
 type expectedRecap struct {
@@ -58,7 +58,7 @@ func TestSeedProfilesGenerateExpectedRecaps(t *testing.T) {
 	}
 	profilesByCode := make(map[string]model.Profile, len(profiles))
 	for _, profile := range profiles {
-		if err := validation.ValidateProfile(profile); err != nil {
+		if err := structural.ValidateProfile(profile); err != nil {
 			t.Fatalf("invalid seed profile %q: %v", profile.Code, err)
 		}
 		if _, exists := profilesByCode[profile.Code]; exists {
