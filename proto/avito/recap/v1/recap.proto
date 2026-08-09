@@ -1,0 +1,267 @@
+syntax = "proto3";
+
+package avito.recap.v1;
+
+// Frontend-facing RPC contract for the yearly recap experience.
+// The backend owns recap generation. The frontend renders the ordered cards
+// and executes the typed next action without recalculating business rules.
+
+service RecapService {
+  // Test/MVP profile picker.
+  rpc ListProfiles(ListProfilesRequest) returns (ListProfilesResponse);
+
+  // Generates (or returns an already generated immutable) recap for a profile/year.
+  rpc GenerateRecap(GenerateRecapRequest) returns (RecapResponse);
+
+  // Returns an existing recap for a profile/year.
+  rpc GetRecap(GetRecapRequest) returns (RecapResponse);
+
+  // Public endpoint. Returns only data that is safe to expose in SHARE.
+  rpc GetPublicShare(GetPublicShareRequest) returns (GetPublicShareResponse);
+}
+
+message ListProfilesRequest {}
+
+message ListProfilesResponse {
+  repeated Profile profiles = 1;
+}
+
+message GenerateRecapRequest {
+  string profile_code = 1;
+  uint32 year = 2;
+}
+
+message GetRecapRequest {
+  string profile_code = 1;
+  uint32 year = 2;
+}
+
+message GetPublicShareRequest {
+  string share_id = 1;
+}
+
+message RecapResponse {
+  Profile profile = 1;
+  Recap recap = 2;
+}
+
+message GetPublicShareResponse {
+  PublicShare share = 1;
+}
+
+message Profile {
+  string name = 1;
+  string description = 2;
+  string avatar_url = 3;
+  string profile_code = 4;
+}
+
+message Recap {
+  string id = 1;
+  uint32 year = 2;
+  string rule_version = 3;
+  repeated RecapCard cards = 4;
+  repeated Achievement achievements = 5;
+  NextAction next_action = 6;
+}
+
+enum CardType {
+  CARD_TYPE_UNSPECIFIED = 0;
+  CARD_TYPE_INTRO = 1;
+  CARD_TYPE_YEAR_ACTIVITY = 2;
+  CARD_TYPE_TOP_CATEGORY = 3;
+  CARD_TYPE_ACTIVE_MONTH = 4;
+  CARD_TYPE_BEHAVIOR = 5;
+  CARD_TYPE_ACHIEVEMENT = 6;
+  CARD_TYPE_MISSED_OPPORTUNITY = 7;
+  CARD_TYPE_NEXT_ACTION = 8;
+  CARD_TYPE_SHARE = 9;
+}
+
+message RecapCard {
+  string id = 1;
+  CardType type = 2;
+  uint32 position = 3;
+  string title = 4;
+  string description = 5;
+  string explanation = 6;
+  bool shareable = 7;
+
+  // Typed payload prevents the UI from reading fields that do not belong to
+  // the current card type. `type` is kept as an explicit product field; the
+  // payload case is the source of data for rendering.
+  oneof payload {
+    IntroPayload intro = 10;
+    YearActivityPayload year_activity = 11;
+    TopCategoryPayload top_category = 12;
+    ActiveMonthPayload active_month = 13;
+    BehaviorPayload behavior = 14;
+    AchievementPayload achievement = 15;
+    MissedOpportunityPayload missed_opportunity = 16;
+    NextActionPayload next_action = 17;
+    SharePayload share = 18;
+  }
+}
+
+message IntroPayload {}
+
+message YearActivityPayload {
+  uint64 total_events = 1;
+  uint64 searches = 2;
+  uint64 total_views = 3;
+  uint64 favorites_added = 4;
+  uint64 chats_started = 5;
+  uint64 listings_published = 6;
+  uint64 purchases_completed = 7;
+  uint64 sales_completed = 8;
+}
+
+message TopCategoryPayload {
+  string category_code = 1;
+  string category = 2;
+  uint64 category_views = 3;
+}
+
+message ActiveMonthPayload {
+  // 1..12. The frontend must not infer an event count from this field.
+  uint32 month = 1;
+}
+
+enum BehaviorCode {
+  BEHAVIOR_CODE_UNSPECIFIED = 0;
+  BEHAVIOR_CODE_ACTIVE_SELLER = 1;
+  BEHAVIOR_CODE_STARTING_SELLER = 2;
+  BEHAVIOR_CODE_DECISIVE_BUYER = 3;
+  BEHAVIOR_CODE_FIND_HUNTER = 4;
+  BEHAVIOR_CODE_RESEARCHER = 5;
+  BEHAVIOR_CODE_UNIVERSAL_USER = 6;
+}
+
+enum EvidenceComparison {
+  EVIDENCE_COMPARISON_UNSPECIFIED = 0;
+  EVIDENCE_COMPARISON_GTE = 1;
+  EVIDENCE_COMPARISON_LTE = 2;
+}
+
+message BehaviorEvidence {
+  string metric = 1;
+  string label = 2;
+  double actual_value = 3;
+  double threshold = 4;
+  EvidenceComparison comparison = 5;
+  int32 points = 6;
+  string explanation = 7;
+}
+
+message BehaviorPayload {
+  BehaviorCode code = 1;
+  int32 score = 2;
+  repeated BehaviorEvidence evidence = 3;
+}
+
+enum AchievementCode {
+  ACHIEVEMENT_CODE_UNSPECIFIED = 0;
+  ACHIEVEMENT_CODE_SUCCESSFUL_SELLER = 1;
+  ACHIEVEMENT_CODE_DEAL_CLOSER = 2;
+  ACHIEVEMENT_CODE_CONSISTENT_PUBLISHER = 3;
+  ACHIEVEMENT_CODE_BROAD_INTERESTS = 4;
+  ACHIEVEMENT_CODE_ALL_ROUNDER = 5;
+  ACHIEVEMENT_CODE_FIRST_SELLING_STEPS = 6;
+  ACHIEVEMENT_CODE_QUICK_DECISION = 7;
+  ACHIEVEMENT_CODE_ATTENTIVE_RESEARCHER = 8;
+  ACHIEVEMENT_CODE_MASTER_OF_FAVORITES = 9;
+}
+
+message AchievementPayload {
+  repeated AchievementCode codes = 1;
+}
+
+message Achievement {
+  AchievementCode code = 1;
+  string title = 2;
+  string reason = 3;
+  bool shareable = 4;
+}
+
+enum ActionCode {
+  ACTION_CODE_UNSPECIFIED = 0;
+  ACTION_CODE_FINISH_DRAFT = 1;
+  ACTION_CODE_OPEN_FAVORITES = 2;
+  ACTION_CODE_IMPROVE_LISTINGS = 3;
+  ACTION_CODE_CONTINUE_DIALOGS = 4;
+  ACTION_CODE_OPEN_TOP_CATEGORY = 5;
+  ACTION_CODE_CREATE_LISTING = 6;
+  ACTION_CODE_SAVE_SEARCH = 7;
+  ACTION_CODE_VIEW_SIMILAR_LISTINGS = 8;
+  ACTION_CODE_EXPLORE_RECOMMENDATIONS = 9;
+
+  // Kept only for wire compatibility with older integrations.
+  ACTION_CODE_CREATE_FIRST_LISTING = 10 [deprecated = true];
+}
+
+message ListingTarget {
+  string listing_id = 1;
+}
+
+message DialogTarget {
+  string dialog_id = 1;
+}
+
+message CategoryTarget {
+  string category_code = 1;
+}
+
+message SearchTarget {
+  string category_code = 1;
+}
+
+message RouteTarget {
+  string path = 1;
+}
+
+message ActionTarget {
+  oneof target {
+    ListingTarget listing = 1;
+    DialogTarget dialog = 2;
+    CategoryTarget category = 3;
+    SearchTarget search = 4;
+    RouteTarget route = 5;
+  }
+}
+
+message MissedOpportunityPayload {
+  // Current rules only emit SAVE_SEARCH or FINISH_DRAFT here.
+  ActionCode code = 1;
+  ActionTarget target = 2;
+}
+
+message NextActionPayload {
+  ActionCode code = 1;
+  ActionTarget target = 2;
+}
+
+message NextAction {
+  ActionCode code = 1;
+  string title = 2;
+  string description = 3;
+  string explanation = 4;
+  string button_text = 5;
+  ActionTarget target = 6;
+}
+
+message SharePayload {
+  string share_id = 1;
+  uint32 year = 2;
+  string behavior_title = 3;
+  optional string achievement_title = 4;
+  optional string top_category = 5;
+}
+
+// The public RPC intentionally returns the same minimal shape as SHARE payload.
+message PublicShare {
+  string share_id = 1;
+  uint32 year = 2;
+  string behavior_title = 3;
+  optional string achievement_title = 4;
+  optional string top_category = 5;
+}
