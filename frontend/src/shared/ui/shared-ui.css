@@ -233,3 +233,39 @@
     padding-bottom: 6px;
   }
 }
+
+/* Stable navigation: the logo is branding; going back to profile selection has its own control. */
+.page-shell__leading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.page-shell__back {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: rgb(255 255 255 / 80%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.page-shell__back:hover { color: var(--text-primary); background: #fff; border-color: var(--border-strong); }
+.page-shell__back:focus-visible { outline: 3px solid rgb(11 120 255 / 18%); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .page-shell__leading { gap: 8px; }
+  .page-shell__back { min-height: 32px; padding-inline: 9px; font-size: 11px; }
+  .page-shell__actions .demo-chip { display: none; }
+}
+
+@media (max-width: 390px) {
+  .page-shell__back > span:last-child { display: none; }
+  .page-shell__back { width: 32px; padding: 0; justify-content: center; }
+}

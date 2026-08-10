@@ -58,17 +58,17 @@ export function GenerationPage() {
   if (!profileCode) return <Navigate to="/" replace />;
   if (mutation.isError)
     return (
-      <PageShell>
+      <PageShell fitViewport backToProfiles>
         <ErrorState
           title="Не удалось собрать итоги"
-          description="Не удалось получить данные с сервера."
+          description="Не удалось собрать итоги. Попробуй ещё раз."
           onRetry={() => mutation.mutate(profileCode)}
         />
       </PageShell>
     );
 
   return (
-    <PageShell compactHeader>
+    <PageShell compactHeader fitViewport backToProfiles>
       <section className="generation-screen" aria-live="polite">
         <div className="generation-copy">
           <span className="generation-copy__eyebrow">Шаг 2 из 2</span>

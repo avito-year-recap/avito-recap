@@ -1,26 +1,21 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { Recap, RecapCard } from "../../entities/recap/model";
 import { RecapCardRenderer } from "../../entities/recap/ui/RecapCardRenderer";
 import { buildMockActionUrl } from "../../features/next-action/executeMockAction";
 import {
   getPublicPayload,
-  markProfileCompleted,
   readStoredProgress,
   resetStoredProgress,
-  unlockCompletionBonus,
   writeStoredProgress,
 } from "../../shared/lib/experience-utils";
 import { getActionVisual, getBehaviorVisual, getCategoryVisual } from "../../shared/lib/visual-registry";
 import { playUiSound, setUiSoundProfile } from "../../shared/lib/sound";
 import { playHaptic } from "../../shared/lib/haptics";
-import { YearTotem } from "../../shared/ui/YearTotem";
 import { getRecapTotemStage } from "../../shared/ui/year-totem-utils";
-import { ExplanationDialog } from "./ExplanationDialog";
 import { RecapMomentsDialog } from "./RecapMomentsDialog";
 import { YearTrailerDialog } from "./YearTrailerDialog";
-import { TotemExplorerDialog } from "./TotemExplorerDialog";
 import "./RecapPlayer.css";
 
 function clampSlide(raw: string | null, max: number) {
@@ -95,11 +90,8 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeIndex = clampSlide(searchParams.get("slide"), cards.length - 1);
   const [direction, setDirection] = useState(1);
-  const [explanationCard, setExplanationCard] = useState<RecapCard | null>(null);
   const [momentsOpen, setMomentsOpen] = useState(false);
   const [trailerOpen, setTrailerOpen] = useState(false);
-  const [totemExplorerOpen, setTotemExplorerOpen] = useState(false);
-  const [completionToast, setCompletionToast] = useState(false);
   const [cinematic, setCinematic] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(isSoundPreferenceEnabled);
   const storedAtStart = useMemo(() => readStoredProgress(recap.id), [recap.id]);
@@ -109,7 +101,6 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
     return storedAtStart.index;
   });
   const [wasCompleted, setWasCompleted] = useState(activeIndex === cards.length - 1 || Boolean(storedAtStart?.completed));
-  const visitedRef = useRef(new Set<number>([activeIndex]));
   const activeCard = cards[activeIndex];
   const publicPayload = useMemo(() => getPublicPayload(recap), [recap]);
   const atmosphere = atmosphereFor(activeCard);
@@ -123,19 +114,8 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
   const setSlide = useCallback((index: number, nextDirection: number, source: "manual" | "auto" = "manual") => {
     const clamped = Math.max(0, Math.min(cards.length - 1, index));
     if (clamped === activeIndex) return;
-    visitedRef.current.add(clamped);
     if (clamped === cards.length - 1) {
-      const firstCompletion = !wasCompleted;
-      const fullStoryVisited = visitedRef.current.size >= cards.length;
       setWasCompleted(true);
-      if (fullStoryVisited) {
-        markProfileCompleted(recap.profile.profileCode);
-        if (publicPayload) unlockCompletionBonus(publicPayload.shareId);
-      }
-      if (firstCompletion && fullStoryVisited) {
-        setCompletionToast(true);
-        window.setTimeout(() => setCompletionToast(false), 3600);
-      }
       if (source === "auto") setCinematic(false);
     }
     setDirection(nextDirection);
@@ -157,7 +137,7 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
       else playHaptic("tap");
     }
     if (source === "manual") setCinematic(false);
-  }, [activeIndex, cards, publicPayload, recap.profile.profileCode, setSearchParams, soundEnabled, wasCompleted]);
+  }, [activeIndex, cards, setSearchParams, soundEnabled]);
 
   const previous = useCallback(() => setSlide(activeIndex - 1, -1), [activeIndex, setSlide]);
   const next = useCallback(() => setSlide(activeIndex + 1, 1), [activeIndex, setSlide]);
@@ -167,11 +147,11 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
   }, [activeIndex, cards.length, recap.id]);
 
   useEffect(() => {
-    if (!cinematic || explanationCard || momentsOpen || trailerOpen || totemExplorerOpen) return;
+    if (!cinematic || momentsOpen || trailerOpen) return;
     if (activeIndex >= cards.length - 1) return;
     const timeout = window.setTimeout(() => setSlide(activeIndex + 1, 1, "auto"), reduceMotion ? 1800 : cardDuration(activeCard));
     return () => window.clearTimeout(timeout);
-  }, [activeCard, activeIndex, cards.length, cinematic, explanationCard, momentsOpen, reduceMotion, setSlide, totemExplorerOpen, trailerOpen]);
+  }, [activeCard, activeIndex, cards.length, cinematic, momentsOpen, reduceMotion, setSlide, trailerOpen]);
 
   useEffect(() => {
     if (!soundEnabled || activeCard.type !== "BEHAVIOR") return;
@@ -181,14 +161,14 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (explanationCard || momentsOpen || trailerOpen || totemExplorerOpen) return;
+      if (momentsOpen || trailerOpen) return;
       if (event.key === "ArrowLeft") previous();
       if (event.key === "ArrowRight") next();
       if (event.key.toLowerCase() === "p") setCinematic((value) => !value);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [explanationCard, momentsOpen, next, previous, totemExplorerOpen, trailerOpen]);
+  }, [momentsOpen, next, previous, trailerOpen]);
 
   const totemStage = getRecapTotemStage(activeIndex, cards.length);
   const runAction = () => {
@@ -216,7 +196,6 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
 
   const restart = () => {
     resetStoredProgress(recap.id);
-    visitedRef.current = new Set([0]);
     setResumeIndex(null);
     setWasCompleted(false);
     if (activeIndex !== 0) setSlide(0, -1);
@@ -241,7 +220,6 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
             ))}
           </div>
           <div className="recap-topline__meta">
-            <YearTotem recap={recap} stage={totemStage} compact />
             <div className="recap-player-tools" aria-label="Режим просмотра">
               <button type="button" className={cinematic ? "is-active" : ""} onClick={() => setCinematic((value) => !value)} aria-label={cinematic ? "Поставить автоисторию на паузу" : "Запустить автоисторию"} title="Автоистория">
                 {cinematic ? "Ⅱ" : "▶"}
@@ -281,11 +259,8 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
               <RecapCardRenderer
                 card={activeCard}
                 recap={recap}
-                onExplain={(card) => { setCinematic(false); setExplanationCard(card); }}
                 onAction={runAction}
                 onTrailer={() => { setCinematic(false); setTrailerOpen(true); }}
-                onExploreTotem={() => { setCinematic(false); setTotemExplorerOpen(true); }}
-                soundEnabled={soundEnabled}
               />
             </motion.div>
           </AnimatePresence>
@@ -308,17 +283,10 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
           )}
           <button type="button" onClick={next} disabled={activeIndex === cards.length - 1}>Далее <span aria-hidden="true">→</span></button>
         </div>
-        {completionToast && (
-          <motion.div className="completion-bonus-toast" initial={{ opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }}>
-            <span aria-hidden="true">✦</span><div><b>Ты дошёл до конца</b><small>Открыт скрытый стиль SHARE-карточки</small></div>
-          </motion.div>
-        )}
-      </section>
+     </section>
 
-      <ExplanationDialog card={explanationCard} recap={recap} open={Boolean(explanationCard)} onClose={() => setExplanationCard(null)} />
       <RecapMomentsDialog open={momentsOpen} cards={cards} activeIndex={activeIndex} onSelect={(index) => setSlide(index, index > activeIndex ? 1 : -1)} onClose={() => setMomentsOpen(false)} />
       <YearTrailerDialog open={trailerOpen} payload={publicPayload} soundEnabled={soundEnabled} onClose={() => setTrailerOpen(false)} />
-      <TotemExplorerDialog open={totemExplorerOpen} recap={recap} soundEnabled={soundEnabled} onClose={() => setTotemExplorerOpen(false)} />
     </div>
   );
 }
