@@ -1,185 +1,404 @@
-# avito-recap
+# Avito Recap - «Итоги года»
 
-Backend for an Avito-style annual recap. The service turns a completed year of
-seed activity into an immutable story: metrics, behavior, achievements,
-personalized next action, and a privacy-safe public share card.
+MVP веб-приложения для персональных «Итогов года» пользователя.
 
+> Демо использует тестовые профили и подготовленные сценарии активности за 2025 год.
 
-## Deploy to Render (jury demo)
+## Распределение ответственности между участниками команды
 
-The repository is prepared for a **single Render Web Service**. In production
-the Docker image builds React, builds Go, and the Go process serves both the SPA
-and the Connect API. The demo uses the in-memory seed storage, so a separate
-ClickHouse service is not required on Render.
+- frontend Денисов Илья
+- backend: часть с базами данных, сборка проекта, nginx Максименко Мария
+- backend: бизнес-логика, тестовые профили,линтер,render, proto Амбарникова Дарья
+- backend: контроллеры Никита Жуков
 
-Architecture:
+## Интернет-демо
+
+Проект подготовлен для single-service deployment через Docker/Render.
+
 
 ```text
-browser -> https://<service>.onrender.com
-            |-- /, /recap/*, /share/* -> React SPA
-            |-- /api/*                -> Go Connect API
-            |-- /health               -> health check
+https://avito-recap.onrender.com
 ```
 
-Deployment steps:
 
-1. Push this repository to GitHub.
-2. In Render choose **New -> Blueprint** and select the repository.
-3. Render reads `render.yaml` and builds the root `Dockerfile`.
-4. Wait until the service becomes `Live`.
-5. Open the generated `https://<service>.onrender.com` URL and run the demo flow.
+## Пользовательский сценарий
 
-You can also create a **Web Service** manually and select the `Docker` runtime.
-Use the repository root as the Docker context and `/health` as the health-check
-path. Do not set `PORT` yourself; Render provides it and the application reads it
-automatically.
+1. Пользователь выбирает тестовый профиль.
+2. Backend анализирует годовую активность и текущее состояние профиля.
+3. Генерируется персональный Recap.
+4. Пользователь последовательно просматривает story-карточки:
+   - активность за год;
+   - главную категорию и активный период;
+   - тип поведения;
+   - достижения;
+   - возможную упущенную возможность;
+   - персональное следующее действие.
+5. В конце можно перейти к следующему действию или открыть безопасную публичную share-card.
 
-The Render demo intentionally uses `STORAGE_BACKEND=memory`: all 17 seed
-profiles work, generated recaps live for the lifetime of the process, and no
-external database is required. The existing `docker compose` development setup
-still uses ClickHouse.
+Правила генерации воспроизводимы: одинаковые входные данные и версия правил приводят к одному логическому результату.
 
-On the free Render plan the service can spin down after inactivity. After a
-restart the seed catalogue is loaded again automatically, but previously
-generated recap/share IDs are intentionally not persisted in memory mode.
+## Что реализовано
 
-## Requirements
+- персональный Recap для тестовых профилей;
+- анализ годовой активности;
+- определение типа поведения пользователя;
+- система достижений;
+- персональный `NextAction`;
+- story-интерфейс на React;
+- публичная share-card с отдельными privacy-правилами;
+- memory и ClickHouse storage;
+- ConnectRPC API на Protocol Buffers;
+- unit, integration, golden и frontend-тесты;
+- запуск через Docker Compose;
+- single-service Docker image для интернет-демо.
 
-- Go 1.25.5 or newer (the Render Docker image tracks the latest Go 1.25 patch)
-- Node.js 24 recommended for frontend tooling
+## Технологии
 
-## Run locally
+### Frontend
 
-Install frontend dependencies once after cloning/unpacking the repository:
+- React 19;
+- TypeScript;
+- Vite;
+- Material UI;
+- TanStack Query;
+- Framer Motion;
+- ConnectRPC;
+- ESLint;
+- Vitest.
 
-```powershell
+### Backend
+
+- Go 1.25;
+- ConnectRPC / Protocol Buffers;
+- ClickHouse;
+- in-memory storage для лёгкого demo-режима;
+- `golangci-lint`.
+
+### Почему ClickHouse
+
+Основной поток данных проекта связан с пользовательскими событиями и годовой аналитикой. ClickHouse подходит для хранения и агрегации большого количества событий, поэтому используется как основное аналитическое хранилище.
+
+Для demo-режима также реализован `memory` backend: он не требует отдельной базы и позволяет быстро поднять приложение с seed-данными.
+
+Подробнее: [`docs/storage.md`](docs/storage.md).
+
+
+## Структура проекта
+
+Ниже показаны основные директории репозитория и их назначение:
+
+```text
+avito-recap/
+├── cmd/
+│   └── api/                         # точка входа Go-приложения и запуск HTTP-сервера
+│
+├── internal/
+│   ├── architecture/                # архитектурные тесты и проверки границ между слоями
+│   ├── bootstrap/                   # загрузка demo-данных в ClickHouse
+│   ├── config/                      # конфигурация приложения и переменные окружения
+│   │
+│   ├── recap/                       # основная бизнес-логика «Итогов года»
+│   │   ├── achievement/             # правила выдачи достижений
+│   │   ├── analytics/               # расчёт годовых метрик и агрегация активности
+│   │   ├── application/             # orchestration use-case'ов и storage-интерфейсы
+│   │   ├── behavior/                # определение типа поведения пользователя
+│   │   ├── engine/                  # сборка итогового Recap
+│   │   ├── integrity/               # проверки целостности сохранённого Recap
+│   │   ├── model/                   # доменные модели
+│   │   ├── nextaction/              # выбор следующего действия пользователя
+│   │   ├── presentation/            # story-карточки и публичная share-card
+│   │   ├── ruleset/                 # версии, пороги и приоритеты продуктовых правил
+│   │   ├── testkit/                 # вспомогательные инструменты для тестов
+│   │   └── validation/              # доменные проверки и инварианты
+│   │
+│   ├── seed/                        # чтение и подготовка seed-данных
+│   ├── server/                      # HTTP routing, health check, CORS, SPA и статика
+│   ├── storage/
+│   │   ├── clickhouse/              # постоянное хранение и аналитика в ClickHouse
+│   │   └── memory/                  # in-memory реализация для demo и разработки
+│   └── transport/
+│       └── connect/                 # ConnectRPC transport и protobuf ↔ domain mapping
+│
+├── frontend/
+│   ├── public/
+│   │   └── avatars/                 # исходные аватары тестовых профилей
+│   └── src/
+│       ├── app/                     # инициализация приложения и глобальные providers
+│       ├── entities/                # frontend-модели предметной области
+│       ├── features/                # пользовательские действия и сценарии интерфейса
+│       ├── gen/                     # сгенерированные protobuf/Connect типы
+│       ├── pages/                   # страницы приложения
+│       ├── shared/                  # API-клиенты, UI и общие утилиты
+│       ├── test/                    # тестовая инфраструктура frontend
+│       └── widgets/                 # крупные UI-блоки, включая Recap Player
+│
+├── proto/
+│   └── recap/v1/                    # исходный protobuf-контракт API
+├── gen/
+│   └── go/                          # сгенерированный Go protobuf/Connect код
+│
+├── seeds/                           # тестовые профили и сценарии активности
+├── testdata/
+│   ├── expected/                    # человекочитаемые ожидаемые результаты
+│   ├── golden/                      # полные golden-снимки Recap
+│   └── metrics/                     # fixture-данные для тестов метрик и правил
+│
+├── clickhouse/
+│   └── init/                        # SQL-инициализация ClickHouse для Docker Compose
+├── nginx/                           # nginx-конфигурация compose-окружения
+├── docs/                            # подробная документация по частям проекта
+│
+├── Dockerfile                       # production single-service image
+├── docker-compose.yml               # локальный запуск frontend + backend + ClickHouse
+├── render.yaml                      # конфигурация интернет-демо на Render
+├── Makefile                         # команды генерации, тестов и служебных операций
+└── .golangci.yaml                   # конфигурация backend-линтера
+```
+
+Основной поток зависимостей выглядит так:
+
+```text
+Frontend → ConnectRPC API → Application Service → Recap Engine → Storage
+```
+
+Бизнес-правила находятся внутри `internal/recap`, инфраструктура хранения — в
+`internal/storage`, а HTTP/API-слой отделён от доменной логики.
+
+Подробнее об архитектурных границах и взаимодействии компонентов:
+[`docs/architecture.md`](docs/architecture.md).
+
+## Быстрый запуск через Docker Compose
+
+Требования:
+
+- Docker;
+- Docker Compose.
+
+Из корня репозитория:
+
+```bash
+docker compose up --build
+```
+
+После запуска приложение доступно по адресу:
+
+```text
+http://localhost:8081
+```
+
+Docker Compose поднимает:
+
+- frontend/nginx;
+- Go API;
+- ClickHouse.
+
+Для остановки:
+
+```bash
+docker compose down
+```
+
+Для удаления также сохранённых данных ClickHouse:
+
+```bash
+docker compose down -v
+```
+
+## Локальная разработка
+
+Требования:
+
+- Go 1.25.5+;
+- Node.js 24;
+- npm.
+
+Установить frontend-зависимости:
+
+```bash
 cd frontend
 npm ci
-cd ..
 ```
 
-This also makes VS Code/TypeScript resolve `@connectrpc/connect` and `vite/client`.
+Запустить backend из корня проекта:
 
-```powershell
+```bash
 go run ./cmd/api
 ```
 
-```powershell
-docker compose up --build
-```
-
-The server listens on `http://localhost:8080` by default.
+Backend по умолчанию работает на:
 
 ```text
-GET  /health
-GET  /avatars/{profile-code}.png
-POST /recap.v1.RecapService/ListProfiles
-POST /recap.v1.RecapService/GenerateRecap
-POST /recap.v1.RecapService/GetRecap
-POST /recap.v1.RecapService/GetPublicShare
+http://localhost:8080
 ```
 
-The RPC endpoints support Connect, gRPC, and gRPC-Web. Connect JSON example:
+В отдельном терминале запустить frontend:
 
-```powershell
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "http://localhost:8080/recap.v1.RecapService/GenerateRecap" `
-  -ContentType "application/json" `
-  -Body '{"profileCode":"active-buyer","year":2025}'
+```bash
+cd frontend
+npm run dev
 ```
 
-The demo catalogue contains 17 profiles from `seeds/profiles.json`. All bundled
-scenarios use the completed year `2025`.
-
-## Frontend integration
-
-Generated TypeScript schemas and the service descriptor are committed at:
+Vite dev server по умолчанию доступен на:
 
 ```text
-gen/ts/recap/v1/recap_pb.ts
+http://localhost:5173
 ```
 
-Install the client runtime:
+## Архитектура
 
-```powershell
-npm install @bufbuild/protobuf @connectrpc/connect @connectrpc/connect-web
+Упрощённый поток данных:
+
+```text
+React frontend
+      |
+      v
+ConnectRPC API
+      |
+      v
+Application Service
+      |
+      v
+Recap Engine
+  |     |      |
+  v     v      v
+Behavior  Achievements  NextAction
+      |
+      v
+Story Cards + Share Projection
+      |
+      v
+Memory / ClickHouse
 ```
 
-Create a typed browser client:
 
-```typescript
-import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
-import { RecapService } from "./gen/ts/recap/v1/recap_pb";
+Подробнее: [`docs/architecture.md`](docs/architecture.md).
 
-const transport = createConnectTransport({
-  baseUrl: "http://localhost:8080",
-});
+## API
 
-export const recapClient = createClient(RecapService, transport);
-```
+API описан через Protocol Buffers и ConnectRPC.
 
-Profile avatar URLs are relative to the API origin. Resolve `/avatars/...`
-against the same `baseUrl` when the frontend runs on a different origin.
+Основные RPC:
 
-Default CORS origins are `http://localhost:3000` and
-`http://localhost:5173`. Override them with a comma-separated
-`CORS_ALLOWED_ORIGINS` value.
-
-## Generate API code
-
-The protobuf contract lives at `proto/recap/v1/recap.proto`.
-
-```powershell
-npx --yes @bufbuild/buf@1.72.0 lint
-npx --yes @bufbuild/buf@1.72.0 generate
-```
-
-Generation produces:
-
-- Go protobuf messages in `gen/go/recap/v1`
-- Connect Go clients and handlers in `gen/go/recap/v1/recapv1connect`
-- TypeScript schemas and service descriptors in `gen/ts/recap/v1`
-
-## Configuration
-
-| Variable | Default |
+| RPC | Назначение |
 | --- | --- |
-| `API_ADDRESS` | empty; falls back to `HTTP_ADDR`, then Render `PORT`, then `:8080` |
-| `STORAGE_BACKEND` | `clickhouse` (`memory` in the Render Docker image) |
-| `CLICKHOUSE_DSN` | `clickhouse://recap:recap@clickhouse:9000/recap` |
-| `PROFILES_PATH` | `seeds/profiles.json` |
-| `SCENARIOS_PATH` | `seeds/scenarios.json` |
-| `STATIC_DIR` | `static` |
-| `FRONTEND_DIR` | empty (set to `/app/web` in the Render Docker image) |
-| `CORS_ALLOWED_ORIGINS` | localhost ports 3000 and 5173 |
-| `SHUTDOWN_TIMEOUT` | `10s` |
+| `ListProfiles` | получить список тестовых профилей |
+| `GenerateRecap` | создать или вернуть Recap для профиля и года |
+| `GetRecap` | получить Recap |
+| `GetPublicShare` | получить публичную share-card |
 
-## Tests
+Health check:
 
-```powershell
-go test ./...
+```text
+GET /health
 ```
 
-For only the Render single-service integration tests:
+Аватары профилей:
 
-```powershell
+```text
+GET /avatars/{profile-code}.png
+```
+
+
+Полный контракт, ошибки и особенности RPC: [`docs/api.md`](docs/api.md).
+
+## Тестовые данные
+
+В проекте подготовлен каталог тестовых профилей с разными сценариями поведения, достижениями и следующими действиями. Таоке количество профилей было написано с целью как можно лучше показать все возможности проекта.
+
+Основные файлы:
+
+```text
+seeds/profiles.json
+seeds/scenarios.json
+testdata/expected/
+testdata/golden/
+```
+
+Публичный URL аватара имеет формат:
+
+```text
+/avatars/<profile-code>.png
+```
+
+Исходные avatar-файлы frontend находятся в:
+
+```text
+frontend/public/avatars/
+```
+
+Подробнее о профилях и покрываемых сценариях: [`docs/test_profiles.md`](docs/test_profiles.md).
+
+## Тесты и качество кода
+
+Backend:
+
+```bash
+go test ./...
+golangci-lint run
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run check
+```
+
+`npm run check` запускает ESLint, TypeScript typecheck и Vitest.
+
+Проверка single-service сценария, используемого для интернет-демо:
+
+```bash
 make test-render
 ```
 
-Render-style integration coverage is in `internal/server/render_integration_test.go`.
-It verifies the SPA/deep-link fallback, the complete recap flow through `/api`,
-public sharing, static avatars, same-origin requests, and API 404 behavior.
+Конфигурация backend-линтера находится в `.golangci.yaml`. Включены проверки ошибок, статический анализ, поиск неиспользуемого кода, проблем обработки ошибок и другие проверки качества.
 
-ClickHouse-only integration tests remain behind the `integration` build tag and
-require a running ClickHouse instance.
+Frontend использует ESLint и TypeScript для статической проверки.
 
-Golden recap examples for frontend mocks are available under
-`testdata/golden/`.
+## Основная конфигурация
 
-## Docker
+| Переменная | Назначение |
+| --- | --- |
+| `STORAGE_BACKEND` | `memory` или `clickhouse` |
+| `CLICKHOUSE_DSN` | подключение к ClickHouse |
+| `PROFILES_PATH` | путь к каталогу профилей |
+| `SCENARIOS_PATH` | путь к demo-сценариям |
+| `STATIC_DIR` | директория статических файлов; локально `frontend/public` |
+| `FRONTEND_DIR` | директория собранного SPA |
+| `CORS_ALLOWED_ORIGINS` | разрешённые frontend origins |
+| `SHUTDOWN_TIMEOUT` | timeout graceful shutdown |
 
-```powershell
-docker compose up --build
-```
+## Ключевые продуктовые и технические решения
+
+- **Recap неизменяемый.** После генерации результат сохраняется как снимок завершённого года.
+- **Правила детерминированы.** Поведение, достижения и NextAction рассчитываются по воспроизводимым правилам.
+- **Исторические данные отделены от текущего состояния.** Годовые метрики описывают прошлый год, а текущее состояние используется для выбора реально исполнимого следующего действия.
+- **Privacy by design.** Публичная share-card строится как отдельная безопасная проекция и не содержит внутренних идентификаторов, сырых метрик или чувствительных данных.
+- **Frontend не дублирует бизнес-логику.** Все продуктовые решения рассчитываются backend'ом.
+
+Подробные правила Recap: [`docs/recap.md`](docs/recap.md).
+
+
+## Документация
+
+Подробности вынесены из README в отдельные документы:
+
+- [`docs/recap.md`](docs/recap.md) - правила генерации, behavior, achievements, NextAction, карточки и privacy;
+- [`docs/test_profiles.md`](docs/test_profiles.md) - тестовые профили, сценарии и golden fixtures;
+- [`docs/architecture.md`](docs/architecture.md) - слои приложения и зависимости;
+- [`docs/storage.md`](docs/storage.md) - memory/ClickHouse storage и persistence;
+- [`docs/api.md`](docs/api.md) - RPC-контракт, transport и error mapping.
+
+
+
+## Использование ИИ
+
+ИИ использовался как вспомогательный инструмент при:
+
+- ревью отдельных участков кода и конфигурации;
+- поиске несоответствий в путях и документации;
+- для ускорения рутинных задач;
+- подготовке и структурировании черновиков технической документации.
+
+Ключевые продуктовые и архитектурные решения проверялись по реализации проекта и тестам; финальная ответственность за изменения остаётся за командой.
