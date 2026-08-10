@@ -2,37 +2,13 @@
 
 ## 1. Назначение
 
-Storage layer предоставляет данные, необходимые `application.Service`, и сохраняет сгенерированные Recap.
+Storage предоставляет данные `application.Service` и хранит сгенерированные Recap — через набор портов (`internal/recap/application/ports.go`), а не через прямой SQL из бизнес-логики.
 
-Application layer взаимодействует с хранилищем не напрямую через SQL или конкретную реализацию, а через набор портов.
-
-```text
-application.Service
-       |
-       +--> ProfileStorage
-       +--> AnalyticsStorage
-       +--> ActionStateStorage
-       +--> RecapStorage
-```
-
-Поддерживаются две реализации:
-
-```text
-internal/storage/memory/
-internal/storage/clickhouse/
-```
+Две реализации: `internal/storage/memory/` (demo/dev, не persistent) и `internal/storage/clickhouse/` (основная, persistent).
 
 ---
 
 ## 2. Application ports
-
-Порты определены в:
-
-```text
-internal/recap/application/ports.go
-```
-
-### ProfileStorage
 
 ```go
 type ProfileStorage interface {
@@ -40,825 +16,131 @@ type ProfileStorage interface {
     GetProfile(...)
     GetProfileByCode(...)
 }
-```
 
-Отвечает за каталог профилей.
-
-Transport обращается к пользователю по `profile_code`, тогда как UUID используется внутри backend.
-
----
-
-### AnalyticsStorage
-
-```go
 type AnalyticsStorage interface {
-    CalculateMetrics(...)
+    CalculateMetrics(...) // годовые метрики за RecapPeriod
 }
-```
 
-Возвращает годовые агрегированные метрики пользователя за `RecapPeriod`.
-
-Application layer не знает, были ли метрики:
-
-- заранее рассчитаны;
-- получены из cache;
-- агрегированы из raw events.
-
----
-
-### ActionStateStorage
-
-```go
 type ActionStateStorage interface {
-    GetActionableState(...)
+    GetActionableState(...) // point-in-time snapshot текущего состояния
 }
-```
 
-Возвращает point-in-time snapshot текущего адресуемого состояния.
-
-Примеры:
-
-- текущий draft;
-- открытый dialog;
-- активное listing;
-- favorites;
-- last purchased listing.
-
-`ActionableState` не является частью исторических годовых metrics.
-
----
-
-### RecapStorage
-
-```go
 type RecapStorage interface {
-    GetRecapByKey(...)
+    GetRecapByKey(...)      // idempotency lookup
     CreateRecapIfAbsent(...)
-    GetRecap(...)
-    GetRecapByShareID(...)
+    GetRecap(...)           // по internal ID
+    GetRecapByShareID(...)  // по public share ID
 }
 ```
 
-Отвечает за persistence immutable recap.
+Ключевые нюансы:
 
-Storage должен позволять искать Recap по:
-
-- idempotency key;
-- internal recap ID;
-- public share ID.
+- Transport обращается к профилю по `profile_code`, UUID — только внутри backend.
+- `ActionableState` не часть исторических годовых metrics — это текущее (draft/dialog/favorites/last purchase), а не прошлогоднее.
+- `AnalyticsStorage` не раскрывает, были ли метрики предрассчитаны, взяты из кэша или агрегированы на лету — это деталь реализации.
 
 ---
 
 ## 3. Memory storage
 
-Реализация:
+`internal/storage/memory/` — простая in-process реализация: несколько map-индексов (`profilesByID`/`profilesByCode`, `metrics` по `(profileID, year)`, `actionStates`, `recapsByKey`/`recapsByID`/`recapsByShare`) под общим `sync.RWMutex`, без персистентности. При старте грузит `seeds/profiles.json` и `seeds/scenarios.json`; после рестарта процесса всё сгенерированное (recaps, share-ссылки) пропадает и создаётся заново из seed.
 
-```text
-internal/storage/memory/
-```
-
-Используется для:
-
-- локальной разработки;
-- demo deployment;
-- Render demo;
-- unit/integration scenarios без ClickHouse.
-
-Memory storage загружает:
-
-```text
-seeds/profiles.json
-seeds/scenarios.json
-```
-
-при запуске процесса.
+Используется для локальной разработки, Render-демо и unit/integration-тестов без ClickHouse — это вспомогательный путь, не production storage.
 
 ---
 
-## 4. Структура memory store
+## 4. ClickHouse storage
 
-`memory.Store` содержит несколько индексов:
+`internal/storage/clickhouse.Repo` — основной adapter, реализует все четыре порта выше плюс `bootstrap.SeedStorage`. Подключается через `CLICKHOUSE_DSN`, после чего backend вызывает `EnsureSchema()`.
 
-```text
-profiles
-profilesByID
-profilesByCode
+`EnsureSchema()` (в `internal/storage/clickhouse/client.go`) идемпотентна:
 
-metrics
-
-actionStates
-
-recapsByKey
-recapsByID
-recapsByShare
-```
-
-Схематично:
-
-```text
-Profile code -----> Profile
-Profile UUID -----> Profile
-
-(Profile UUID, year)
-        |
-        v
-      Metrics
-
-Profile UUID
-        |
-        v
- ActionableState
-
-RecapKey -------> Recap
-Recap ID -------> Recap
-Share ID ------> Recap
-```
-
-Доступ синхронизирован через `sync.RWMutex`.
+- сначала прогоняет `CREATE TABLE IF NOT EXISTS` по всем таблицам — безопасно перезапускать;
+- затем — небольшой набор `ALTER TABLE ... MODIFY TTL`, чтобы докатить schema-правки (например, изменённый TTL) и на уже существующую БД, которую `CREATE TABLE IF NOT EXISTS` не трогает.
 
 ---
 
-## 5. Lifetime memory storage
+## 5. Таблицы
 
-Memory storage не является persistent.
+| Таблица | Engine | Order / Partition | TTL | Назначение |
+|---|---|---|---|---|
+| `profiles` | `ReplacingMergeTree(updated_at)` | `ORDER BY id` | — | каталог профилей, читается с `FINAL`, безопасно re-seed'ить |
+| `events` | `MergeTree` | `PARTITION BY toYYYYMM(occurred_at)`, `ORDER BY (profile_id, occurred_at)` | `occurred_at + 3 года` | источник истины годовой активности |
+| `annual_metrics` | `ReplacingMergeTree(updated_at)` | `ORDER BY (profile_id, year)` | `updated_at + 3 года` | кэш агрегации над `events` — не должен переживать данные, кэшем которых является |
+| `actionable_state` | `ReplacingMergeTree(updated_at)` | `ORDER BY profile_id` | нет (намеренно) | текущее состояние профиля, а не time-decaying лог — TTL по возрасту сломал бы валидный snapshot неактивного профиля |
+| `recaps` | `MergeTree` (не Replacing — после генерации не обновляется) | `ORDER BY (profile_id, year, rules_version, rules_digest)` | нет (намеренно) | immutable Recap, JSON в поле `recap`; share-ссылка должна работать и после того, как исходные `events` истекут |
 
-```text
-process started
-      |
-      v
-load seeds
-      |
-      v
-generate recaps
-      |
-      v
-memory only
-      |
-process stopped
-      |
-      v
-generated recaps lost
-```
-
-После restart:
-
-- profiles и scenarios снова загружаются из seed;
-- ранее сгенерированные recaps исчезают;
-- новые Recap ID и Share ID могут быть созданы заново.
-
-Поэтому memory backend подходит для demo, но не для production persistence.
+`annual_metrics.event_count` — freshness-маркер: хранит, сколько событий было в `events` на момент расчёта.
 
 ---
 
-## 6. ClickHouse storage
+## 6. Cache-aside для метрик
 
-Реализация:
+`CalculateMetrics`: считает live `count(events)` для `(profile_id, year)` — если 0, `ErrMetricsNotFound`. Иначе читает `annual_metrics`; если сохранённый `event_count` совпадает с live count — отдаёт кэш. Если нет (или строки не было) — агрегирует сырые `events` через `analytics.AggregateEvents` и перезаписывает кэш.
 
-```text
-internal/storage/clickhouse/
-```
+Ограничение: freshness сравнивается только по количеству строк, не по содержимому — если существующий event изменится без изменения count, кэш это не поймает. В текущей append-only модели событий это не проблема; для mutable ingestion потребовался бы более сильный маркер (`max(updated_at)`, offset, checksum).
 
-Главный adapter:
+---
 
-```go
-clickhouse.Repo
-```
+## 7. Recap: idempotency
 
-Он одновременно реализует:
+`RecapKey = (ProfileID, Year, RulesVersion, RulesDigest)`. `CreateRecapIfAbsent` — check-then-insert (`GetRecapByKey` → если не найден → `INSERT`), не атомарный database-level upsert: MergeTree не даёт unique constraint. Для single-writer demo deployment это приемлемо; при нескольких параллельных writers возможна гонка (оба не находят строку и оба вставляют) — для multi-instance production нужен внешний lock, OLTP-хранилище с unique constraint или отдельный idempotency-сервис.
 
-```text
-ProfileStorage
-AnalyticsStorage
-ActionStateStorage
-RecapStorage
-SeedStorage
-```
+После чтения Recap не считается доверенным сам по себе: application прогоняет `engine.ValidateStored` и сверяет, что сохранённый `RecapKey`/ID/share ID совпадает с запрошенным.
 
-Подключение выполняется через:
+---
 
-```text
-CLICKHOUSE_DSN
-```
+## 8. Как события попадают в `events`
 
-После подключения backend вызывает:
+**Прямой путь (основной).** При `SEED_DEMO_DATA=true` после `EnsureSchema()` вызывается `bootstrap.LoadDemoData`: грузит `profiles.json`/`scenarios.json`, генерирует сырые события по сценариям и пишет их через `UpsertProfiles`/`InsertEvents`/`PutActionableState`. Recap-метрики руками не пишутся — только события, из которых `CalculateMetrics` сам всё агрегирует, как для реального ingestion.
 
-```text
-EnsureSchema()
+**Опциональный Kafka-путь.** Не входит в основной билд, не запускается стандартным `docker compose up` — только за профилем `events-gen`. `cmd/eventgen` переиспользует ту же генерацию (`bootstrap.GenerateDemoData`), но публикует события JSON'ом в Kafka-топик `events` вместо прямой записи (retention топика — явные 24 часа, не дефолт брокера). На стороне ClickHouse `clickhouse/kafka/010_events_kafka.sql` (накатывается вручную одноразовым сервисом `clickhouse-kafka-init`, не через `EnsureSchema()`) создаёt `events_queue` (`ENGINE = Kafka`) и `MATERIALIZED VIEW events_mv TO events` — ClickHouse сам поллит топик и льёт в `events`.
+
+```bash
+docker compose --profile events-gen up -d kafka clickhouse-kafka-init
+docker compose --profile events-gen run --rm eventgen
 ```
 
 ---
 
-## 7. Runtime schema
+## 9. `clickhouse/init`
 
-Основной runtime schema contract находится в:
+Монтируется Docker Compose в `/docker-entrypoint-initdb.d` и применяется при первом старте контейнера. Runtime source of truth для схемы приложения — всё же `EnsureSchema()` (раздел 4); `clickhouse/init/001_schema.sql` дублирует создание `events` для случаев ручного/раннего bring-up.
 
-```text
-internal/storage/clickhouse/client.go
-```
-
-`EnsureSchema()` создаёт необходимые таблицы через:
-
-```sql
-CREATE TABLE IF NOT EXISTS
-```
-
-Поэтому повторный запуск приложения безопасен.
-
-Используются таблицы:
-
-```text
-profiles
-events
-annual_metrics
-actionable_state
-recaps
-```
+`002_recap_cache.sql` создаёт `recap_cards`/`recap_summary` — их не использует ни один Go-код в проекте, это legacy/prototype-таблицы. Со временем стоит либо удалить эту схему, либо перенести весь SQL в versioned migrations — сейчас она распределена между init-скриптами и `EnsureSchema()`, что создаёт риск рассинхронизации.
 
 ---
 
-## 8. `profiles`
+## 10. Выбор storage backend
 
-Хранит demo/user profiles.
+| | `memory` | `clickhouse` |
+|---|---|---|
+| Когда | demo, Render, локальный UI, тесты | Docker Compose, реальный объём событий, нужна persistence |
+| Плюсы | не нужна внешняя БД, мгновенный старт | эффективная аналитика по событиям, persistent recaps, кэш метрик |
+| Минусы | нет persistence, данные теряются после рестарта, состояние не шарится между инстансами | idempotency-insert не атомарен между writers, JSON-блобы хуже подходят под ad-hoc SQL, schema ещё не оформлена как migrations |
 
-Основные поля:
-
-```text
-id
-code
-display_name
-description
-avatar_url
-updated_at
-```
-
-Engine:
-
-```text
-ReplacingMergeTree(updated_at)
-```
-
-Чтение выполняется с `FINAL`.
-
-Это позволяет повторно seed'ить один и тот же profile catalogue.
+Immutable `recaps` с уникальным idempotency-ключом по природе ближе к OLTP-сущности, чем к аналитической таблице. Cледующий шаг — не менять ClickHouse целиком, а вынести `profiles`/`actionable_state`/`recaps` в отдельный OLTP-стор, оставив ClickHouse только под `events`/аналитику. Для текущего масштаба единый adapter проще.
 
 ---
 
-## 9. `events`
+## 11. Storage invariants
 
-`events` — источник истины для годовой активности пользователя.
+Обе реализации обязаны соблюдать:
 
-Пример данных:
-
-```text
-profile_id
-event_type
-occurred_at
-category
-ad_id
-dialog_id
-```
-
-Engine:
-
-```text
-MergeTree
-```
-
-Partition:
-
-```text
-toYYYYMM(occurred_at)
-```
-
-Order:
-
-```text
-(profile_id, occurred_at)
-```
-
-TTL:
-
-```text
-occurred_at + 3 years
-```
-
-Готовый `Metrics` не является основным источником истины.
-
-Flow:
-
-```text
-events
-   |
-   v
-AnalyticsStorage.CalculateMetrics
-   |
-   v
-analytics.AggregateEvents
-   |
-   v
-Metrics
-```
+1. Profile code однозначно определяет профиль; UUID — внутренний идентификатор.
+2. Metrics относятся к конкретному `RecapPeriod`.
+3. ActionableState — point-in-time snapshot.
+4. Recap после записи не изменяется.
+5. Lookup по share ID / internal ID не возвращает чужой Recap.
+6. Idempotency lookup — через `RecapKey`.
+7. Прочитанный Recap проходит engine validation, а не считается доверенным по факту хранения.
+8. Storage не вычисляет Behavior, Achievement или NextAction — это бизнес-логика, а не персистентность.
 
 ---
 
-## 10. Annual metrics cache
+## 12. Где менять storage
 
-Чтобы каждый запрос не агрегировал все события заново, используется:
-
-```text
-annual_metrics
-```
-
-Она содержит:
-
-```text
-profile_id
-year
-metrics
-event_count
-updated_at
-```
-
-`metrics` хранится сериализованным JSON.
-
-`event_count` является freshness marker.
-
----
-
-## 11. Cache-aside algorithm
-
-Алгоритм `CalculateMetrics`:
-
-```text
-count current events
-       |
-       v
-liveCount == 0 ?
-       |
-       +-- yes --> metrics not found
-       |
-       v
-read annual_metrics
-       |
-       v
-cached.event_count == liveCount ?
-       |
-       +-- yes --> return cached Metrics
-       |
-       v
-read raw events
-       |
-       v
-AggregateEvents
-       |
-       v
-write annual_metrics cache
-       |
-       v
-return Metrics
-```
-
-Таким образом наличие cache row само по себе не означает, что cache актуален.
-
-Если после первого расчёта появились новые events:
-
-```text
-cached event_count != live count
-```
-
-и metrics рассчитываются заново.
-
----
-
-## 12. Ограничение cache invalidation
-
-Текущий freshness mechanism сравнивает количество событий.
-
-Он хорошо обнаруживает:
-
-```text
-+ новый event
-- удалённый event
-```
-
-если меняется итоговый count.
-
-Но он не является универсальной системой versioning содержимого событий.
-
-Если данные существующего event будут изменены без изменения количества строк, одного `event_count` недостаточно для обнаружения изменения.
-
-В текущем demo/event model предполагается append-oriented поток событий.
-
-Если появится полноценный mutable event ingestion, freshness marker стоит заменить на более сильный механизм, например:
-
-```text
-max(updated_at)
-event stream version
-source offset
-checksum
-```
-
----
-
-## 13. `actionable_state`
-
-Хранит текущий point-in-time snapshot.
-
-Поля domain model сериализуются в JSON:
-
-```text
-profile_id
-state
-updated_at
-```
-
-Engine:
-
-```text
-ReplacingMergeTree(updated_at)
-```
-
-При чтении используется:
-
-```sql
-FINAL
-```
-
-`CapturedAt` не читается как историческое время записи.
-
-Storage устанавливает:
-
-```text
-CapturedAt = asOf
-```
-
-То есть это время, на которое application запросил snapshot.
-
----
-
-## 14. `recaps`
-
-Хранит полностью построенный immutable Recap.
-
-Поля:
-
-```text
-id
-share_id
-profile_id
-year
-rules_version
-rules_digest
-recap
-created_at
-```
-
-Сам domain `Recap` хранится сериализованным JSON в поле:
-
-```text
-recap
-```
-
-Engine:
-
-```text
-MergeTree
-```
-
-`ReplacingMergeTree` здесь намеренно не используется.
-
-После генерации Recap не должен обновляться.
-
----
-
-## 15. Idempotency key
-
-Recap ищется по:
-
-```text
-profile_id
-year
-rules_version
-rules_digest
-```
-
-То есть:
-
-```text
-RecapKey =
-(
-    ProfileID,
-    Year,
-    RulesVersion,
-    RulesDigest
-)
-```
-
-При одинаковом ключе application ожидает один логический Recap.
-
----
-
-## 16. CreateRecapIfAbsent
-
-Memory storage обеспечивает эту операцию атомарно внутри процесса:
-
-```text
-mutex
-  |
-  v
-check key
-  |
-  +--> exists -> return existing
-  |
-  v
-insert
-```
-
-ClickHouse implementation использует:
-
-```text
-GetRecapByKey
-        |
-        v
-if not found
-        |
-        v
-INSERT
-```
-
-То есть это:
-
-```text
-check-then-insert
-```
-
-а не database-level atomic upsert.
-
----
-
-## 17. Ограничение ClickHouse idempotency
-
-MergeTree не предоставляет обычный OLTP unique constraint на idempotency key.
-
-Поэтому при нескольких параллельных backend writers возможна race:
-
-```text
-Writer A: check -> not found
-Writer B: check -> not found
-
-Writer A: insert
-Writer B: insert
-```
-
-Для текущего single-writer demo deployment это принято как допустимое ограничение.
-
-Для multi-instance production deployment потребовался бы отдельный concurrency boundary:
-
-```text
-distributed lock
-
-или
-
-OLTP database with UNIQUE constraint
-
-или
-
-dedicated idempotency service
-```
-
-Это важно учитывать перед горизонтальным масштабированием backend.
-
----
-
-## 18. Stored Recap считается недоверенным
-
-Storage не считается источником бизнес-истины для derived projections.
-
-После чтения Recap application вызывает:
-
-```text
-engine.ValidateStored
-```
-
-И проверяет соответствие сохранённого объекта текущим structural/integrity invariants.
-
-Для idempotent lookup также проверяется:
-
-```text
-stored RecapKey == requested RecapKey
-```
-
-Для lookup по IDs:
-
-```text
-stored recap ID == requested recap ID
-stored share ID == requested share ID
-```
-
----
-
-## 19. Demo bootstrap в ClickHouse
-
-Если:
-
-```text
-SEED_DEMO_DATA=true
-```
-
-после `EnsureSchema()` выполняется:
-
-```text
-bootstrap.LoadDemoData
-```
-
-Pipeline:
-
-```text
-profiles.json
-     |
-     v
-UpsertProfiles
-
-scenarios.json
-     |
-     v
-generate raw events
-     |
-     v
-InsertEvents
-
-actionableState
-     |
-     v
-PutActionableState
-```
-
-Важно:
-
-> Bootstrap не записывает вручную подготовленный `Metrics`.
-
-Он создаёт события, из которых production-like analytics path самостоятельно рассчитывает metrics.
-
----
-
-## 20. `clickhouse/init`
-
-Docker Compose монтирует:
-
-```text
-clickhouse/init/
-```
-
-в:
-
-```text
-/docker-entrypoint-initdb.d
-```
-
-В текущем проекте runtime source of truth для таблиц приложения — `EnsureSchema()`.
-
-Файл:
-
-```text
-001_schema.sql
-```
-
-создаёт raw `events`.
-
-Файл:
-
-```text
-002_recap_cache.sql
-```
-
-содержит более ранние таблицы:
-
-```text
-recap_cards
-recap_summary
-```
-
-Текущий application/storage layer их не использует.
-
-Их следует считать legacy/prototype schema, пока код не начнёт обращаться к ним снова.
-
-В дальнейшем желательно либо:
-
-1. удалить legacy schema;
-2. либо перенести всю актуальную schema в versioned SQL migrations.
-
-Сейчас schema распределена между SQL init и `EnsureSchema()`, что увеличивает риск рассинхронизации.
-
----
-
-## 21. Выбор storage backend
-
-### Memory
-
-```text
-STORAGE_BACKEND=memory
-```
-
-Подходит для:
-
-- demo;
-- Render;
-- локального UI;
-- тестирования.
-
-Плюсы:
-
-- не требуется внешняя БД;
-- быстрый startup;
-- seed catalogue загружается сразу.
-
-Минусы:
-
-- нет persistence;
-- данные теряются после restart;
-- нельзя делить состояние между несколькими instances.
-
----
-
-### ClickHouse
-
-```text
-STORAGE_BACKEND=clickhouse
-```
-
-Подходит для:
-
-- event analytics;
-- Docker Compose;
-- persistence demo;
-- больших объёмов событий.
-
-Плюсы:
-
-- эффективная аналитика событий;
-- persistent recaps;
-- cache годовых metrics.
-
-Ограничения:
-
-- idempotency insert не является строго атомарным между несколькими writers;
-- JSON domain blobs хуже подходят для ad-hoc SQL analytics;
-- schema management пока не оформлен как полноценные migrations.
-
----
-
-## 22. Принцип выбора технологии
-
-ClickHouse хорошо подходит для:
-
-```text
-events
-analytics
-annual aggregates
-```
-
-Но immutable recap с сильным уникальным idempotency key по своей природе ближе к OLTP entity.
-
-Если проект станет multi-instance production service, возможна гибридная схема:
-
-```text
-ClickHouse
-   |
-   +--> events
-   +--> analytics
-
-PostgreSQL / OLTP store
-   |
-   +--> profiles
-   +--> actionable state
-   +--> recaps
-   +--> idempotency
-```
-
-Для текущего масштаба единый ClickHouse adapter сохраняет проект проще.
-
----
-
-## 23. Storage invariants
-
-Storage implementations должны обеспечивать одинаковый application-level contract:
-
-1. Profile code однозначно определяет профиль.
-2. Profile UUID остаётся внутренним идентификатором.
-3. Metrics относятся к конкретному `RecapPeriod`.
-4. ActionableState является point-in-time snapshot.
-5. Recap после записи не изменяется.
-6. Lookup по share ID не возвращает другой Recap.
-7. Lookup по internal ID не возвращает другой Recap.
-8. Idempotency lookup проверяется через `RecapKey`.
-9. Stored Recap после чтения проходит engine validation.
-10. Storage не вычисляет Behavior, Achievement или NextAction.
-
----
-
-## 24. Где менять storage
-
-| Изменение | Файл/пакет |
+| Изменение | Файл/пакет
 |---|---|
 | Storage interfaces | `internal/recap/application/ports.go` |
 | Memory implementation | `internal/storage/memory/` |
@@ -869,3 +151,5 @@ Storage implementations должны обеспечивать одинаковы
 | Recap persistence | `internal/storage/clickhouse/recaps.go` |
 | Demo seeding | `internal/bootstrap/` |
 | Docker ClickHouse initialization | `clickhouse/init/` |
+| Kafka event generator (опционально) | `cmd/eventgen/` |
+| Kafka ingestion в ClickHouse (опционально) | `clickhouse/kafka/` |

@@ -2,26 +2,36 @@
 
 MVP веб-приложения для персональных «Итогов года» пользователя.
 
+## Содержание
+
+- [Описание проекта](#описание-проекта)
+  - [Пользовательский сценарий](#пользовательский-сценарий)
+  - [Что реализовано](#что-реализовано)
+- [Инструкция по запуску](#инструкция-по-запуску)
+  - [Готовое интернет-демо](#готовое-интернет-демо)
+  - [Быстрый запуск через Docker Compose](#быстрый-запуск-через-docker-compose)
+  - [Локальная разработка](#локальная-разработка)
+- [Используемые технологии](#используемые-технологии)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+  - [Почему ClickHouse](#почему-clickhouse)
+- [Структура проекта](#структура-проекта)
+- [Особенности реализации](#особенности-реализации)
+  - [Архитектура](#архитектура)
+  - [API](#api)
+  - [Тестовые данные](#тестовые-данные)
+  - [Тесты и качество кода](#тесты-и-качество-кода)
+  - [Основная конфигурация](#основная-конфигурация)
+  - [Ключевые продуктовые и технические решения](#ключевые-продуктовые-и-технические-решения)
+  - [Документация](#документация)
+- [Распределение ответственности между участниками команды](#распределение-ответственности-между-участниками-команды)
+- [Использование ИИ](#использование-ии)
+
+## Описание проекта
+
 > Демо использует тестовые профили и подготовленные сценарии активности за 2025 год.
 
-## Распределение ответственности между участниками команды
-
-- frontend Денисов Илья
-- backend: часть с базами данных, сборка проекта, nginx Максименко Мария
-- backend: бизнес-логика, тестовые профили,линтер,render, proto, architecture + документации, healthcheck в docker-compose.yml, тестовое покрытие recap + интеграционные и e2e тесты  Амбарникова Дарья
-- backend: контроллеры Никита Жуков
-
-## Интернет-демо
-
-Проект подготовлен для single-service deployment через Docker/Render.
-
-
-```text
-https://avito-recap.onrender.com
-```
-
-
-## Пользовательский сценарий
+### Пользовательский сценарий
 
 1. Пользователь выбирает тестовый профиль.
 2. Backend анализирует годовую активность и текущее состояние профиля.
@@ -37,7 +47,7 @@ https://avito-recap.onrender.com
 
 Правила генерации воспроизводимы: одинаковые входные данные и версия правил приводят к одному логическому результату.
 
-## Что реализовано
+### Что реализовано
 
 - персональный Recap для тестовых профилей;
 - анализ годовой активности;
@@ -52,7 +62,96 @@ https://avito-recap.onrender.com
 - запуск через Docker Compose;
 - single-service Docker image для интернет-демо.
 
-## Технологии
+## Инструкция по запуску
+
+### Готовое интернет-демо
+
+Проект подготовлен для single-service deployment через Docker/Render и уже развёрнут:
+
+```text
+https://avito-recap.onrender.com
+```
+
+Разворачивать проект локально для этого не обязательно.
+
+### Быстрый запуск через Docker Compose
+
+Требования:
+
+- Docker;
+- Docker Compose.
+
+Из корня репозитория:
+
+```bash
+docker compose up --build
+```
+
+После запуска приложение доступно по адресу:
+
+```text
+http://localhost:8081
+```
+
+Docker Compose поднимает:
+
+- frontend/nginx;
+- Go API;
+- ClickHouse.
+
+Для остановки:
+
+```bash
+docker compose down
+```
+
+Для удаления также сохранённых данных ClickHouse:
+
+```bash
+docker compose down -v
+```
+
+### Локальная разработка
+
+Требования:
+
+- Go 1.25.5+;
+- Node.js 24;
+- npm.
+
+Установить frontend-зависимости:
+
+```bash
+cd frontend
+npm ci
+```
+
+Запустить backend из корня проекта:
+
+```bash
+go run ./cmd/api
+```
+
+Backend по умолчанию работает на:
+
+```text
+http://localhost:8080
+```
+
+В отдельном терминале запустить frontend:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Vite dev server по умолчанию доступен на:
+
+```text
+http://localhost:5173
+```
+
+## Используемые технологии
 
 ### Frontend
 
@@ -80,8 +179,7 @@ https://avito-recap.onrender.com
 
 Для demo-режима также реализован `memory` backend: он не требует отдельной базы и позволяет быстро поднять приложение с seed-данными.
 
-Подробнее: [`docs/storage.md`](docs/storage.md).
-
+Подробнее: [`docs/Storage.md`](docs/Storage.md).
 
 ## Структура проекта
 
@@ -165,86 +263,11 @@ Frontend → ConnectRPC API → Application Service → Recap Engine → Storage
 `internal/storage`, а HTTP/API-слой отделён от доменной логики.
 
 Подробнее об архитектурных границах и взаимодействии компонентов:
-[`docs/architecture.md`](docs/architecture.md).
+[`docs/Architecture.md`](docs/Architecture.md).
 
-## Быстрый запуск через Docker Compose
+## Особенности реализации
 
-Требования:
-
-- Docker;
-- Docker Compose.
-
-Из корня репозитория:
-
-```bash
-docker compose up --build
-```
-
-После запуска приложение доступно по адресу:
-
-```text
-http://localhost:8081
-```
-
-Docker Compose поднимает:
-
-- frontend/nginx;
-- Go API;
-- ClickHouse.
-
-Для остановки:
-
-```bash
-docker compose down
-```
-
-Для удаления также сохранённых данных ClickHouse:
-
-```bash
-docker compose down -v
-```
-
-## Локальная разработка
-
-Требования:
-
-- Go 1.25.5+;
-- Node.js 24;
-- npm.
-
-Установить frontend-зависимости:
-
-```bash
-cd frontend
-npm ci
-```
-
-Запустить backend из корня проекта:
-
-```bash
-go run ./cmd/api
-```
-
-Backend по умолчанию работает на:
-
-```text
-http://localhost:8080
-```
-
-В отдельном терминале запустить frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Vite dev server по умолчанию доступен на:
-
-```text
-http://localhost:5173
-```
-
-## Архитектура
+### Архитектура
 
 Упрощённый поток данных:
 
@@ -270,10 +293,9 @@ Story Cards + Share Projection
 Memory / ClickHouse
 ```
 
+Подробнее: [`docs/Architecture.md`](docs/Architecture.md).
 
-Подробнее: [`docs/architecture.md`](docs/architecture.md).
-
-## API
+### API
 
 API описан через Protocol Buffers и ConnectRPC.
 
@@ -298,10 +320,9 @@ GET /health
 GET /avatars/{profile-code}.png
 ```
 
+Полный контракт, ошибки и особенности RPC: [`docs/API.md`](docs/API.md).
 
-Полный контракт, ошибки и особенности RPC: [`docs/api.md`](docs/api.md).
-
-## Тестовые данные
+### Тестовые данные
 
 В проекте подготовлен каталог тестовых профилей с разными сценариями поведения, достижениями и следующими действиями. Таоке количество профилей было написано с целью как можно лучше показать все возможности проекта.
 
@@ -328,7 +349,7 @@ frontend/public/avatars/
 
 Подробнее о профилях и покрываемых сценариях: [`docs/test_profiles.md`](docs/test_profiles.md).
 
-## Тесты и качество кода
+### Тесты и качество кода
 
 Backend:
 
@@ -356,7 +377,7 @@ make test-render
 
 Frontend использует ESLint и TypeScript для статической проверки.
 
-## Основная конфигурация
+### Основная конфигурация
 
 | Переменная | Назначение |
 | --- | --- |
@@ -369,7 +390,7 @@ Frontend использует ESLint и TypeScript для статической
 | `CORS_ALLOWED_ORIGINS` | разрешённые frontend origins |
 | `SHUTDOWN_TIMEOUT` | timeout graceful shutdown |
 
-## Ключевые продуктовые и технические решения
+### Ключевые продуктовые и технические решения
 
 - **Recap неизменяемый.** После генерации результат сохраняется как снимок завершённого года.
 - **Правила детерминированы.** Поведение, достижения и NextAction рассчитываются по воспроизводимым правилам.
@@ -379,18 +400,22 @@ Frontend использует ESLint и TypeScript для статической
 
 Подробные правила Recap: [`docs/recap.md`](docs/recap.md).
 
-
-## Документация
+### Документация
 
 Подробности вынесены из README в отдельные документы:
 
 - [`docs/recap.md`](docs/recap.md) - правила генерации, behavior, achievements, NextAction, карточки и privacy;
 - [`docs/test_profiles.md`](docs/test_profiles.md) - тестовые профили, сценарии и golden fixtures;
-- [`docs/architecture.md`](docs/architecture.md) - слои приложения и зависимости;
-- [`docs/storage.md`](docs/storage.md) - memory/ClickHouse storage и persistence;
-- [`docs/api.md`](docs/api.md) - RPC-контракт, transport и error mapping.
+- [`docs/Architecture.md`](docs/Architecture.md) - слои приложения и зависимости;
+- [`docs/Storage.md`](docs/Storage.md) - memory/ClickHouse storage и persistence;
+- [`docs/API.md`](docs/API.md) - RPC-контракт, transport и error mapping.
 
+## Распределение ответственности между участниками команды
 
+- frontend Денисов Илья
+- backend: часть с базами данных, сборка проекта, nginx Максименко Мария
+- backend: бизнес-логика, тестовые профили,линтер,render, proto, architecture + документации, healthcheck в docker-compose.yml, тестовое покрытие recap + интеграционные и e2e тесты  Амбарникова Дарья
+- backend: контроллеры Никита Жуков
 
 ## Использование ИИ
 
