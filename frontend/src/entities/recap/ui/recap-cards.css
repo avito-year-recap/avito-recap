@@ -412,25 +412,28 @@
   box-shadow: var(--shadow-soft);
 }
 
-/* Achievements: normal flow, never stacked or rotated. */
+/* Achievements: compact collectible cards. Their height comes from the content,
+ * never from the free height of the story viewport. */
 .achievement-gallery {
   min-height: 0;
-  height: 100%;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(7px, 1.3vh, 12px);
-  align-items: stretch;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: clamp(8px, 1.4vh, 14px);
+  justify-content: center;
+  align-items: start;
+  align-content: center;
 }
-.achievement-gallery--count-1 { grid-template-columns: minmax(0, min(100%, 300px)); justify-content: center; }
-.achievement-gallery--count-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.achievement-gallery--count-1 { grid-template-columns: minmax(0, min(100%, 300px)); }
+.achievement-gallery--count-2 { grid-template-columns: repeat(2, minmax(0, 260px)); }
 .achievement-token {
   position: relative;
   min-width: 0;
-  min-height: 0;
-  height: 100%;
+  min-height: clamp(126px, 18vh, 168px);
+  height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: clamp(9px, 1.6vh, 14px);
   padding: clamp(12px, 2vh, 19px);
@@ -467,7 +470,7 @@
 .achievement-token--coral > div { background: var(--red); border-color: #ffe1dc; }
 .achievement-token strong {
   max-width: 100%;
-  margin-top: auto;
+  margin-top: 2px;
   font-size: clamp(13px, 2.2vh, 18px);
   line-height: 1.08;
   letter-spacing: -.025em;
@@ -641,6 +644,10 @@
   .achievement-token__bar { left: 8px; right: 8px; top: 7px; height: 3px; }
   .achievement-token > div { width: 43px; height: 43px; border-width: 5px; border-radius: 14px; font-size: 19px; }
   .achievement-token strong { font-size: 11px; }
+  .achievement-gallery--count-1 { grid-template-columns: minmax(0, min(100%, 260px)); }
+  .achievement-gallery--count-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .achievement-gallery--count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .achievement-token { min-height: 118px; }
   .share-poster { grid-template-columns: 84px minmax(0, 1fr); }
 }
 
@@ -649,8 +656,13 @@
   .recap-card__header p { font-size: clamp(9px, 1.45vh, 11px); }
   .months-timeline { gap: 2px; }
   .months-timeline span { border-radius: 5px; }
-  .achievement-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .achievement-token { padding: 7px; }
+  .achievement-gallery--count-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .achievement-gallery--count-3 .achievement-token:last-child {
+    grid-column: 1 / -1;
+    width: calc(50% - 3px);
+    justify-self: center;
+  }
+  .achievement-token { min-height: 108px; padding: 7px; }
   .achievement-token > div { width: 36px; height: 36px; border-width: 4px; font-size: 16px; }
   .achievement-token strong { font-size: 9px; }
   .share-poster__facts { display: none; }
