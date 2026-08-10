@@ -25,7 +25,13 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+# Only what `go build` actually reads. Everything else (frontend/, docs/,
+# ...) can change without invalidating this layer or the two below it — a
+# frontend-only commit used to force a full backend recompile because
+# `COPY . .` pulled in the whole repo.
+COPY cmd ./cmd
+COPY internal ./internal
+COPY gen ./gen
 
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath \
@@ -36,6 +42,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath \
     -o /out/eventgen \
     ./cmd/eventgen
+
+# Not needed to compile either binary, only to embed alongside them below —
+# kept out of the build layers so editing a seed file doesn't force a
+# recompile.
+COPY seeds ./seeds
 
 
 # Small runtime image: one process serves both React and the Go API.

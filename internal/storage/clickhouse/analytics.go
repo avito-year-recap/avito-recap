@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 
@@ -58,7 +59,11 @@ func (r *Repo) countEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return 0, fmt.Errorf("query event count: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close event count rows: %v", err)
+		}
+	}()
 
 	if !rows.Next() {
 		return 0, rows.Err()
@@ -85,7 +90,11 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	if err != nil {
 		return cachedMetricsRow{}, false, fmt.Errorf("query annual metrics cache: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close annual metrics cache rows: %v", err)
+		}
+	}()
 
 	if !rows.Next() {
 		return cachedMetricsRow{}, false, rows.Err()
@@ -121,7 +130,11 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return nil, fmt.Errorf("query events: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close events rows: %v", err)
+		}
+	}()
 
 	var events []model.Event
 	for rows.Next() {

@@ -1,15 +1,4 @@
--- Optional on-demand ingestion path for recap.events via Kafka. Not part of
--- clickhouse/init: docker-entrypoint-initdb.d always runs everything in that
--- directory on first container start, but this is only meant to exist when
--- the "events-gen" compose profile is in use, so it's applied separately by
--- the clickhouse-kafka-init one-off service (see docker-compose.yml).
---
--- events_queue is a Kafka engine table: it does not store rows, it's a view
--- over the topic. events_mv is what actually moves messages into
--- recap.events, triggered as ClickHouse polls the topic. String columns +
--- an explicit cast in the view (rather than typing events_queue itself as
--- UUID/DateTime) mean a single malformed message fails that row's insert
--- into events_mv, not the whole poll batch.
+
 CREATE TABLE IF NOT EXISTS recap.events_queue
 (
     id          String,

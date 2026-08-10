@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +23,11 @@ func (r *Repo) GetActionableState(ctx context.Context, profileID uuid.UUID, asOf
 	if err != nil {
 		return model.ActionableState{}, fmt.Errorf("query actionable state: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close actionable state rows: %v", err)
+		}
+	}()
 
 	if !rows.Next() {
 		return model.ActionableState{}, application.ErrRecapNotFound

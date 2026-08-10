@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
@@ -23,7 +24,11 @@ func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Rec
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by key: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close recap by key rows: %v", err)
+		}
+	}()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
@@ -32,7 +37,11 @@ func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, er
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close recap rows: %v", err)
+		}
+	}()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
@@ -41,7 +50,11 @@ func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by share id: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close recap by share id rows: %v", err)
+		}
+	}()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 

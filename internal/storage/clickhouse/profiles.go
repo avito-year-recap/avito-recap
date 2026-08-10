@@ -3,6 +3,7 @@ package clickhouse
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 
@@ -19,7 +20,11 @@ func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query profiles: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close profiles rows: %v", err)
+		}
+	}()
 
 	var profiles []model.Profile
 	for rows.Next() {
@@ -42,7 +47,11 @@ func (r *Repo) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profi
 	if err != nil {
 		return model.Profile{}, fmt.Errorf("query profile: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close profile rows: %v", err)
+		}
+	}()
 
 	if !rows.Next() {
 		return model.Profile{}, application.ErrRecapNotFound
@@ -64,7 +73,11 @@ func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile
 	if err != nil {
 		return model.Profile{}, fmt.Errorf("query profile by code: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close profile by code rows: %v", err)
+		}
+	}()
 
 	if !rows.Next() {
 		return model.Profile{}, application.ErrProfileNotFound

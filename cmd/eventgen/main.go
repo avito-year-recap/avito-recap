@@ -135,11 +135,42 @@ func ensureTopic(broker, topic string) error {
 		Topic:             topic,
 		NumPartitions:     1,
 		ReplicationFactor: 1,
+		ConfigEntries: []kafka.ConfigEntry{
+			// Explicit, not the broker's default 7-day retention: this
+			// topic is transport into recap.events (see
+			// clickhouse/kafka/010_events_kafka.sql), not itself the
+			// source of truth, so it doesn't need to hold messages for
+			// long — just long enough to survive the consumer (the
+			// ClickHouse Kafka engine table) being briefly down or not
+			// started yet. 24h is a generous buffer for an on-demand demo
+			// job, not a number backed by an incident/runbook.
+			{ConfigName: "retention.ms", ConfigValue: strconv.Itoa(int(24 * time.Hour / time.Millisecond))},
+		},
 	})
 	if err != nil && !errors.Is(err, kafka.TopicAlreadyExists) {
 		return err
 	}
-	return nil
+
+	// CreateTopics returning success only means the controller accepted the
+	// request — the topic's metadata (partition leader assignment) still
+	// needs to propagate to the broker(s) before a produce request against
+	// it will succeed. On a freshly created topic that gap is real, if
+	// short: without waiting it out here, the very next WriteMessages call
+	// intermittently fails with "Unknown Topic Or Partition".
+	return waitForTopic(conn, topic, 10, 500*time.Millisecond)
+}
+
+func waitForTopic(conn *kafka.Conn, topic string, attempts int, backoff time.Duration) error {
+	var lastErr error
+	for i := 0; i < attempts; i++ {
+		partitions, err := conn.ReadPartitions(topic)
+		if err == nil && len(partitions) > 0 {
+			return nil
+		}
+		lastErr = err
+		time.Sleep(backoff)
+	}
+	return fmt.Errorf("topic %q not ready after %d attempts: %w", topic, attempts, lastErr)
 }
 
 func toWireEvent(event model.Event) wireEvent {

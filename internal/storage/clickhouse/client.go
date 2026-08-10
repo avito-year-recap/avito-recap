@@ -96,6 +96,13 @@ var schemaStatements = []string{
 	// read compares it against the live count and recomputes on mismatch,
 	// which is what actually invalidates the cache — the row's presence
 	// alone is not treated as proof it is still correct.
+	//
+	// TTL matches events' own 3-year retention: this table is a cache OVER
+	// events, so once the events it was aggregated from have expired there
+	// is nothing left for it to be a correct cache of, and it would
+	// otherwise outlive its source forever (CalculateMetrics's liveCount==0
+	// check means a stale row here isn't a correctness bug, just wasted
+	// storage — but it's still worth not leaking).
 	`CREATE TABLE IF NOT EXISTS annual_metrics
 	(
 		profile_id  UUID,
@@ -105,8 +112,14 @@ var schemaStatements = []string{
 		updated_at  DateTime DEFAULT now()
 	)
 	ENGINE = ReplacingMergeTree(updated_at)
-	ORDER BY (profile_id, year)`,
+	ORDER BY (profile_id, year)
+	TTL updated_at + INTERVAL 3 YEAR`,
 
+	// Deliberately no TTL: this is a profile's CURRENT actionable state, not
+	// a time-decaying log. Its age says nothing about its validity — an
+	// inactive profile's last-known state is still correct until replaced,
+	// so expiring it by age would make PutActionableState silently produce
+	// wrong answers (not-found) for real, still-valid profiles.
 	`CREATE TABLE IF NOT EXISTS actionable_state
 	(
 		profile_id UUID,
@@ -120,6 +133,12 @@ var schemaStatements = []string{
 	// so this table is a plain MergeTree, not a ReplacingMergeTree: nothing
 	// should ever overwrite a stored row, only CreateRecapIfAbsent's
 	// check-then-insert semantics decide whether a new one is written.
+	//
+	// Deliberately no TTL, unlike annual_metrics: a recap is a generated
+	// artifact a user may have shared via share_id, and that link should
+	// keep working even after the raw events it was computed from have
+	// aged out of `events`. Expiring recaps on the same clock as their
+	// source data would silently break old share links.
 	`CREATE TABLE IF NOT EXISTS recaps
 	(
 		id            UUID,
@@ -135,11 +154,27 @@ var schemaStatements = []string{
 	ORDER BY (profile_id, year, rules_version, rules_digest)`,
 }
 
+// alterStatements backfill schema changes onto deployments that already
+// provisioned their tables before schemaStatements above changed — a plain
+// CREATE TABLE IF NOT EXISTS is a no-op against an existing table, so a
+// later edit to e.g. annual_metrics' TTL would otherwise never reach a
+// database that was first created before that edit. Every statement here
+// must be safe to re-run on every startup (ClickHouse allows re-applying an
+// identical MODIFY TTL).
+var alterStatements = []string{
+	`ALTER TABLE annual_metrics MODIFY TTL updated_at + INTERVAL 3 YEAR`,
+}
+
 // EnsureSchema provisions every table the application layer depends on.
 func (r *Repo) EnsureSchema(ctx context.Context) error {
 	for _, statement := range schemaStatements {
 		if err := r.conn.Exec(ctx, statement); err != nil {
 			return fmt.Errorf("ensure schema: %w", err)
+		}
+	}
+	for _, statement := range alterStatements {
+		if err := r.conn.Exec(ctx, statement); err != nil {
+			return fmt.Errorf("apply schema migration: %w", err)
 		}
 	}
 	return nil
