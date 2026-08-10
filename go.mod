@@ -6,6 +6,7 @@ require (
 	connectrpc.com/connect v1.20.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.48.0
 	github.com/google/uuid v1.6.0
+	github.com/segmentio/kafka-go v0.4.51
 	google.golang.org/protobuf v1.36.11
 )
 
