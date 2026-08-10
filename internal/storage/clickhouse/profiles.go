@@ -11,6 +11,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
+// Каталог тестовых профилей
 func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, code, display_name, description, avatar_url
@@ -37,6 +38,7 @@ func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	return profiles, rows.Err()
 }
 
+// Профиль пользователя
 func (r *Repo) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profile, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, code, display_name, description, avatar_url
@@ -63,6 +65,7 @@ func (r *Repo) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profi
 	return profile, rows.Err()
 }
 
+// Профиль по code
 func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, code, display_name, description, avatar_url
@@ -89,9 +92,7 @@ func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile
 	return profile, rows.Err()
 }
 
-// UpsertProfiles implements bootstrap.SeedStorage. ReplacingMergeTree resolves
-// duplicates by the newest updated_at on read (FINAL), so re-seeding the same
-// catalogue is safe to run repeatedly.
+// Обновление профиля
 func (r *Repo) UpsertProfiles(ctx context.Context, profiles []model.Profile) error {
 	batch, err := r.conn.PrepareBatch(ctx, `
 		INSERT INTO profiles (id, code, display_name, description, avatar_url)

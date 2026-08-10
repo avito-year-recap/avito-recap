@@ -14,6 +14,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
+// Поиск по ключу из нескольких колонок
 func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT recap
@@ -32,6 +33,7 @@ func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Rec
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
+// Поиск по id
 func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `SELECT recap FROM recaps WHERE id = ? LIMIT 1`, recapID)
 	if err != nil {
@@ -45,6 +47,7 @@ func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, er
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
+// Поиск по публичному id
 func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `SELECT recap FROM recaps WHERE share_id = ? LIMIT 1`, shareID)
 	if err != nil {
@@ -58,12 +61,7 @@ func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
-// CreateRecapIfAbsent is check-then-insert, not a single atomic statement:
-// ClickHouse's MergeTree family has no unique constraint or transactional
-// upsert to enforce "one row per idempotency key" at write time the way a row
-// store would. For a single-writer demo deployment the race window between
-// the read and the insert is acceptable; a multi-writer deployment would need
-// an external lock (or a dedicated OLTP store) in front of this key.
+// Создаем рекап, если не находим по ключу
 func (r *Repo) CreateRecapIfAbsent(ctx context.Context, key model.RecapKey, value model.Recap) (model.Recap, error) {
 	if existing, err := r.GetRecapByKey(ctx, key); err == nil {
 		return existing, nil
@@ -87,6 +85,7 @@ func (r *Repo) CreateRecapIfAbsent(ctx context.Context, key model.RecapKey, valu
 	return value, nil
 }
 
+// Сериализуем и десериализуем Recap
 func scanOneRecap(rows driver.Rows, notFound error) (model.Recap, error) {
 	if !rows.Next() {
 		return model.Recap{}, notFound

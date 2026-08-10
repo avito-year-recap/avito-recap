@@ -13,6 +13,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
+// Получаем текущее состояние пользователя
 func (r *Repo) GetActionableState(ctx context.Context, profileID uuid.UUID, asOf time.Time) (model.ActionableState, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT state
@@ -40,14 +41,12 @@ func (r *Repo) GetActionableState(ctx context.Context, profileID uuid.UUID, asOf
 	if err := json.Unmarshal([]byte(raw), &state); err != nil {
 		return model.ActionableState{}, fmt.Errorf("decode actionable state: %w", err)
 	}
-	// CapturedAt is when this snapshot was read, not when the underlying facts
-	// (drafts/dialogs/favorites) were last written — matches the in-memory
-	// storage adapter's contract.
+
 	state.CapturedAt = asOf.UTC()
 	return state, rows.Err()
 }
 
-// PutActionableState implements bootstrap.SeedStorage.
+// Используется для обновления профиля (при запуске)
 func (r *Repo) PutActionableState(ctx context.Context, profileID uuid.UUID, _ time.Time, state model.ActionableState) error {
 	encoded, err := json.Marshal(state)
 	if err != nil {

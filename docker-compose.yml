@@ -1,3 +1,4 @@
+#Не засоряем логами память
 x-logging: &default-logging
   driver: json-file
   options:
@@ -5,6 +6,7 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
+  # Основной сервис
   api:
     build:
       context: .
@@ -28,6 +30,7 @@ services:
     networks:
       - recap
 
+  # Nginx - конфигуация редактируется в проекте, зависит от поднятого бекенда
   nginx:
     build:
       context: ./frontend
@@ -43,6 +46,9 @@ services:
     networks:
       - recap
 
+  # Основная база проекта. Выбрана для оптимизированной работы с аналитическими системами
+  # Хранит данные в колоночных таблицах + оптимизация под хранения - временные ряды занимают
+  # намного меньше места, по сравнению с Postgres
   clickhouse:
     image: clickhouse/clickhouse-server:24.8-alpine
     restart: unless-stopped
@@ -56,15 +62,13 @@ services:
     ports:
       - "8123:8123"
       - "9000:9000"
-    # ClickHouse in Docker hits "Too many open files" under concurrent
-    # connections/merges well before any max_connections setting in its own
-    # config becomes the limiting factor — the container's default 1024 fd
-    # soft limit gets there first. 262144 is ClickHouse's own documented
-    # recommendation for this.
+    # Увеличиваем количество файлов, которые может затрагивать процесс
+    # (У кликхауса создается много файлов при оптимизации таблиц)
     ulimits:
       nofile:
         soft: 262144
         hard: 262144
+    # Перед стартом проверяем, что все запустилось
     healthcheck:
       test: ["CMD-SHELL", "clickhouse-client --user recap --password recap --query 'SELECT 1'"]
       interval: 2s
@@ -74,8 +78,9 @@ services:
     networks:
       - recap
 
-  #   docker compose --profile events-gen up -d kafka clickhouse-kafka-init
-  #   docker compose --profile events-gen run --rm eventgen
+  # Имитация очереди реальных данных - в случае подключения к продовскому сервису. Опционально.
+  #  docker compose --profile events-gen up -d kafka clickhouse-kafka-init
+  #  docker compose --profile events-gen run --rm eventgen
   kafka:
     image: apache/kafka:3.9.2
     profiles: ["events-gen"]
@@ -89,14 +94,13 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      # Не пересоздает кластер - не падает с ошибкой "Другой id" при перезапуске
       CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-    # Kafka is just as fd-hungry as ClickHouse (one fd per open log segment
-    # + one per client connection) — same reasoning as the clickhouse
-    # service above.
+    # Увеличиваем количество файлов, которые может затрагивать процесс
     ulimits:
       nofile:
         soft: 262144
@@ -128,7 +132,7 @@ services:
     networks:
       - recap
 
-  # Run on demand: docker compose --profile events-gen run --rm eventgen
+  # Публикуем события в Kafka через наш сервис (по идее они должны приходить из реального приложения)
   eventgen:
     build:
       context: .

@@ -1,4 +1,7 @@
-
+-- Через встроенный в Clickhouse механизм добавляем интеграцию с Kafka
+-- Реальный сервис посылает в топик сообщения при каждом действии пользователя.
+-- Оттуда его может читать эта таблица + аналитические системы реагирования в реальном времени (например, системы безопасности)
+-- Для этого надо настроить разные группы, чтоб не терять сообщения
 CREATE TABLE IF NOT EXISTS recap.events_queue
 (
     id          String,
@@ -18,6 +21,8 @@ SETTINGS
     kafka_num_consumers = 1,
     kafka_skip_broken_messages = 5;
 
+-- View в Clickhouse отличаются от Postgresql - они пересоюираются как фоновая задача
+-- По сути, это мостик между таблицей Kafka - нашей таблице с сырыми данными
 CREATE MATERIALIZED VIEW IF NOT EXISTS recap.events_mv
 TO recap.events
 AS

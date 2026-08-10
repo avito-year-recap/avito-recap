@@ -1,9 +1,5 @@
-
-# syntax=docker/dockerfile:1
-
-# Build the React application first.
-# The resulting dist/ directory is copied into the final Go image,
-# so production needs only one web service.
+# Собираем докер по кусочкам - самое верхнее - часть с наименьшим изменением.
+# Помогает оптимизировать кэщ докера
 
 FROM node:24-alpine AS frontend-builder
 
@@ -16,7 +12,7 @@ COPY frontend/ ./
 RUN npm run build
 
 
-# Build the Go API.
+# Собираем основной бекенд
 
 FROM golang:1.25-alpine AS backend-builder
 
@@ -25,10 +21,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Only what `go build` actually reads. Everything else (frontend/, docs/,
-# ...) can change without invalidating this layer or the two below it — a
-# frontend-only commit used to force a full backend recompile because
-# `COPY . .` pulled in the whole repo.
+# Импортируем только то, что использует докер, чтоб не вызывать пересборку билда на каждое изменения документации
 COPY cmd ./cmd
 COPY internal ./internal
 COPY gen ./gen
@@ -43,13 +36,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -o /out/eventgen \
     ./cmd/eventgen
 
-# Not needed to compile either binary, only to embed alongside them below —
-# kept out of the build layers so editing a seed file doesn't force a
-# recompile.
 COPY seeds ./seeds
 
 
-# Small runtime image: one process serves both React and the Go API.
+# Упрощенная версия ОС под запуск приложения
 
 FROM alpine:3.20 AS api
 
@@ -63,8 +53,7 @@ COPY --from=backend-builder /out/api /usr/local/bin/api
 COPY --from=backend-builder /src/seeds ./seeds
 COPY --from=frontend-builder /src/frontend/dist ./web
 
-# Render provides PORT automatically.
-# The Go config reads it when API_ADDRESS and HTTP_ADDR are not set.
+# Используем IM_MEMORY бд ради сборки в интернете
 
 ENV STORAGE_BACKEND=memory \
     PROFILES_PATH=/app/seeds/profiles.json \
@@ -79,8 +68,7 @@ EXPOSE 8080
 CMD ["/usr/local/bin/api"]
 
 
-# eventgen: opt-in Kafka event generator (see docker-compose.yml's
-# "events-gen" profile). Not part of the default `api` image/target above.
+# Опциональная часть - режим работы реального общего сервиса
 
 FROM alpine:3.20 AS eventgen
 

@@ -13,16 +13,7 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// CalculateMetrics is cache-aside over the raw events table, but a cache hit
-// is only trusted after confirming it is still current: annual_metrics
-// stores the event count it was computed from, and every read compares that
-// against a live count() over events before returning the cached row. Events
-// that land for a profile/year after the first computation are what this
-// catches — without it, a cache row written once would be served forever
-// even after more events arrive. The live count is a cheap query (ClickHouse
-// counts columnarly, and events is ordered by profile_id first), so this
-// stays much cheaper than re-fetching and re-aggregating every event row on
-// every read, while still being correct instead of merely fast.
+// Считает метрики. Если есть и актуально (считает количество событий) - берет из кеша, иначе идет в таблицу с сырыми данными
 func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period model.RecapPeriod) (model.Metrics, error) {
 	liveCount, err := r.countEvents(ctx, profileID, period.Year)
 	if err != nil {
@@ -111,6 +102,7 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	return cachedMetricsRow{metrics: metrics, eventCount: eventCount}, true, nil
 }
 
+// Записываем кэш, если новый
 func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year uint32, metrics model.Metrics, eventCount uint64) error {
 	encoded, err := json.Marshal(metrics)
 	if err != nil {
@@ -121,6 +113,7 @@ func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year 
 	`, profileID, uint16(year), string(encoded), eventCount)
 }
 
+// Считываем метрики, если кэш пустой
 func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32) ([]model.Event, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, profile_id, event_type, occurred_at, category, ad_id, dialog_id
@@ -152,7 +145,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	return events, rows.Err()
 }
 
-// InsertEvents implements bootstrap.SeedStorage.
+// Заносим готовые евенты (для авто-заполнения)
 func (r *Repo) InsertEvents(ctx context.Context, events []model.Event) error {
 	if len(events) == 0 {
 		return nil
