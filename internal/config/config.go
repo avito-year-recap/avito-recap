@@ -9,19 +9,26 @@ import (
 
 const defaultShutdownTimeout = 10 * time.Second
 
+const (
+	StorageMemory     = "memory"
+	StorageClickHouse = "clickhouse"
+)
+
 type Config struct {
 	// API
 	Address  string
 	HTTPAddr string
 
-	// ClickHouse
-	ClickHouseDSN string
+	// Storage
+	StorageBackend string
+	ClickHouseDSN  string
 
 	// Recap data
 	SeedDemoData   bool
 	ProfilesPath   string
 	ScenariosPath  string
 	StaticDir      string
+	FrontendDir    string
 	AllowedOrigins []string
 
 	// Graceful shutdown
@@ -40,20 +47,28 @@ func FromEnv() (Config, error) {
 		timeout = parsed
 	}
 
-	address := envOrDefault(
-		"API_ADDRESS",
-		envOrDefault("HTTP_ADDR", ":8080"),
-	)
+	address := listenAddress()
 
 	seedDemoData, err := envBool("SEED_DEMO_DATA", true)
 	if err != nil {
 		return Config{}, err
 	}
 
+	storageBackend := strings.ToLower(envOrDefault("STORAGE_BACKEND", StorageClickHouse))
+	if storageBackend != StorageMemory && storageBackend != StorageClickHouse {
+		return Config{}, fmt.Errorf(
+			"invalid STORAGE_BACKEND %q: expected %q or %q",
+			storageBackend,
+			StorageMemory,
+			StorageClickHouse,
+		)
+	}
+
 	return Config{
 		Address:  address,
 		HTTPAddr: address,
 
+		StorageBackend: storageBackend,
 		ClickHouseDSN: envOrDefault(
 			"CLICKHOUSE_DSN",
 			"clickhouse://recap:recap@clickhouse:9000/recap",
@@ -73,8 +88,10 @@ func FromEnv() (Config, error) {
 
 		StaticDir: envOrDefault(
 			"STATIC_DIR",
-			"static",
+			"frontend/public",
 		),
+
+		FrontendDir: strings.TrimSpace(os.Getenv("FRONTEND_DIR")),
 
 		AllowedOrigins: splitValues(
 			envOrDefault(
@@ -87,7 +104,7 @@ func FromEnv() (Config, error) {
 	}, nil
 }
 
-// Оставляем для старого кода, который вызывает config.Load().
+// Load remains for older code that calls config.Load().
 func Load() Config {
 	cfg, err := FromEnv()
 	if err != nil {
@@ -95,6 +112,19 @@ func Load() Config {
 	}
 
 	return cfg
+}
+
+func listenAddress() string {
+	if value := strings.TrimSpace(os.Getenv("API_ADDRESS")); value != "" {
+		return value
+	}
+	if value := strings.TrimSpace(os.Getenv("HTTP_ADDR")); value != "" {
+		return value
+	}
+	if port := strings.TrimSpace(os.Getenv("PORT")); port != "" {
+		return ":" + port
+	}
+	return ":8080"
 }
 
 func envOrDefault(key, fallback string) string {
@@ -125,6 +155,7 @@ func splitValues(raw string) []string {
 
 	return values
 }
+
 func envBool(key string, fallback bool) (bool, error) {
 	raw := strings.TrimSpace(os.Getenv(key))
 	if raw == "" {

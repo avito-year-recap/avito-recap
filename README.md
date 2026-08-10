@@ -4,12 +4,61 @@ Backend for an Avito-style annual recap. The service turns a completed year of
 seed activity into an immutable story: metrics, behavior, achievements,
 personalized next action, and a privacy-safe public share card.
 
+
+## Deploy to Render (jury demo)
+
+The repository is prepared for a **single Render Web Service**. In production
+the Docker image builds React, builds Go, and the Go process serves both the SPA
+and the Connect API. The demo uses the in-memory seed storage, so a separate
+ClickHouse service is not required on Render.
+
+Architecture:
+
+```text
+browser -> https://<service>.onrender.com
+            |-- /, /recap/*, /share/* -> React SPA
+            |-- /api/*                -> Go Connect API
+            |-- /health               -> health check
+```
+
+Deployment steps:
+
+1. Push this repository to GitHub.
+2. In Render choose **New -> Blueprint** and select the repository.
+3. Render reads `render.yaml` and builds the root `Dockerfile`.
+4. Wait until the service becomes `Live`.
+5. Open the generated `https://<service>.onrender.com` URL and run the demo flow.
+
+You can also create a **Web Service** manually and select the `Docker` runtime.
+Use the repository root as the Docker context and `/health` as the health-check
+path. Do not set `PORT` yourself; Render provides it and the application reads it
+automatically.
+
+The Render demo intentionally uses `STORAGE_BACKEND=memory`: all 17 seed
+profiles work, generated recaps live for the lifetime of the process, and no
+external database is required. The existing `docker compose` development setup
+still uses ClickHouse.
+
+On the free Render plan the service can spin down after inactivity. After a
+restart the seed catalogue is loaded again automatically, but previously
+generated recap/share IDs are intentionally not persisted in memory mode.
+
 ## Requirements
 
-- Go 1.25.5 or newer
-- Node.js 20 or newer (only for protobuf generation)
+- Go 1.25.5 or newer (the Render Docker image tracks the latest Go 1.25 patch)
+- Node.js 24 recommended for frontend tooling
 
 ## Run locally
+
+Install frontend dependencies once after cloning/unpacking the repository:
+
+```powershell
+cd frontend
+npm ci
+cd ..
+```
+
+This also makes VS Code/TypeScript resolve `@connectrpc/connect` and `vite/client`.
 
 ```powershell
 go run ./cmd/api
@@ -27,7 +76,7 @@ GET  /avatars/{profile-code}.png
 POST /recap.v1.RecapService/ListProfiles
 POST /recap.v1.RecapService/GenerateRecap
 POST /recap.v1.RecapService/GetRecap
-POST /recap.v1.RecapService/GetShareCard
+POST /recap.v1.RecapService/GetPublicShare
 ```
 
 The RPC endpoints support Connect, gRPC, and gRPC-Web. Connect JSON example:
@@ -37,7 +86,7 @@ Invoke-RestMethod `
   -Method Post `
   -Uri "http://localhost:8080/recap.v1.RecapService/GenerateRecap" `
   -ContentType "application/json" `
-  -Body '{"profileId":"26a3f4e0-1ae7-5b46-b2b6-2ae9fc180ba2","year":2025}'
+  -Body '{"profileCode":"active-buyer","year":2025}'
 ```
 
 The demo catalogue contains 17 profiles from `seeds/profiles.json`. All bundled
@@ -97,10 +146,13 @@ Generation produces:
 
 | Variable | Default |
 | --- | --- |
-| `API_ADDRESS` | `:8080` |
+| `API_ADDRESS` | empty; falls back to `HTTP_ADDR`, then Render `PORT`, then `:8080` |
+| `STORAGE_BACKEND` | `clickhouse` (`memory` in the Render Docker image) |
+| `CLICKHOUSE_DSN` | `clickhouse://recap:recap@clickhouse:9000/recap` |
 | `PROFILES_PATH` | `seeds/profiles.json` |
 | `SCENARIOS_PATH` | `seeds/scenarios.json` |
 | `STATIC_DIR` | `static` |
+| `FRONTEND_DIR` | empty (set to `/app/web` in the Render Docker image) |
 | `CORS_ALLOWED_ORIGINS` | localhost ports 3000 and 5173 |
 | `SHUTDOWN_TIMEOUT` | `10s` |
 
@@ -109,6 +161,19 @@ Generation produces:
 ```powershell
 go test ./...
 ```
+
+For only the Render single-service integration tests:
+
+```powershell
+make test-render
+```
+
+Render-style integration coverage is in `internal/server/render_integration_test.go`.
+It verifies the SPA/deep-link fallback, the complete recap flow through `/api`,
+public sharing, static avatars, same-origin requests, and API 404 behavior.
+
+ClickHouse-only integration tests remain behind the `integration` build tag and
+require a running ClickHouse instance.
 
 Golden recap examples for frontend mocks are available under
 `testdata/golden/`.

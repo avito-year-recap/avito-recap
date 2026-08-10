@@ -1,8 +1,11 @@
 .git
 .github
+.idea
 .cursor
 *.md
 testdata
+frontend/node_modules
+frontend/dist
 Dockerfile
 docker-compose.yml
 .dockerignore
