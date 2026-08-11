@@ -11,7 +11,6 @@ func clearConfigEnv(t *testing.T) {
 		"API_ADDRESS",
 		"HTTP_ADDR",
 		"PORT",
-		"STORAGE_BACKEND",
 		"CLICKHOUSE_DSN",
 		"PROFILES_PATH",
 		"SCENARIOS_PATH",
@@ -33,7 +32,6 @@ func TestFromEnvUsesDevelopmentDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if configured.Address != ":8080" ||
-		configured.StorageBackend != StorageClickHouse ||
 		configured.ProfilesPath != "seeds/profiles.json" ||
 		configured.ScenariosPath != "seeds/scenarios.json" ||
 		configured.StaticDir != "frontend/public" ||
@@ -52,7 +50,6 @@ func TestFromEnvUsesDevelopmentDefaults(t *testing.T) {
 func TestFromEnvParsesOverrides(t *testing.T) {
 	clearConfigEnv(t)
 	t.Setenv("API_ADDRESS", "127.0.0.1:9000")
-	t.Setenv("STORAGE_BACKEND", "memory")
 	t.Setenv("PROFILES_PATH", "profiles.json")
 	t.Setenv("SCENARIOS_PATH", "scenarios.json")
 	t.Setenv("STATIC_DIR", "public")
@@ -65,7 +62,6 @@ func TestFromEnvParsesOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 	if configured.Address != "127.0.0.1:9000" ||
-		configured.StorageBackend != StorageMemory ||
 		configured.ProfilesPath != "profiles.json" ||
 		configured.ScenariosPath != "scenarios.json" ||
 		configured.StaticDir != "public" ||
@@ -105,14 +101,6 @@ func TestFromEnvExplicitAddressWinsOverRenderPort(t *testing.T) {
 	}
 	if configured.HTTPAddr != "127.0.0.1:9000" {
 		t.Fatalf("HTTPAddr = %q", configured.HTTPAddr)
-	}
-}
-
-func TestFromEnvRejectsInvalidStorageBackend(t *testing.T) {
-	clearConfigEnv(t)
-	t.Setenv("STORAGE_BACKEND", "sqlite")
-	if _, err := FromEnv(); err == nil {
-		t.Fatal("expected invalid STORAGE_BACKEND error")
 	}
 }
 

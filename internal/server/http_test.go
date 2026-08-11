@@ -18,7 +18,6 @@ import (
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/testkit"
 	"github.com/year-recap/internal/server"
-	"github.com/year-recap/internal/storage/memory"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -99,113 +98,6 @@ func TestHTTPHandlerMapsInvalidRequestToConnectError(t *testing.T) {
 	)
 	if code := connectrpc.CodeOf(err); code != connectrpc.CodeInvalidArgument {
 		t.Fatalf("code = %s, want invalid_argument: %v", code, err)
-	}
-}
-
-func TestHTTPHandlerServesSeedCatalogueEndToEnd(t *testing.T) {
-	store, err := memory.Load(
-		filepath.Join(projectRoot(t), "seeds", "profiles.json"),
-		filepath.Join(projectRoot(t), "seeds", "scenarios.json"),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	service, err := application.NewService(
-		store,
-		store,
-		store,
-		store,
-		application.WithClock(testkit.Clock),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	handler, err := server.NewHandler(service, server.Options{
-		StaticDir:      filepath.Join(projectRoot(t), "frontend", "public"),
-		AllowedOrigins: []string{"http://localhost:3000"},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	httpServer := httptest.NewServer(handler)
-	t.Cleanup(httpServer.Close)
-
-	client := recapv1connect.NewRecapServiceClient(httpServer.Client(), httpServer.URL)
-	ctx := context.Background()
-	profiles, err := client.ListProfiles(ctx, connectrpc.NewRequest(&recapv1.ListProfilesRequest{}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(profiles.Msg.Profiles) != 17 {
-		t.Fatalf("profile count = %d, want 17", len(profiles.Msg.Profiles))
-	}
-	profile := profiles.Msg.Profiles[0]
-	if profile.ProfileCode != "active-buyer" || profile.GetAvatarUrl() == "" {
-		t.Fatalf("unexpected first profile: %+v", profile)
-	}
-
-	first, err := client.GenerateRecap(
-		ctx,
-		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileCode: profile.ProfileCode,
-			Year:        2025,
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	second, err := client.GenerateRecap(
-		ctx,
-		connectrpc.NewRequest(&recapv1.GenerateRecapRequest{
-			ProfileCode: profile.ProfileCode,
-			Year:        2025,
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if first.Msg.Recap.Id != second.Msg.Recap.Id {
-		t.Fatalf(
-			"idempotent ids differ: %s and %s",
-			first.Msg.Recap.Id,
-			second.Msg.Recap.Id,
-		)
-	}
-	behaviorCard := findCard(t, first.Msg.Recap.Cards, recapv1.CardType_CARD_TYPE_BEHAVIOR)
-	if behaviorCard.GetBehavior().Code != recapv1.BehaviorCode_BEHAVIOR_CODE_FIND_HUNTER {
-		t.Fatalf("behavior = %v", behaviorCard.GetBehavior().Code)
-	}
-	if len(first.Msg.Recap.Cards) == 0 ||
-		first.Msg.Recap.Cards[len(first.Msg.Recap.Cards)-1].Type != recapv1.CardType_CARD_TYPE_SHARE {
-		t.Fatalf("story must end with SHARE: %+v", first.Msg.Recap.Cards)
-	}
-
-	shareCard := findCard(t, first.Msg.Recap.Cards, recapv1.CardType_CARD_TYPE_SHARE).GetShare()
-	shared, err := client.GetPublicShare(
-		ctx,
-		connectrpc.NewRequest(&recapv1.GetPublicShareRequest{
-			ShareId: shareCard.ShareId,
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if shared.Msg.Share.ShareId != shareCard.ShareId ||
-		shared.Msg.Share.BehaviorTitle != behaviorCard.Title {
-		t.Fatalf("unexpected share card: %+v", shared.Msg.Share)
-	}
-
-	avatar, err := httpServer.Client().Get(httpServer.URL + profile.GetAvatarUrl())
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := io.ReadAll(avatar.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	closeResponseBody(t, avatar)
-	if avatar.StatusCode != http.StatusOK || len(data) == 0 {
-		t.Fatalf("avatar status=%d size=%d", avatar.StatusCode, len(data))
 	}
 }
 

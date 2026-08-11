@@ -8,7 +8,6 @@ MVP веб-приложения для персональных «Итогов �
   - [Пользовательский сценарий](#пользовательский-сценарий)
   - [Что реализовано](#что-реализовано)
 - [Инструкция по запуску](#инструкция-по-запуску)
-  - [Готовое интернет-демо](#готовое-интернет-демо)
   - [Быстрый запуск через Docker Compose](#быстрый-запуск-через-docker-compose)
   - [Локальная разработка](#локальная-разработка)
 - [Используемые технологии](#используемые-технологии)
@@ -56,25 +55,12 @@ MVP веб-приложения для персональных «Итогов �
 - персональный `NextAction`;
 - story-интерфейс на React;
 - публичная share-card с отдельными privacy-правилами;
-- memory и ClickHouse storage;
+- ClickHouse storage;
 - ConnectRPC API на Protocol Buffers;
 - unit, integration, golden и frontend-тесты;
-- запуск через Docker Compose;
-- single-service Docker image для интернет-демо.
+- запуск через Docker Compose.
 
 ## Инструкция по запуску
-
-### Интернет-демо
-
-Проект подготовлен для single-service deployment через Docker/Render.
-Render условия(бесплатная версия):
-После 15 минут без входящих запросов бесплатный Web Service засыпает. Когда кто-то снова открывает сайт, Render запускает его обратно; холодный старт занимает примерно до минуты. Поэтому первый заход может быть очень медленным, а следующие — быстрыми.
-
-```text
-https://avito-recap.onrender.com
-```
-
-Разворачивать проект локально для этого не обязательно.
 
 ### Быстрый запуск через Docker Compose
 
@@ -172,14 +158,11 @@ http://localhost:5173
 - Go 1.25;
 - ConnectRPC / Protocol Buffers;
 - ClickHouse;
-- in-memory storage для лёгкого demo-режима;
 - `golangci-lint`.
 
 ### Почему ClickHouse
 
-Основной поток данных проекта связан с пользовательскими событиями и годовой аналитикой. ClickHouse подходит для хранения и агрегации большого количества событий, поэтому используется как основное аналитическое хранилище.
-
-Для demo-режима также реализован `memory` backend: он не требует отдельной базы и позволяет быстро поднять приложение с seed-данными.
+Основной поток данных проекта связан с пользовательскими событиями и годовой аналитикой. ClickHouse подходит для хранения и агрегации большого количества событий, поэтому используется как единственное хранилище — все события, метрики и Recap идут через него, без demo-заглушек в памяти.
 
 Подробнее: [`docs/Storage.md`](docs/Storage.md).
 
@@ -214,8 +197,7 @@ avito-recap/
 │   ├── seed/                        # чтение и подготовка seed-данных
 │   ├── server/                      # HTTP routing, health check, CORS, SPA и статика
 │   ├── storage/
-│   │   ├── clickhouse/              # постоянное хранение и аналитика в ClickHouse
-│   │   └── memory/                  # in-memory реализация для demo и разработки
+│   │   └── clickhouse/              # постоянное хранение и аналитика в ClickHouse
 │   └── transport/
 │       └── connect/                 # ConnectRPC transport и protobuf ↔ domain mapping
 │
@@ -248,9 +230,8 @@ avito-recap/
 ├── nginx/                           # nginx-конфигурация compose-окружения
 ├── docs/                            # подробная документация по частям проекта
 │
-├── Dockerfile                       # production single-service image
+├── Dockerfile                       # production-образ backend
 ├── docker-compose.yml               # локальный запуск frontend + backend + ClickHouse
-├── render.yaml                      # конфигурация интернет-демо на Render
 ├── Makefile                         # команды генерации, тестов и служебных операций
 └── .golangci.yaml                   # конфигурация backend-линтера
 ```
@@ -292,7 +273,7 @@ Behavior  Achievements  NextAction
 Story Cards + Share Projection
       |
       v
-Memory / ClickHouse
+ClickHouse
 ```
 
 Подробнее: [`docs/Architecture.md`](docs/Architecture.md).
@@ -369,12 +350,6 @@ npm run check
 
 `npm run check` запускает ESLint, TypeScript typecheck и Vitest.
 
-Проверка single-service сценария, используемого для интернет-демо:
-
-```bash
-make test-render
-```
-
 Основной акцент сделан на обработке ошибок, статическом анализе, неиспользуемом коде, потенциальных nil-ошибках, полноте switch и общих проблемах качества. Формальные требования к комментариям экспортируемых сущностей и пакетов отключены, чтобы линтер не создавал избыточный шум и не заставлял добавлять комментарии без смысловой ценности.
 
 Frontend использует ESLint и TypeScript для статической проверки.
@@ -383,7 +358,6 @@ Frontend использует ESLint и TypeScript для статической
 
 | Переменная | Назначение |
 | --- | --- |
-| `STORAGE_BACKEND` | `memory` или `clickhouse` |
 | `CLICKHOUSE_DSN` | подключение к ClickHouse |
 | `PROFILES_PATH` | путь к каталогу профилей |
 | `SCENARIOS_PATH` | путь к demo-сценариям |
@@ -409,7 +383,7 @@ Frontend использует ESLint и TypeScript для статической
 - [`docs/recap.md`](docs/recap.md) - правила генерации, behavior, achievements, NextAction, карточки и privacy;
 - [`docs/test_profiles.md`](docs/test_profiles.md) - тестовые профили, сценарии и golden fixtures;
 - [`docs/Architecture.md`](docs/Architecture.md) - слои приложения и зависимости;
-- [`docs/Storage.md`](docs/Storage.md) - memory/ClickHouse storage и persistence;
+- [`docs/Storage.md`](docs/Storage.md) - ClickHouse storage и persistence;
 - [`docs/API.md`](docs/API.md) - RPC-контракт, transport и error mapping.
 
 ## Распределение ответственности между участниками команды

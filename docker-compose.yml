@@ -15,7 +15,6 @@ services:
     restart: unless-stopped
     environment:
       HTTP_ADDR: ":8080"
-      STORAGE_BACKEND: "clickhouse"
       FRONTEND_DIR: ""
       #
       CLICKHOUSE_DSN: "clickhouse://recap:recap@clickhouse:9000/recap?compress=lz4&max_open_conns=20&max_idle_conns=10&conn_max_lifetime=30m"

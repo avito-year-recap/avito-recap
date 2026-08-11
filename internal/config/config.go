@@ -9,19 +9,13 @@ import (
 
 const defaultShutdownTimeout = 10 * time.Second
 
-const (
-	StorageMemory     = "memory"
-	StorageClickHouse = "clickhouse"
-)
-
 type Config struct {
 	// API
 	Address  string
 	HTTPAddr string
 
 	// Storage
-	StorageBackend string
-	ClickHouseDSN  string
+	ClickHouseDSN string
 
 	// Recap data
 	SeedDemoData   bool
@@ -54,21 +48,10 @@ func FromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	storageBackend := strings.ToLower(envOrDefault("STORAGE_BACKEND", StorageClickHouse))
-	if storageBackend != StorageMemory && storageBackend != StorageClickHouse {
-		return Config{}, fmt.Errorf(
-			"invalid STORAGE_BACKEND %q: expected %q or %q",
-			storageBackend,
-			StorageMemory,
-			StorageClickHouse,
-		)
-	}
-
 	return Config{
 		Address:  address,
 		HTTPAddr: address,
 
-		StorageBackend: storageBackend,
 		ClickHouseDSN: envOrDefault(
 			"CLICKHOUSE_DSN",
 			"clickhouse://recap:recap@clickhouse:9000/recap",

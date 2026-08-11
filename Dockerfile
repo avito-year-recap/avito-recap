@@ -1,19 +1,6 @@
 # Собираем докер по кусочкам - самое верхнее - часть с наименьшим изменением.
 # Помогает оптимизировать кэщ докера
 
-FROM node:24-alpine AS frontend-builder
-
-WORKDIR /src/frontend
-
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
-
-COPY frontend/ ./
-RUN npm run build
-
-
-# Собираем основной бекенд
-
 FROM golang:1.25-alpine AS backend-builder
 
 WORKDIR /src
@@ -51,15 +38,9 @@ WORKDIR /app
 
 COPY --from=backend-builder /out/api /usr/local/bin/api
 COPY --from=backend-builder /src/seeds ./seeds
-COPY --from=frontend-builder /src/frontend/dist ./web
 
-# Используем IM_MEMORY бд ради сборки в интернете
-
-ENV STORAGE_BACKEND=memory \
-    PROFILES_PATH=/app/seeds/profiles.json \
-    SCENARIOS_PATH=/app/seeds/scenarios.json \
-    STATIC_DIR=/app/web \
-    FRONTEND_DIR=/app/web
+ENV PROFILES_PATH=/app/seeds/profiles.json \
+    SCENARIOS_PATH=/app/seeds/scenarios.json
 
 USER app
 

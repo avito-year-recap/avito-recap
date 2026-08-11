@@ -66,8 +66,7 @@ clickhouse/
 `cmd/api/main.go` отвечает за:
 
 - загрузку конфигурации;
-- выбор storage backend;
-- подключение к ClickHouse или загрузку memory storage;
+- подключение к ClickHouse и `EnsureSchema()`;
 - создание `application.Service`;
 - создание HTTP handler;
 - запуск HTTP-сервера;
@@ -92,7 +91,6 @@ API_ADDRESS
 HTTP_ADDR
 PORT
 
-STORAGE_BACKEND
 CLICKHOUSE_DSN
 
 SEED_DEMO_DATA
@@ -116,13 +114,6 @@ HTTP_ADDR
 PORT
     ↓
 :8080
-```
-
-Поддерживаются два storage backend:
-
-```text
-memory
-clickhouse
 ```
 
 ---
@@ -218,7 +209,7 @@ ActionStateStorage
 RecapStorage
 ```
 
-Application layer не знает, используется ли ClickHouse, memory storage или другой adapter.
+Application layer не знает, используется ли ClickHouse или другой adapter — зависит только от портов.
 
 Схема зависимости:
 
@@ -430,26 +421,21 @@ internal/architecture/
 internal/storage/
 ```
 
-Сейчас есть:
+Сейчас есть единственный adapter:
 
 ```text
-memory/
 clickhouse/
 ```
 
-Оба реализуют application ports.
-
-Это позволяет запускать один и тот же application service поверх разных хранилищ:
+Он реализует все application ports:
 
 ```text
 application.Service
         |
-        +-------- Memory Store
-        |
         +-------- ClickHouse Repo
 ```
 
-Подробнее устройство persistence описано в `storage.md`.
+Application layer зависит только от портов, так что при необходимости можно добавить другой adapter, не трогая бизнес-логику. Подробнее устройство persistence описано в `storage.md`.
 
 ---
 
@@ -461,8 +447,6 @@ Demo-сценарии находятся в:
 seeds/profiles.json
 seeds/scenarios.json
 ```
-
-Для `memory` storage они загружаются непосредственно при старте.
 
 Для ClickHouse используется:
 
@@ -611,44 +595,9 @@ FRONTEND_DIR=/app/web
 
 ---
 
-## 14. Deployment modes
+## 14. Deployment
 
-### Single-service production
-
-Используется основной `Dockerfile`.
-
-Build:
-
-```text
-Node builder
-    ↓
-frontend/dist
-
-Go builder
-    ↓
-api binary
-
-        ↓
-
-runtime image
-├── /usr/local/bin/api
-├── /app/seeds
-└── /app/web
-```
-
-Go process одновременно обслуживает:
-
-- API;
-- avatars;
-- React SPA.
-
-Эта схема используется Render deployment.
-
----
-
-### Docker Compose
-
-В `docker-compose.yml` используется другая topology:
+Единственный способ развернуть проект — `docker-compose.yml`:
 
 ```text
 Browser
@@ -664,13 +613,7 @@ Nginx
          ClickHouse
 ```
 
-Backend работает с:
-
-```text
-STORAGE_BACKEND=clickhouse
-```
-
-а frontend обслуживается отдельным nginx container.
+Go API собирается основным `Dockerfile` (только backend-бинарь, без embedded frontend). Frontend собирается и обслуживается отдельным nginx-контейнером (`frontend/Dockerfile`).
 
 ---
 

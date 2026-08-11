@@ -4,7 +4,7 @@
 
 Storage предоставляет данные `application.Service` и хранит сгенерированные Recap — через набор портов (`internal/recap/application/ports.go`), а не через прямой SQL из бизнес-логики.
 
-Две реализации: `internal/storage/memory/` (demo/dev, не persistent) и `internal/storage/clickhouse/` (основная, persistent).
+Единственная реализация: `internal/storage/clickhouse/` — постоянное аналитическое хранилище. Никакого in-memory demo-режима нет: приложение всегда работает через реальные события в ClickHouse, включая локальную разработку и unit-тесты бизнес-логики (которые используют независимые fake-реализации портов из `internal/recap/testkit/`, а не отдельный storage backend).
 
 ---
 
@@ -41,17 +41,9 @@ type RecapStorage interface {
 
 ---
 
-## 3. Memory storage
+## 3. ClickHouse storage
 
-`internal/storage/memory/` — простая in-process реализация: несколько map-индексов (`profilesByID`/`profilesByCode`, `metrics` по `(profileID, year)`, `actionStates`, `recapsByKey`/`recapsByID`/`recapsByShare`) под общим `sync.RWMutex`, без персистентности. При старте грузит `seeds/profiles.json` и `seeds/scenarios.json`; после рестарта процесса всё сгенерированное (recaps, share-ссылки) пропадает и создаётся заново из seed.
-
-Используется для локальной разработки, Render-демо и unit/integration-тестов без ClickHouse — это вспомогательный путь, не production storage.
-
----
-
-## 4. ClickHouse storage
-
-`internal/storage/clickhouse.Repo` — основной adapter, реализует все четыре порта выше плюс `bootstrap.SeedStorage`. Подключается через `CLICKHOUSE_DSN`, после чего backend вызывает `EnsureSchema()`.
+`internal/storage/clickhouse.Repo` — единственный adapter, реализует все четыре порта выше плюс `bootstrap.SeedStorage`. Подключается через `CLICKHOUSE_DSN`, после чего backend вызывает `EnsureSchema()`.
 
 `EnsureSchema()` (в `internal/storage/clickhouse/client.go`) идемпотентна:
 
@@ -60,7 +52,7 @@ type RecapStorage interface {
 
 ---
 
-## 5. Таблицы
+## 4. Таблицы
 
 | Таблица | Engine | Order / Partition | TTL | Назначение |
 |---|---|---|---|---|
@@ -74,7 +66,7 @@ type RecapStorage interface {
 
 ---
 
-## 6. Cache-aside для метрик
+## 5. Cache-aside для метрик
 
 `CalculateMetrics`: считает live `count(events)` для `(profile_id, year)` — если 0, `ErrMetricsNotFound`. Иначе читает `annual_metrics`; если сохранённый `event_count` совпадает с live count — отдаёт кэш. Если нет (или строки не было) — агрегирует сырые `events` через `analytics.AggregateEvents` и перезаписывает кэш.
 
@@ -82,7 +74,7 @@ type RecapStorage interface {
 
 ---
 
-## 7. Recap: idempotency
+## 6. Recap: idempotency
 
 `RecapKey = (ProfileID, Year, RulesVersion, RulesDigest)`. `CreateRecapIfAbsent` — check-then-insert (`GetRecapByKey` → если не найден → `INSERT`), не атомарный database-level upsert: MergeTree не даёт unique constraint. Для single-writer demo deployment это приемлемо; при нескольких параллельных writers возможна гонка (оба не находят строку и оба вставляют) — для multi-instance production нужен внешний lock, OLTP-хранилище с unique constraint или отдельный idempotency-сервис.
 
@@ -90,7 +82,7 @@ type RecapStorage interface {
 
 ---
 
-## 8. Как события попадают в `events`
+## 7. Как события попадают в `events`
 
 **Прямой путь (основной).** При `SEED_DEMO_DATA=true` после `EnsureSchema()` вызывается `bootstrap.LoadDemoData`: грузит `profiles.json`/`scenarios.json`, генерирует сырые события по сценариям и пишет их через `UpsertProfiles`/`InsertEvents`/`PutActionableState`. Recap-метрики руками не пишутся — только события, из которых `CalculateMetrics` сам всё агрегирует, как для реального ingestion.
 
@@ -103,29 +95,17 @@ docker compose --profile events-gen run --rm eventgen
 
 ---
 
-## 9. `clickhouse/init`
+## 8. `clickhouse/init`
 
-Монтируется Docker Compose в `/docker-entrypoint-initdb.d` и применяется при первом старте контейнера. Runtime source of truth для схемы приложения — всё же `EnsureSchema()` (раздел 4); `clickhouse/init/001_schema.sql` дублирует создание `events` для случаев ручного/раннего bring-up.
+Монтируется Docker Compose в `/docker-entrypoint-initdb.d` и применяется при первом старте контейнера. Runtime source of truth для схемы приложения — всё же `EnsureSchema()` (раздел 3); `clickhouse/init/001_schema.sql` дублирует создание `events` для случаев ручного/раннего bring-up.
 
 `002_recap_cache.sql` создаёт `recap_cards`/`recap_summary` — их не использует ни один Go-код в проекте, это legacy/prototype-таблицы. Со временем стоит либо удалить эту схему, либо перенести весь SQL в versioned migrations — сейчас она распределена между init-скриптами и `EnsureSchema()`, что создаёт риск рассинхронизации.
 
 ---
 
-## 10. Выбор storage backend
+## 9. Storage invariants
 
-| | `memory` | `clickhouse` |
-|---|---|---|
-| Когда | demo, Render, локальный UI, тесты | Docker Compose, реальный объём событий, нужна persistence |
-| Плюсы | не нужна внешняя БД, мгновенный старт | эффективная аналитика по событиям, persistent recaps, кэш метрик |
-| Минусы | нет persistence, данные теряются после рестарта, состояние не шарится между инстансами | idempotency-insert не атомарен между writers, JSON-блобы хуже подходят под ad-hoc SQL, schema ещё не оформлена как migrations |
-
-Immutable `recaps` с уникальным idempotency-ключом по природе ближе к OLTP-сущности, чем к аналитической таблице. Cледующий шаг — не менять ClickHouse целиком, а вынести `profiles`/`actionable_state`/`recaps` в отдельный OLTP-стор, оставив ClickHouse только под `events`/аналитику. Для текущего масштаба единый adapter проще.
-
----
-
-## 11. Storage invariants
-
-Обе реализации обязаны соблюдать:
+Реализация обязана соблюдать:
 
 1. Profile code однозначно определяет профиль; UUID — внутренний идентификатор.
 2. Metrics относятся к конкретному `RecapPeriod`.
@@ -138,12 +118,11 @@ Immutable `recaps` с уникальным idempotency-ключом по при�
 
 ---
 
-## 12. Где менять storage
+## 10. Где менять storage
 
 | Изменение | Файл/пакет
 |---|---|
 | Storage interfaces | `internal/recap/application/ports.go` |
-| Memory implementation | `internal/storage/memory/` |
 | ClickHouse connection/schema | `internal/storage/clickhouse/client.go` |
 | Profiles SQL | `internal/storage/clickhouse/profiles.go` |
 | Event/metrics analytics | `internal/storage/clickhouse/analytics.go` |
