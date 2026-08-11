@@ -57,7 +57,6 @@ services:
       CLICKHOUSE_PASSWORD: recap
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-      - ./clickhouse/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "8123:8123"
       - "9000:9000"

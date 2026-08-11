@@ -197,7 +197,7 @@ avito-recap/
 │   ├── seed/                        # чтение и подготовка seed-данных
 │   ├── server/                      # HTTP routing, health check, CORS, SPA и статика
 │   ├── storage/
-│   │   └── clickhouse/              # постоянное хранение и аналитика в ClickHouse
+│   │   └── clickhouse/              # постоянное хранение, аналитика и SQL-миграции ClickHouse
 │   └── transport/
 │       └── connect/                 # ConnectRPC transport и protobuf ↔ domain mapping
 │
@@ -226,7 +226,7 @@ avito-recap/
 │   └── metrics/                     # fixture-данные для тестов метрик и правил
 │
 ├── clickhouse/
-│   └── init/                        # SQL-инициализация ClickHouse для Docker Compose
+│   └── kafka/                       # опциональная Kafka Engine table + materialized view
 ├── nginx/                           # nginx-конфигурация compose-окружения
 ├── docs/                            # подробная документация по частям проекта
 │

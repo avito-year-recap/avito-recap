@@ -45,10 +45,13 @@ type RecapStorage interface {
 
 `internal/storage/clickhouse.Repo` — единственный adapter, реализует все четыре порта выше плюс `bootstrap.SeedStorage`. Подключается через `CLICKHOUSE_DSN`, после чего backend вызывает `EnsureSchema()`.
 
-`EnsureSchema()` (в `internal/storage/clickhouse/client.go`) идемпотентна:
+Схема живёт исключительно как versioned SQL-миграции в `internal/storage/clickhouse/migrations/*.sql` — никакого DDL в виде Go-строк. Раннер (`internal/storage/clickhouse/migrate.go`) встраивает файлы через `go:embed`, на старте:
 
-- сначала прогоняет `CREATE TABLE IF NOT EXISTS` по всем таблицам — безопасно перезапускать;
-- затем — небольшой набор `ALTER TABLE ... MODIFY TTL`, чтобы докатить schema-правки (например, изменённый TTL) и на уже существующую БД, которую `CREATE TABLE IF NOT EXISTS` не трогает.
+1. создаёт (если её ещё нет) служебную таблицу `schema_migrations (version, applied_at)` — единственный DDL, который не оформлен отдельным файлом, потому что раннеру нужно куда-то писать до применения первой миграции;
+2. читает уже применённые версии оттуда;
+3. применяет неприменённые файлы в алфавитном порядке имени (`001_...`, `002_...`, ...) и сразу же фиксирует каждую версию в `schema_migrations`.
+
+Каждый файл — ровно один DDL-стейтмент: ClickHouse по нативному протоколу выполняет один запрос за вызов, так что "миграция" из нескольких `;`-разделённых команд не сработала бы. Файлы идемпотентны по содержимому (`CREATE TABLE IF NOT EXISTS`, повторно применимый `ALTER ... MODIFY TTL`), но благодаря `schema_migrations` реально выполняются только один раз за всё время жизни БД, а не на каждом старте, как было раньше.
 
 ---
 
@@ -95,11 +98,11 @@ docker compose --profile events-gen run --rm eventgen
 
 ---
 
-## 8. `clickhouse/init`
+## 8. Единственный источник схемы
 
-Монтируется Docker Compose в `/docker-entrypoint-initdb.d` и применяется при первом старте контейнера. Runtime source of truth для схемы приложения — всё же `EnsureSchema()` (раздел 3); `clickhouse/init/001_schema.sql` дублирует создание `events` для случаев ручного/раннего bring-up.
+Отдельного `clickhouse/init/`, монтируемого в `/docker-entrypoint-initdb.d`, больше нет — раньше он дублировал создание `events` и вдобавок содержал `recap_cards`/`recap_summary`, legacy-таблицы, которые не использовал ни один Go-код (риск рассинхронизации, о котором раньше говорил этот раздел). `internal/storage/clickhouse/migrations/*.sql` (раздел 3) — теперь единственное место, где описана схема; `api` в docker-compose уже ждёт healthy ClickHouse и сам накатывает миграции при старте, отдельный init-bootstrap для этого не нужен.
 
-`002_recap_cache.sql` создаёт `recap_cards`/`recap_summary` — их не использует ни один Go-код в проекте, это legacy/prototype-таблицы. Со временем стоит либо удалить эту схему, либо перенести весь SQL в versioned migrations — сейчас она распределена между init-скриптами и `EnsureSchema()`, что создаёт риск рассинхронизации.
+`clickhouse/kafka/010_events_kafka.sql` (раздел 7) в эту систему не входит намеренно: это отдельный, опциональный, вручную накатываемый DDL для Kafka Engine table, не часть основной схемы приложения.
 
 ---
 
@@ -123,12 +126,12 @@ docker compose --profile events-gen run --rm eventgen
 | Изменение | Файл/пакет
 |---|---|
 | Storage interfaces | `internal/recap/application/ports.go` |
-| ClickHouse connection/schema | `internal/storage/clickhouse/client.go` |
+| ClickHouse connection | `internal/storage/clickhouse/client.go` |
+| Schema (новая миграция) | `internal/storage/clickhouse/migrations/*.sql`, раннер — `internal/storage/clickhouse/migrate.go` |
 | Profiles SQL | `internal/storage/clickhouse/profiles.go` |
 | Event/metrics analytics | `internal/storage/clickhouse/analytics.go` |
 | ActionableState | `internal/storage/clickhouse/current_state.go` |
 | Recap persistence | `internal/storage/clickhouse/recaps.go` |
 | Demo seeding | `internal/bootstrap/` |
-| Docker ClickHouse initialization | `clickhouse/init/` |
 | Kafka event generator (опционально) | `cmd/eventgen/` |
 | Kafka ingestion в ClickHouse (опционально) | `clickhouse/kafka/` |
