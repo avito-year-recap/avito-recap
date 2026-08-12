@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
@@ -13,6 +14,13 @@ import (
 	"github.com/year-recap/internal/recap/application"
 	"github.com/year-recap/internal/recap/model"
 )
+
+// createRecapMu serializes CreateRecapIfAbsent's check-then-insert across all
+// Repo instances in the process. ClickHouse's MergeTree engines give no way to
+// enforce "insert if absent" atomically at the storage layer, so without this
+// lock concurrent callers racing on the same key each see "not found" and
+// insert their own row.
+var createRecapMu sync.Mutex
 
 // Поиск по ключу из нескольких колонок
 func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Recap, error) {
@@ -63,6 +71,9 @@ func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.
 
 // Создаем рекап, если не находим по ключу
 func (r *Repo) CreateRecapIfAbsent(ctx context.Context, key model.RecapKey, value model.Recap) (model.Recap, error) {
+	createRecapMu.Lock()
+	defer createRecapMu.Unlock()
+
 	if existing, err := r.GetRecapByKey(ctx, key); err == nil {
 		return existing, nil
 	} else if !errors.Is(err, application.ErrRecapNotFound) {
