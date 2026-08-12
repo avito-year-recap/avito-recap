@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -143,6 +144,64 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 		events = append(events, event)
 	}
 	return events, rows.Err()
+}
+
+// EventTypeDistribution returns the percentage share of each event type
+// among a profile's events in the half-open range [start, end).
+func (r *Repo) EventTypeDistribution(ctx context.Context, profileID uuid.UUID, start, end time.Time) ([]model.EventDistributionItem, error) {
+	return r.eventDistribution(ctx, profileID, start, end, "event_type")
+}
+
+// CategoryDistribution returns the percentage share of each category among
+// a profile's events in the half-open range [start, end). Events without a
+// category (not category-scoped, see model.Event.Category) are excluded
+// from both the groups and the total they're a percentage of.
+func (r *Repo) CategoryDistribution(ctx context.Context, profileID uuid.UUID, start, end time.Time) ([]model.EventDistributionItem, error) {
+	return r.eventDistribution(ctx, profileID, start, end, "category")
+}
+
+// eventDistribution groups a profile's events in [start, end) by column and
+// returns each group's count and share of the total as a percentage.
+// column must be a trusted literal (event_type or category) — it is
+// interpolated into the query, never a parameter, so it must never come
+// from user input.
+func (r *Repo) eventDistribution(ctx context.Context, profileID uuid.UUID, start, end time.Time, column string) ([]model.EventDistributionItem, error) {
+	rows, err := r.conn.Query(ctx, fmt.Sprintf(`
+		SELECT %[1]s AS key, count() AS cnt
+		FROM events
+		WHERE profile_id = ? AND occurred_at >= ? AND occurred_at < ? AND %[1]s != ''
+		GROUP BY key
+		ORDER BY cnt DESC
+	`, column), profileID, start, end)
+	if err != nil {
+		return nil, fmt.Errorf("query event distribution: %w", err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("close event distribution rows: %v", err)
+		}
+	}()
+
+	var items []model.EventDistributionItem
+	var total uint64
+	for rows.Next() {
+		var item model.EventDistributionItem
+		if err := rows.Scan(&item.Key, &item.Count); err != nil {
+			return nil, fmt.Errorf("scan event distribution: %w", err)
+		}
+		total += item.Count
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if total > 0 {
+		for i := range items {
+			items[i].Percentage = float64(items[i].Count) / float64(total) * 100
+		}
+	}
+	return items, nil
 }
 
 // Заносим готовые евенты (для авто-заполнения)

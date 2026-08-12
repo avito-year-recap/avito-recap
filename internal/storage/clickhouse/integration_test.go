@@ -107,6 +107,77 @@ func TestRepoImplementsApplicationStorages(t *testing.T) {
 	}
 }
 
+func TestEventDistributionReturnsPercentageSharesWithinDateRange(t *testing.T) {
+	ctx := context.Background()
+	repo, err := storage.Connect(ctx, testDSN())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer repo.Close()
+	if err := repo.EnsureSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+
+	profile := testkit.Profile()
+	profile.ID = uuid.New()
+	profile.Code = "distribution-" + profile.ID.String()
+	if err := repo.UpsertProfiles(ctx, []model.Profile{profile}); err != nil {
+		t.Fatal(err)
+	}
+
+	inRange := time.Date(2025, time.June, 1, 12, 0, 0, 0, time.UTC)
+	outOfRange := time.Date(2024, time.June, 1, 12, 0, 0, 0, time.UTC)
+	events := []model.Event{
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivityListingView, OccurredAt: inRange, Category: "electronics"},
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivityListingView, OccurredAt: inRange, Category: "electronics"},
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivityListingView, OccurredAt: inRange, Category: "electronics"},
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivityFavoriteAdded, OccurredAt: inRange, Category: "fashion"},
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivitySearch, OccurredAt: inRange},
+		{ID: uuid.New(), ProfileID: profile.ID, Type: model.ActivityListingView, OccurredAt: outOfRange, Category: "electronics"},
+	}
+	if err := repo.InsertEvents(ctx, events); err != nil {
+		t.Fatal(err)
+	}
+
+	start := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+	byType, err := repo.EventTypeDistribution(ctx, profile.ID, start, end)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantByType := map[string]model.EventDistributionItem{
+		"listing_view":   {Key: "listing_view", Count: 3, Percentage: 60},
+		"favorite_added": {Key: "favorite_added", Count: 1, Percentage: 20},
+		"search":         {Key: "search", Count: 1, Percentage: 20},
+	}
+	if len(byType) != len(wantByType) {
+		t.Fatalf("event type distribution length: got %d want %d (%+v)", len(byType), len(wantByType), byType)
+	}
+	for _, item := range byType {
+		if want := wantByType[item.Key]; item != want {
+			t.Fatalf("event type distribution for %q: got %+v want %+v", item.Key, item, want)
+		}
+	}
+
+	byCategory, err := repo.CategoryDistribution(ctx, profile.ID, start, end)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantByCategory := map[string]model.EventDistributionItem{
+		"electronics": {Key: "electronics", Count: 3, Percentage: 75},
+		"fashion":     {Key: "fashion", Count: 1, Percentage: 25},
+	}
+	if len(byCategory) != len(wantByCategory) {
+		t.Fatalf("category distribution length: got %d want %d (%+v)", len(byCategory), len(wantByCategory), byCategory)
+	}
+	for _, item := range byCategory {
+		if want := wantByCategory[item.Key]; item != want {
+			t.Fatalf("category distribution for %q: got %+v want %+v", item.Key, item, want)
+		}
+	}
+}
+
 func testDSN() string {
 	if value := os.Getenv("CLICKHOUSE_TEST_DSN"); value != "" {
 		return value

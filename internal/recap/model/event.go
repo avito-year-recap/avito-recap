@@ -30,3 +30,11 @@ type Event struct {
 	// event is what makes ChatsWithPurchase derivable from raw events.
 	DialogID *uint64 `json:"dialogId,omitempty"`
 }
+
+// EventDistributionItem is one bucket of a percentage breakdown of a
+// profile's events grouped by type or category over a date range.
+type EventDistributionItem struct {
+	Key        string  `json:"key"`
+	Count      uint64  `json:"count"`
+	Percentage float64 `json:"percentage"`
+}
