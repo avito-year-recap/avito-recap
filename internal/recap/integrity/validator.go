@@ -82,8 +82,8 @@ func ValidateRecapAgainstRuleset(value model.Recap, configured ruleset.Ruleset, 
 		value.Profile, value.Year, value.Metrics,
 		expectedBehavior, expectedAchievements, expectedAction, expectedShareCard,
 	)
-	if !reflect.DeepEqual(value.Cards, expectedCards) {
-		return fmt.Errorf("%w: stored cards differ from deterministic card projection", structural.ErrInvalidRecap)
+	if err := structural.ValidateCardsAgainstProjection(value.Cards, expectedCards); err != nil {
+		return fmt.Errorf("%w: stored cards differ from deterministic card projection: %w", structural.ErrInvalidRecap, err)
 	}
 	if expectedShareCard != value.Cards[len(value.Cards)-1].Payload.(model.ShareCard) {
 		return fmt.Errorf("%w: public projection differs from final card", structural.ErrInvalidRecap)

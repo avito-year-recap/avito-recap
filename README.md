@@ -1,405 +1,368 @@
-# Avito Recap - «Итоги года»
+# avito-recap
 
-MVP веб-приложения для персональных «Итогов года» пользователя.
+Backend for an Avito-style annual recap. The service turns a completed year of
+seed activity into an immutable story: metrics, behavior, achievements,
+personalized next action, and a privacy-safe public share card.
 
-## Содержание
 
-- [Описание проекта](#описание-проекта)
-  - [Пользовательский сценарий](#пользовательский-сценарий)
-  - [Что реализовано](#что-реализовано)
-- [Инструкция по запуску](#инструкция-по-запуску)
-  - [Быстрый запуск через Docker Compose](#быстрый-запуск-через-docker-compose)
-  - [Локальная разработка](#локальная-разработка)
-- [Используемые технологии](#используемые-технологии)
-  - [Frontend](#frontend)
-  - [Backend](#backend)
-  - [Почему ClickHouse](#почему-clickhouse)
-- [Структура проекта](#структура-проекта)
-- [Особенности реализации](#особенности-реализации)
-  - [Архитектура](#архитектура)
-  - [API](#api)
-  - [Тестовые данные](#тестовые-данные)
-  - [Тесты и качество кода](#тесты-и-качество-кода)
-  - [Основная конфигурация](#основная-конфигурация)
-  - [Ключевые продуктовые и технические решения](#ключевые-продуктовые-и-технические-решения)
-  - [Документация](#документация)
-- [Распределение ответственности между участниками команды](#распределение-ответственности-между-участниками-команды)
-- [Использование ИИ](#использование-ии)
+## Deploy to Render (jury demo)
 
-## Описание проекта
+The repository is prepared for a **single Render Web Service**. In production
+the Docker image builds React, builds Go, and the Go process serves both the SPA
+and the Connect API. The demo uses the in-memory seed storage, so a separate
+ClickHouse service is not required on Render.
 
-> Демо использует тестовые профили и подготовленные сценарии активности за 2025 год.
-
-### Пользовательский сценарий
-
-1. Пользователь выбирает тестовый профиль.
-2. Backend анализирует годовую активность и текущее состояние профиля.
-3. Генерируется персональный Recap.
-4. Пользователь последовательно просматривает story-карточки:
-   - активность за год;
-   - главную категорию и активный период;
-   - тип поведения;
-   - достижения;
-   - возможную упущенную возможность;
-   - персональное следующее действие.
-5. В конце можно перейти к следующему действию или открыть безопасную публичную share-card.
-
-Правила генерации воспроизводимы: одинаковые входные данные и версия правил приводят к одному логическому результату.
-
-### Что реализовано
-
-- персональный Recap для тестовых профилей;
-- анализ годовой активности;
-- определение типа поведения пользователя;
-- система достижений;
-- персональный `NextAction`;
-- story-интерфейс на React;
-- публичная share-card с отдельными privacy-правилами;
-- ClickHouse storage;
-- ConnectRPC API на Protocol Buffers;
-- unit, integration, golden и frontend-тесты;
-- запуск через Docker Compose.
-
-## Инструкция по запуску
-
-### Быстрый запуск через Docker Compose
-
-Требования:
-
-- Docker;
-- Docker Compose.
-
-Из корня репозитория:
-
-```bash
-docker compose up --build
-```
-
-После запуска приложение доступно по адресу:
+Architecture:
 
 ```text
-http://localhost:8081
+browser -> https://<service>.onrender.com
+            |-- /, /recap/*, /share/* -> React SPA
+            |-- /api/*                -> Go Connect API
+            |-- /health               -> health check
 ```
 
-Docker Compose поднимает:
+Deployment steps:
 
-- frontend/nginx;
-- Go API;
-- ClickHouse.
+1. Push this repository to GitHub.
+2. In Render choose **New -> Blueprint** and select the repository.
+3. Render reads `render.yaml` and builds the root `Dockerfile`.
+4. Wait until the service becomes `Live`.
+5. Open the generated `https://<service>.onrender.com` URL and run the demo flow.
 
-Для остановки:
+You can also create a **Web Service** manually and select the `Docker` runtime.
+Use the repository root as the Docker context and `/health` as the health-check
+path. Do not set `PORT` yourself; Render provides it and the application reads it
+automatically.
 
-```bash
-docker compose down
-```
+The Render demo intentionally uses `STORAGE_BACKEND=memory`: all 17 seed
+profiles work, generated recaps live for the lifetime of the process, and no
+external database is required. The existing `docker compose` development setup
+still uses ClickHouse. Demo event seeding there is restart-idempotent by profile/year
+event count, so restarting only the API does not append the same event year again. If
+you edit `seeds/scenarios.json`, reset the local demo volume before reseeding with
+`docker compose down -v`; a mismatched existing event count is rejected instead of
+silently inflating annual metrics.
 
-Для удаления также сохранённых данных ClickHouse:
+The Render blueprint keeps `AI_NARRATIVE_PROVIDER=off`: the AI layer is now
+local-only and expects an Ollama server reachable from the backend machine. The
+published Render demo therefore uses the deterministic recap copy unless you
+separately deploy an Ollama-compatible host and override the configuration.
 
-```bash
-docker compose down -v
-```
+On the free Render plan the service can spin down after inactivity. After a
+restart the seed catalogue is loaded again automatically, but previously
+generated recap/share IDs are intentionally not persisted in memory mode.
 
-### Локальная разработка
+## Requirements
 
-Требования:
+- Go 1.25.5 (the Docker builder is pinned to the same patch for reproducible builds)
+- Node.js 24 recommended for frontend tooling
+- Ollama (optional, only for local AI storytelling)
 
-- Go 1.25.5+;
-- Node.js 24;
-- npm.
+## Run locally
 
-Установить frontend-зависимости:
+Install frontend dependencies once after cloning/unpacking the repository:
 
-```bash
+```powershell
 cd frontend
 npm ci
+cd ..
 ```
 
-Запустить backend из корня проекта:
+This also makes VS Code/TypeScript resolve `@connectrpc/connect` and `vite/client`.
 
-```bash
+For local AI storytelling, install Ollama and pull the default model once:
+
+```powershell
+ollama pull qwen3:4b
+```
+
+When the Go API is started directly on the host, the default `auto` mode checks
+`http://localhost:11434` and enables narrative generation only when Ollama is
+running and the configured model exists:
+
+```powershell
+$env:AI_NARRATIVE_PROVIDER="auto"
 go run ./cmd/api
 ```
 
-Backend по умолчанию работает на:
+To require Ollama instead of silently falling back at startup:
+
+```powershell
+$env:AI_NARRATIVE_PROVIDER="ollama"
+go run ./cmd/api
+```
+
+For Docker Compose, keep Ollama running on the host and start the project normally:
+
+```powershell
+docker compose up --build
+```
+
+The API container reaches the host Ollama process through
+`http://host.docker.internal:11434`; `extra_hosts: host-gateway` is included for
+Linux Docker installations as well.
+
+The server listens on `http://localhost:8080` by default.
 
 ```text
-http://localhost:8080
+GET  /health
+GET  /avatars/{profile-code}.png
+GET  /api/explain?profile_code={code}&year={year}
+POST /recap.v1.RecapService/ListProfiles
+POST /recap.v1.RecapService/GenerateRecap
+POST /recap.v1.RecapService/GetRecap
+POST /recap.v1.RecapService/GetPublicShare
 ```
 
-В отдельном терминале запустить frontend:
+The RPC endpoints support Connect, gRPC, and gRPC-Web. Connect JSON example:
 
-```bash
-cd frontend
-npm run dev
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "http://localhost:8080/recap.v1.RecapService/GenerateRecap" `
+  -ContentType "application/json" `
+  -Body '{"profileCode":"active-buyer","year":2025}'
 ```
 
-Vite dev server по умолчанию доступен на:
+The demo catalogue contains 17 profiles from `seeds/profiles.json`. All bundled
+scenarios use the completed year `2025`.
+
+### Explainability API
+
+`GET /api/explain?profile_code=active-buyer&year=2025` returns a privacy-safe
+decision trace for the generated recap. It shows:
+
+- the ruleset version and digest;
+- every behavior candidate, its priority and the checks that passed/failed;
+- the selected achievements and their reasons;
+- every next-action candidate and which rule won by priority.
+
+The trace intentionally omits internal profile UUIDs and executable listing/dialog
+target IDs. It is designed for rule debugging, support tooling and a jury demo of
+why a concrete user received a concrete recap.
+
+### AI Narrative Generator
+
+The optional AI layer runs **after** metrics, behavior, achievements and next action
+have already been selected by the deterministic rule engine. AI cannot change card
+IDs/types, payloads, explanations, achievements, behavior or executable CTA targets.
+It may replace only `description` for an explicit allow-list of personal recap cards:
+`INTRO`, `YEAR_ACTIVITY`, `TOP_CATEGORY`, `ACTIVE_MONTH`, `BEHAVIOR`, `ACHIEVEMENT`,
+`MISSED_OPPORTUNITY` and `NEXT_ACTION`. The public `SHARE` card is deliberately excluded
+and always keeps deterministic privacy-reviewed copy.
 
 ```text
-http://localhost:5173
+raw events -> metrics -> deterministic rules -> recap cards
+                                             -> safe aggregate facts
+                                             -> local Ollama /api/chat
+                                             -> description overrides only
 ```
 
-## Используемые технологии
+The project no longer requires a paid external LLM API key. The concrete adapter is
+`internal/ai/ollama`, which talks to the local Ollama HTTP API. The default model is
+`qwen3:4b`; pull it once with `ollama pull qwen3:4b`. You may select another locally
+installed Ollama model through `OLLAMA_MODEL` without changing the recap engine.
 
-### Frontend
+The adapter uses Ollama structured outputs: it sends the expected JSON Schema in the
+`format` field and also includes the schema in the user prompt. Streaming and model
+thinking are disabled for this short copywriting request, so the backend receives one
+JSON object in `message.content` and decodes it into `narrative.Story`.
 
-- React 19;
-- TypeScript;
-- Vite;
-- Material UI;
-- TanStack Query;
-- Framer Motion;
-- ConnectRPC;
-- ESLint;
-- Vitest.
+Privacy boundary: Ollama receives only the recap year, aggregate counters/rates,
+top-category label, active-month label, already-selected behavior, achievement
+summaries, already-selected next action and the IDs of AI-editable cards only. The
+`SHARE` card ID is not sent to the model. Profile UUIDs, share IDs, listing/dialog IDs,
+raw events, message text and exact purchase
+objects are not passed to the narrative provider. With a local Ollama server these
+facts stay on the machine running Ollama rather than being sent to a paid cloud LLM.
 
-### Backend
+Provider failures are **best effort** after startup: timeout, runtime model error or
+malformed generation does not break recap generation; the original deterministic
+descriptions remain in place. AI output is atomic: a non-empty response must contain
+exactly one description for every editable card. Partial, duplicate, unknown or
+`SHARE` overrides are rejected as a whole and logged through the same narrative error
+callback as provider failures. Stored recap integrity permits only allowed
+`Card.Description` values to differ from the deterministic card projection; IDs,
+types, order, titles, explanations, share flags and payloads are revalidated on reads.
 
-- Go 1.25;
-- ConnectRPC / Protocol Buffers;
-- ClickHouse;
-- `golangci-lint`.
-
-### Почему ClickHouse
-
-Основной поток данных проекта связан с пользовательскими событиями и годовой аналитикой. ClickHouse подходит для хранения и агрегации большого количества событий, поэтому используется как единственное хранилище — все события, метрики и Recap идут через него, без demo-заглушек в памяти.
-
-Подробнее: [`docs/Storage.md`](docs/Storage.md).
-
-## Структура проекта
-
-Ниже показаны основные директории репозитория и их назначение:
+Provider modes:
 
 ```text
-avito-recap/
-├── cmd/
-│   └── api/                         # точка входа Go-приложения и запуск HTTP-сервера
-│
-├── internal/
-│   ├── architecture/                # архитектурные тесты и проверки границ между слоями
-│   ├── bootstrap/                   # загрузка demo-данных в ClickHouse
-│   ├── config/                      # конфигурация приложения и переменные окружения
-│   │
-│   ├── recap/                       # основная бизнес-логика «Итогов года»
-│   │   ├── achievement/             # правила выдачи достижений
-│   │   ├── analytics/               # расчёт годовых метрик и агрегация активности
-│   │   ├── application/             # orchestration use-case'ов и storage-интерфейсы
-│   │   ├── behavior/                # определение типа поведения пользователя
-│   │   ├── engine/                  # сборка итогового Recap
-│   │   ├── integrity/               # проверки целостности сохранённого Recap
-│   │   ├── model/                   # доменные модели
-│   │   ├── nextaction/              # выбор следующего действия пользователя
-│   │   ├── presentation/            # story-карточки и публичная share-card
-│   │   ├── ruleset/                 # версии, пороги и приоритеты продуктовых правил
-│   │   ├── testkit/                 # вспомогательные инструменты для тестов
-│   │   └── validation/              # доменные проверки и инварианты
-│   │
-│   ├── seed/                        # чтение и подготовка seed-данных
-│   ├── server/                      # HTTP routing, health check, CORS, SPA и статика
-│   ├── storage/
-│   │   └── clickhouse/              # постоянное хранение, аналитика и SQL-миграции ClickHouse
-│   └── transport/
-│       └── connect/                 # ConnectRPC transport и protobuf ↔ domain mapping
-│
-├── frontend/
-│   ├── public/
-│   │   └── avatars/                 # исходные аватары тестовых профилей
-│   └── src/
-│       ├── app/                     # инициализация приложения и глобальные providers
-│       ├── entities/                # frontend-модели предметной области
-│       ├── features/                # пользовательские действия и сценарии интерфейса
-│       ├── gen/                     # сгенерированные protobuf/Connect типы
-│       ├── pages/                   # страницы приложения
-│       ├── shared/                  # API-клиенты, UI и общие утилиты
-│       ├── test/                    # тестовая инфраструктура frontend
-│       └── widgets/                 # крупные UI-блоки, включая Recap Player
-│
-├── proto/
-│   └── recap/v1/                    # исходный protobuf-контракт API
-├── gen/
-│   └── go/                          # сгенерированный Go protobuf/Connect код
-│
-├── seeds/                           # тестовые профили и сценарии активности
-├── testdata/
-│   ├── expected/                    # человекочитаемые ожидаемые результаты
-│   ├── golden/                      # полные golden-снимки Recap
-│   └── metrics/                     # fixture-данные для тестов метрик и правил
-│
-├── clickhouse/
-│   └── kafka/                       # опциональная Kafka Engine table + materialized view
-├── nginx/                           # nginx-конфигурация compose-окружения
-├── docs/                            # подробная документация по частям проекта
-│
-├── Dockerfile                       # production-образ backend
-├── docker-compose.yml               # локальный запуск frontend + backend + ClickHouse
-├── Makefile                         # команды генерации, тестов и служебных операций
-└── .golangci.yaml                   # конфигурация backend-линтера
+AI_NARRATIVE_PROVIDER=auto
+  -> startup checks local Ollama and OLLAMA_MODEL
+  -> available: AI enabled
+  -> unavailable: deterministic copy, no startup failure
+
+AI_NARRATIVE_PROVIDER=ollama
+  -> local Ollama/model must be available at startup
+  -> startup fails with a clear error if the model was not pulled
+
+AI_NARRATIVE_PROVIDER=off
+  -> AI completely disabled
 ```
 
-Основной поток зависимостей выглядит так:
+Typical local settings:
+
+```powershell
+$env:AI_NARRATIVE_PROVIDER="ollama"
+$env:OLLAMA_MODEL="qwen3:4b"
+$env:OLLAMA_BASE_URL="http://localhost:11434"
+$env:OLLAMA_KEEP_ALIVE="5m"
+go run ./cmd/api
+```
+
+No `OPENAI_API_KEY` or other paid-provider key is used by this version.
+
+### Concurrency controls
+
+Recap generation has two explicit concurrency guards:
+
+- **Per-key singleflight** in `application.Service.Generate`: concurrent requests with
+  the same `profileID + year + rulesVersion + rulesDigest` share one expensive
+  generation. Metrics, rule evaluation and the optional AI request run once, while
+  followers wait for the same result. Each HTTP caller can cancel independently; the
+  shared generation is canceled only after its last waiter leaves. This guard is
+  process-local: the current ClickHouse adapter is single-writer and does not provide
+  an atomic cross-replica uniqueness guarantee, so production multi-replica deployment
+  would need a distributed lock or a dedicated OLTP uniqueness boundary.
+- **AI semaphore** in `narrative.Limited`: local Ollama inference calls are capped by
+  `AI_NARRATIVE_MAX_CONCURRENCY` (default `2`) per application process. Additional recap
+  requests wait for a slot and respect request-context cancellation. This prevents a
+  burst of recap requests from starting too many simultaneous model inferences and
+  exhausting local CPU/GPU/RAM. If several backend replicas share one Ollama host, a
+  host-wide concurrency limit would still need coordination outside each process.
+
+These controls solve different problems: singleflight removes duplicate work for the
+_same recap_, while the semaphore bounds AI calls across _different recaps_.
+
+### Achievement rules v3.6
+
+Seller achievements now use conversion percentages instead of only absolute sale
+counts:
+
+- **Мастер переговоров / SUCCESSFUL_SELLER** — at least **70%** of this year's
+  published listings reached a completed sale (with at least one publication so
+  the ratio has a denominator).
+- **Маяк стабильности / CONSISTENT_PUBLISHER** — at least **10 published listings**
+  and at least **50%** seller conversion.
+- The displayed seller conversion is `min(salesCompleted, listingsPublished) / listingsPublished`;
+  the numerator is capped because a sale completed this year can refer to a listing
+  created earlier, while the recap percentage must stay within 0–100%.
+
+Thematic achievements still use the weighted interest signal
+`views + favorites * 4 + purchases * 12`, require one volume threshold
+(30 views, 8 favorites, or 3 purchases), and at least **20%** dominance in the
+user's total thematic signal. The catalogue now includes **Недвижимость** with the
+**Решительный шаг / DECISIVE_STEP** achievement. All thematic achievements are
+now explicitly shareable through the public achievement allow-list; the public
+share DTO still exposes only the achievement title, not raw metrics or internal IDs.
+
+## Frontend integration
+
+Generated TypeScript schemas and the service descriptor are committed at:
 
 ```text
-Frontend → ConnectRPC API → Application Service → Recap Engine → Storage
+frontend/src/gen/recap/v1/recap_pb.ts
 ```
 
-Бизнес-правила находятся внутри `internal/recap`, инфраструктура хранения — в
-`internal/storage`, а HTTP/API-слой отделён от доменной логики.
+Install the client runtime:
 
-Подробнее об архитектурных границах и взаимодействии компонентов:
-[`docs/Architecture.md`](docs/Architecture.md).
-
-## Особенности реализации
-
-### Архитектура
-
-Упрощённый поток данных:
-
-```text
-React frontend
-      |
-      v
-ConnectRPC API
-      |
-      v
-Application Service
-      |
-      v
-Recap Engine
-  |     |      |
-  v     v      v
-Behavior  Achievements  NextAction
-      |
-      v
-Story Cards + Share Projection
-      |
-      v
-ClickHouse
+```powershell
+npm install @bufbuild/protobuf @connectrpc/connect @connectrpc/connect-web
 ```
 
-Подробнее: [`docs/Architecture.md`](docs/Architecture.md).
+Create a typed browser client:
 
-### API
+```typescript
+import { createClient } from "@connectrpc/connect";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { RecapService } from "./gen/recap/v1/recap_pb";
 
-API описан через Protocol Buffers и ConnectRPC.
+const transport = createConnectTransport({
+  baseUrl: "http://localhost:8080",
+});
 
-Основные RPC:
+export const recapClient = createClient(RecapService, transport);
+```
 
-| RPC | Назначение |
+Profile avatar URLs are relative to the API origin. Resolve `/avatars/...`
+against the same `baseUrl` when the frontend runs on a different origin.
+
+Default CORS origins are `http://localhost:3000` and
+`http://localhost:5173`. Override them with a comma-separated
+`CORS_ALLOWED_ORIGINS` value.
+
+## Generate API code
+
+The protobuf contract lives at `proto/recap/v1/recap.proto`.
+
+```powershell
+npx --yes @bufbuild/buf@1.72.0 lint
+npx --yes @bufbuild/buf@1.72.0 generate
+```
+
+Generation produces:
+
+- Go protobuf messages in `gen/go/recap/v1`
+- Connect Go clients and handlers in `gen/go/recap/v1/recapv1connect`
+- TypeScript schemas and service descriptors in `frontend/src/gen/recap/v1`
+
+## Configuration
+
+| Variable | Default |
 | --- | --- |
-| `ListProfiles` | получить список тестовых профилей |
-| `GenerateRecap` | создать или вернуть Recap для профиля и года |
-| `GetRecap` | получить Recap |
-| `GetPublicShare` | получить публичную share-card |
+| `API_ADDRESS` | empty; falls back to `HTTP_ADDR`, then Render `PORT`, then `:8080` |
+| `STORAGE_BACKEND` | `clickhouse` (`memory` in the Render Docker image) |
+| `CLICKHOUSE_DSN` | `clickhouse://recap:recap@clickhouse:9000/recap` |
+| `SEED_DEMO_DATA` | `true` |
+| `PROFILES_PATH` | `seeds/profiles.json` |
+| `SCENARIOS_PATH` | `seeds/scenarios.json` |
+| `STATIC_DIR` | `frontend/public` |
+| `FRONTEND_DIR` | empty (set to `/app/web` in the Render Docker image) |
+| `CORS_ALLOWED_ORIGINS` | localhost ports 3000 and 5173 |
+| `AI_NARRATIVE_PROVIDER` | `auto` (`ollama` when local server + model are available, otherwise deterministic copy) |
+| `OLLAMA_MODEL` | `qwen3:4b` |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` (`http://host.docker.internal:11434` in Docker Compose) |
+| `OLLAMA_KEEP_ALIVE` | `5m` |
+| `AI_NARRATIVE_TIMEOUT` | `20s` |
+| `AI_NARRATIVE_MAX_CONCURRENCY` | `2` |
+| `SHUTDOWN_TIMEOUT` | `10s` |
 
-Health check:
+## Tests
 
-```text
-GET /health
-```
-
-Аватары профилей:
-
-```text
-GET /avatars/{profile-code}.png
-```
-
-Полный контракт, ошибки и особенности RPC: [`docs/API.md`](docs/API.md).
-
-### Тестовые данные
-
-В проекте подготовлен каталог тестовых профилей с разными сценариями поведения, достижениями и следующими действиями. Таоке количество профилей было написано с целью как можно лучше показать все возможности проекта.
-
-Основные файлы:
-
-```text
-seeds/profiles.json
-seeds/scenarios.json
-testdata/expected/
-testdata/golden/
-```
-
-Публичный URL аватара имеет формат:
-
-```text
-/avatars/<profile-code>.png
-```
-
-Исходные avatar-файлы frontend находятся в:
-
-```text
-frontend/public/avatars/
-```
-
-Подробнее о профилях и покрываемых сценариях: [`docs/test_profiles.md`](docs/test_profiles.md).
-
-### Тесты и качество кода
-
-Backend:
-
-```bash
+```powershell
 go test ./...
-golangci-lint run
 ```
 
-Frontend:
+For only the Render single-service integration tests:
 
-```bash
-cd frontend
-npm run check
+```powershell
+make test-render
 ```
 
-`npm run check` запускает ESLint, TypeScript typecheck и Vitest.
+Render-style integration coverage is in `internal/server/render_integration_test.go`.
+It verifies the SPA/deep-link fallback, the complete recap flow through `/api`,
+public sharing, static avatars, same-origin requests, and API 404 behavior.
 
-Основной акцент сделан на обработке ошибок, статическом анализе, неиспользуемом коде, потенциальных nil-ошибках, полноте switch и общих проблемах качества. Формальные требования к комментариям экспортируемых сущностей и пакетов отключены, чтобы линтер не создавал избыточный шум и не заставлял добавлять комментарии без смысловой ценности.
+ClickHouse-only integration tests remain behind the `integration` build tag and
+require a running ClickHouse instance. Start only the database before running them:
 
-Frontend использует ESLint и TypeScript для статической проверки.
+```powershell
+docker compose up -d clickhouse
+docker compose ps clickhouse
+go test -tags=integration ./...
+```
 
-### Основная конфигурация
+The default test DSN is `clickhouse://recap:recap@localhost:9000/recap`; override it
+with `CLICKHOUSE_TEST_DSN` when ClickHouse is exposed elsewhere. A connection-refused
+error on port `9000` means the integration dependency is not running, not that a unit
+test failed.
 
-| Переменная | Назначение |
-| --- | --- |
-| `CLICKHOUSE_DSN` | подключение к ClickHouse |
-| `PROFILES_PATH` | путь к каталогу профилей |
-| `SCENARIOS_PATH` | путь к demo-сценариям |
-| `STATIC_DIR` | директория статических файлов; локально `frontend/public` |
-| `FRONTEND_DIR` | директория собранного SPA |
-| `CORS_ALLOWED_ORIGINS` | разрешённые frontend origins |
-| `SHUTDOWN_TIMEOUT` | timeout graceful shutdown |
+Golden recap examples for frontend mocks are available under
+`testdata/golden/`.
 
-### Ключевые продуктовые и технические решения
+## Docker
 
-- **Recap неизменяемый.** После генерации результат сохраняется как снимок завершённого года.
-- **Правила детерминированы.** Поведение, достижения и NextAction рассчитываются по воспроизводимым правилам.
-- **Исторические данные отделены от текущего состояния.** Годовые метрики описывают прошлый год, а текущее состояние используется для выбора реально исполнимого следующего действия.
-- **Privacy by design.** Публичная share-card строится как отдельная безопасная проекция и не содержит внутренних идентификаторов, сырых метрик или чувствительных данных.
-- **Frontend не дублирует бизнес-логику.** Все продуктовые решения рассчитываются backend'ом.
-
-Подробные правила Recap: [`docs/recap.md`](docs/recap.md).
-
-### Документация
-
-Подробности вынесены из README в отдельные документы:
-
-- [`docs/recap.md`](docs/recap.md) - правила генерации, behavior, achievements, NextAction, карточки и privacy;
-- [`docs/test_profiles.md`](docs/test_profiles.md) - тестовые профили, сценарии и golden fixtures;
-- [`docs/Architecture.md`](docs/Architecture.md) - слои приложения и зависимости;
-- [`docs/Storage.md`](docs/Storage.md) - ClickHouse storage и persistence;
-- [`docs/API.md`](docs/API.md) - RPC-контракт, transport и error mapping.
-
-## Распределение ответственности между участниками команды
-
-- frontend Денисов Илья
-- backend: часть с базами данных, сборка проекта, nginx Максименко Мария
-- backend: бизнес-логика, тестовые профили,линтер,render, proto, architecture + документации, healthcheck в docker-compose.yml, тестовое покрытие recap + интеграционные и e2e тесты  Амбарникова Дарья
-- backend: контроллеры Никита Жуков
-
-## Использование ИИ
-
-ИИ использовался как вспомогательный инструмент при:
-
-- ревью отдельных участков кода и конфигурации;
-- поиске несоответствий в путях и документации;
-- для ускорения рутинных задач;
-- подготовке и структурировании черновиков технической документации.
-
-Ключевые продуктовые и архитектурные решения проверялись по реализации проекта и тестам; финальная ответственность за изменения остаётся за командой.
+```powershell
+docker compose up --build
+```

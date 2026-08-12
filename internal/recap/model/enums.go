@@ -26,6 +26,7 @@ func AllAchievementCodes() []AchievementCode {
 		AchievementStyleIcon, AchievementFashionableMan, AchievementTraveler, AchievementForTheSoul,
 		AchievementBookworm, AchievementBeautyConnoisseur, AchievementInTheRhythmOfMusic,
 		AchievementWorldOfPlay, AchievementMasterCraft, AchievementCaringOwner, AchievementLittleDiscoveries,
+		AchievementDecisiveStep,
 	}
 }
 

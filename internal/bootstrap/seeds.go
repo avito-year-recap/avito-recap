@@ -15,6 +15,7 @@ import (
 
 type SeedStorage interface {
 	UpsertProfiles(context.Context, []model.Profile) error
+	CountEvents(context.Context, uuid.UUID, uint32) (uint64, error)
 	InsertEvents(context.Context, []model.Event) error
 	PutActionableState(context.Context, uuid.UUID, time.Time, model.ActionableState) error
 }
@@ -57,90 +58,71 @@ type weightedMonth struct {
 	Weight uint32 `json:"weight"`
 }
 
-// DemoData is everything LoadDemoData would otherwise write straight to
-// storage, held in memory instead. GenerateDemoData builds it so that
-// callers other than the API's own startup seeding — e.g. an out-of-process
-// Kafka producer generating events on demand — can reuse the exact same
-// scenario expansion without depending on a SeedStorage.
-type DemoData struct {
-	Profiles         []model.Profile
-	Events           []model.Event
-	ActionableStates []ProfileActionableState
-	ObservedAt       time.Time
-}
-
-type ProfileActionableState struct {
-	ProfileID uuid.UUID
-	State     model.ActionableState
-}
-
-// GenerateDemoData expands the profile catalogue and every scenario into the
-// raw events a real user's year would have produced. It deliberately does
-// not compute a final Metrics blob: AnalyticsStorage.CalculateMetrics
-// derives that itself from events the first time it is asked, the same way
-// it would for events ingested from the live platform.
-func GenerateDemoData(profilesPath, scenariosPath string) (DemoData, error) {
+// LoadDemoData seeds the profile catalogue and, for each scenario, the raw
+// events a real user's year would have produced. It deliberately does not
+// compute and store a final Metrics blob: AnalyticsStorage.CalculateMetrics
+// derives that itself from these events the first time it is asked, the same
+// way it would for events ingested from the live platform.
+func LoadDemoData(ctx context.Context, storage SeedStorage, profilesPath, scenariosPath string) error {
 	profiles, err := readJSON[[]model.Profile](profilesPath)
 	if err != nil {
-		return DemoData{}, fmt.Errorf("load profiles seed: %w", err)
+		return fmt.Errorf("load profiles seed: %w", err)
 	}
 	scenarios, err := readJSON[[]scenario](scenariosPath)
 	if err != nil {
-		return DemoData{}, fmt.Errorf("load scenarios seed: %w", err)
+		return fmt.Errorf("load scenarios seed: %w", err)
 	}
 	byCode := make(map[string]model.Profile, len(profiles))
 	for index := range profiles {
 		profiles[index] = model.NormalizeProfile(profiles[index])
 		profile := profiles[index]
 		if err := structural.ValidateProfile(profile); err != nil {
-			return DemoData{}, fmt.Errorf("invalid profile seed at index %d: %w", index, err)
+			return fmt.Errorf("invalid profile seed at index %d: %w", index, err)
 		}
 		if _, exists := byCode[profile.Code]; exists {
-			return DemoData{}, fmt.Errorf("duplicate profile code %q", profile.Code)
+			return fmt.Errorf("duplicate profile code %q", profile.Code)
 		}
 		byCode[profile.Code] = profile
 	}
-
-	data := DemoData{
-		Profiles:   profiles,
-		ObservedAt: time.Now().UTC(),
+	if err := storage.UpsertProfiles(ctx, profiles); err != nil {
+		return fmt.Errorf("seed profiles: %w", err)
 	}
+
+	observedAt := time.Now().UTC()
 	for _, item := range scenarios {
 		profile, ok := byCode[strings.TrimSpace(item.ProfileCode)]
 		if !ok {
-			return DemoData{}, fmt.Errorf("scenario references unknown profile code %q", item.ProfileCode)
+			return fmt.Errorf("scenario references unknown profile code %q", item.ProfileCode)
 		}
 		events, err := eventsFromScenario(profile.ID, item)
 		if err != nil {
-			return DemoData{}, fmt.Errorf("build events for %s/%d: %w", profile.Code, item.Year, err)
+			return fmt.Errorf("build events for %s/%d: %w", profile.Code, item.Year, err)
 		}
-		data.Events = append(data.Events, events...)
-		data.ActionableStates = append(data.ActionableStates, ProfileActionableState{
-			ProfileID: profile.ID,
-			State:     item.ActionableState,
-		})
-	}
-	return data, nil
-}
 
-// LoadDemoData seeds the profile catalogue and, for each scenario, the raw
-// events a real user's year would have produced. It's a thin SeedStorage
-// wrapper around GenerateDemoData.
-func LoadDemoData(ctx context.Context, storage SeedStorage, profilesPath, scenariosPath string) error {
-	data, err := GenerateDemoData(profilesPath, scenariosPath)
-	if err != nil {
-		return err
-	}
-
-	if err := storage.UpsertProfiles(ctx, data.Profiles); err != nil {
-		return fmt.Errorf("seed profiles: %w", err)
-	}
-	if err := storage.InsertEvents(ctx, data.Events); err != nil {
-		return fmt.Errorf("seed events: %w", err)
-	}
-	for _, entry := range data.ActionableStates {
-		if err := storage.PutActionableState(ctx, entry.ProfileID, data.ObservedAt, entry.State); err != nil {
-			return fmt.Errorf("seed actionable state for %s: %w", entry.ProfileID, err)
+		// Docker Compose keeps ClickHouse data in a named volume. Seed loading can
+		// therefore run again after an API restart. Never append the same demo year
+		// twice: an unchanged seed is skipped, while a partial/mismatched seed is
+		// surfaced explicitly instead of silently corrupting annual metrics.
+		existingEvents, err := storage.CountEvents(ctx, profile.ID, item.Year)
+		if err != nil {
+			return fmt.Errorf("count existing events for %s/%d: %w", profile.Code, item.Year, err)
+		}
+		expectedEvents := uint64(len(events))
+		switch {
+		case existingEvents == 0:
+			if err := storage.InsertEvents(ctx, events); err != nil {
+				return fmt.Errorf("seed events for %s/%d: %w", profile.Code, item.Year, err)
+			}
+		case existingEvents == expectedEvents:
+			// Already seeded with the same demo cardinality.
+		default:
+			return fmt.Errorf(
+				"existing demo events for %s/%d have count %d, want 0 or %d; reset the demo volume before reseeding changed scenarios",
+				profile.Code, item.Year, existingEvents, expectedEvents,
+			)
+		}
+		if err := storage.PutActionableState(ctx, profile.ID, observedAt, item.ActionableState); err != nil {
+			return fmt.Errorf("seed actionable state for %s: %w", profile.Code, err)
 		}
 	}
 	return nil

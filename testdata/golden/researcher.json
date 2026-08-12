@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 346,
     "searches": 80,
@@ -32,13 +32,71 @@
     "activeDays": 88,
     "categoriesCount": 7,
     "chatsWithPurchase": 0,
-    "topCategoryCode": "electronics",
-    "topCategory": "Электроника",
-    "topCategoryViews": 57,
+    "topCategoryCode": "real_estate",
+    "topCategory": "Недвижимость",
+    "topCategoryViews": 91,
     "topCategoryShareable": true,
     "mostActiveMonth": 12,
     "repeatRate": 0.09615384615384616,
-    "purchaseRate": 0
+    "purchaseRate": 0,
+    "categoryActivities": [
+      {
+        "categoryCode": "auto",
+        "category": "Авто",
+        "shareable": true,
+        "views": 39,
+        "favoritesAdded": 1,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "clothing",
+        "category": "Одежда, обувь и аксессуары",
+        "shareable": true,
+        "views": 21,
+        "favoritesAdded": 0,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "electronics",
+        "category": "Электроника",
+        "shareable": true,
+        "views": 52,
+        "favoritesAdded": 1,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "furniture",
+        "category": "Мебель и интерьер",
+        "shareable": true,
+        "views": 26,
+        "favoritesAdded": 1,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "hobby",
+        "category": "Хобби и отдых",
+        "shareable": true,
+        "views": 18,
+        "favoritesAdded": 0,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "real_estate",
+        "category": "Недвижимость",
+        "shareable": true,
+        "views": 91,
+        "favoritesAdded": 2,
+        "purchasesCompleted": 0
+      },
+      {
+        "categoryCode": "services",
+        "category": "Услуги",
+        "shareable": true,
+        "views": 13,
+        "favoritesAdded": 0,
+        "purchasesCompleted": 0
+      }
+    ]
   },
   "actionableState": {
     "capturedAt": "2026-08-04T12:00:00Z",
@@ -87,6 +145,14 @@
       "description": "За год внимание охватило множество разных направлений.",
       "reason": "Категорий с активностью: 7.",
       "shareable": true
+    },
+    {
+      "code": "DECISIVE_STEP",
+      "category": "INTEREST",
+      "title": "Решительный шаг",
+      "description": "Недвижимость стала заметным направлением года — ты изучал варианты и приближался к важному решению.",
+      "reason": "Категории: Недвижимость. Просмотров: 91. Добавлений в избранное: 2. Покупок: 0. Доля тематической активности: 35%.",
+      "shareable": true
     }
   ],
   "cards": [
@@ -122,13 +188,13 @@
       "type": "TOP_CATEGORY",
       "position": 3,
       "title": "Главный интерес года",
-      "description": "Чаще всего внимание привлекала категория «Электроника».",
-      "explanation": "Просмотров в этой категории: 57.",
+      "description": "Чаще всего внимание привлекала категория «Недвижимость».",
+      "explanation": "Просмотров в этой категории: 91.",
       "shareable": false,
       "payload": {
-        "categoryCode": "electronics",
-        "category": "Электроника",
-        "categoryViews": 57
+        "categoryCode": "real_estate",
+        "category": "Недвижимость",
+        "categoryViews": 91
       }
     },
     {
@@ -180,12 +246,13 @@
       "type": "ACHIEVEMENT",
       "position": 6,
       "title": "Ачивки года",
-      "description": "Человек-оркестр",
-      "explanation": "Категорий с активностью: 7.",
+      "description": "Человек-оркестр • Решительный шаг",
+      "explanation": "Категорий с активностью: 7. Категории: Недвижимость. Просмотров: 91. Добавлений в избранное: 2. Покупок: 0. Доля тематической активности: 35%.",
       "shareable": false,
       "payload": {
         "codes": [
-          "BROAD_INTERESTS"
+          "BROAD_INTERESTS",
+          "DECISIVE_STEP"
         ]
       }
     },
@@ -201,7 +268,7 @@
         "code": "SAVE_SEARCH",
         "target": {
           "search": {
-            "categoryCode": "electronics"
+            "categoryCode": "real_estate"
           }
         }
       }
@@ -218,7 +285,7 @@
         "code": "SAVE_SEARCH",
         "target": {
           "search": {
-            "categoryCode": "electronics"
+            "categoryCode": "real_estate"
           }
         }
       }
@@ -234,10 +301,10 @@
       "payload": {
         "shareId": "4c628f27-6f21-5b64-b41e-8dbae31a901e",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Глубокое исследование",
         "achievementTitle": "Человек-оркестр",
-        "topCategory": "Электроника"
+        "topCategory": "Недвижимость"
       }
     }
   ],
@@ -249,7 +316,7 @@
     "reason": "Профиль много исследует предложения, а сохранённого поиска по главной категории сейчас нет.",
     "target": {
       "search": {
-        "categoryCode": "electronics"
+        "categoryCode": "real_estate"
       }
     }
   },

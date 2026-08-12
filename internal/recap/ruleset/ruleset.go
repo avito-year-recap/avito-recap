@@ -15,10 +15,10 @@ import (
 
 var ErrInvalidRuleset = errors.New("invalid ruleset")
 
-const currentRulesAlgorithm = "recap-v3.5-full-next-actions-v1"
+const currentRulesAlgorithm = "recap-v3.6-percentage-achievements-v1"
 
 const (
-	CurrentRulesVersion = "3.5.0"
+	CurrentRulesVersion = "3.6.0"
 	MaxAchievements     = 3
 )
 
@@ -46,13 +46,17 @@ type BehaviorThresholds struct {
 }
 
 type AchievementThresholds struct {
-	BalancedMinPurchases      uint64
-	BalancedMinSales          uint64
-	BalancedMaxDifferenceRate float64
-	ThematicMinViews          uint64
-	ThematicMinFavorites      uint64
-	ThematicMinPurchases      uint64
-	ThematicMinDominanceRate  float64
+	SuccessfulSellerMinPublished    uint64
+	SuccessfulSellerMinSaleRate     float64
+	ConsistentPublisherMinPublished uint64
+	ConsistentPublisherMinSaleRate  float64
+	BalancedMinPurchases            uint64
+	BalancedMinSales                uint64
+	BalancedMaxDifferenceRate       float64
+	ThematicMinViews                uint64
+	ThematicMinFavorites            uint64
+	ThematicMinPurchases            uint64
+	ThematicMinDominanceRate        float64
 }
 
 // RecommendationPriorities makes product ordering explicit and fingerprinted.

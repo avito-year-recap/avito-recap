@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/google/uuid"
@@ -14,7 +13,6 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// Поиск по ключу из нескольких колонок
 func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT recap
@@ -25,43 +23,34 @@ func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Rec
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by key: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap by key rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
-// Поиск по id
 func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `SELECT recap FROM recaps WHERE id = ? LIMIT 1`, recapID)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
-// Поиск по публичному id
 func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `SELECT recap FROM recaps WHERE share_id = ? LIMIT 1`, shareID)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by share id: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap by share id rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
-// Создаем рекап, если не находим по ключу
+// CreateRecapIfAbsent is check-then-insert, not a single atomic statement:
+// ClickHouse's MergeTree family has no unique constraint or transactional
+// upsert to enforce "one row per idempotency key" at write time the way a row
+// store would. For a single-writer demo deployment the race window between
+// the read and the insert is acceptable; a multi-writer deployment would need
+// an external lock (or a dedicated OLTP store) in front of this key.
 func (r *Repo) CreateRecapIfAbsent(ctx context.Context, key model.RecapKey, value model.Recap) (model.Recap, error) {
 	if existing, err := r.GetRecapByKey(ctx, key); err == nil {
 		return existing, nil
@@ -85,7 +74,6 @@ func (r *Repo) CreateRecapIfAbsent(ctx context.Context, key model.RecapKey, valu
 	return value, nil
 }
 
-// Сериализуем и десериализуем Recap
 func scanOneRecap(rows driver.Rows, notFound error) (model.Recap, error) {
 	if !rows.Next() {
 		return model.Recap{}, notFound

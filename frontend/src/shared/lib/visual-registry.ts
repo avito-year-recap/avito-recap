@@ -12,6 +12,13 @@ interface VisualDefinition {
 }
 
 const categoryVisuals: Record<string, VisualDefinition> = {
+  real_estate: {
+    icon: "⌂",
+    secondary: "◇",
+    tone: "green",
+    caption: "недвижимость и важные решения",
+    motif: "grid",
+  },
   HOME_AND_GARDEN: {
     icon: "🪑",
     secondary: "🪴",
@@ -90,6 +97,7 @@ const achievementVisuals: Record<string, VisualDefinition> = {
   QUICK_DECISION: { icon: "→", tone: "blue", caption: "Решение", motif: "trail" },
   ATTENTIVE_RESEARCHER: { icon: "◎", tone: "purple", caption: "Сравнение", motif: "orbit" },
   MASTER_OF_FAVORITES: { icon: "♡", tone: "coral", caption: "Избранное", motif: "constellation" },
+  DECISIVE_STEP: { icon: "⌂", tone: "green", caption: "Недвижимость", motif: "grid" },
 };
 
 const actionVisuals: Record<ActionCode, VisualDefinition> = {

@@ -74,9 +74,9 @@
       "favoritesAdded": 3,
       "chatsStarted": 26,
       "listingsCreated": 11,
-      "listingsPublished": 9,
+      "listingsPublished": 10,
       "purchasesCompleted": 0,
-      "salesCompleted": 6,
+      "salesCompleted": 7,
       "activeDays": 64,
       "chatsWithPurchase": 0
     },
@@ -142,46 +142,57 @@
     },
     "categories": [
       {
+        "code": "real_estate",
+        "title": "Недвижимость",
+        "weight": 35,
+        "shareable": true,
+        "views": 91,
+        "favoritesAdded": 2
+      },
+      {
         "code": "electronics",
         "title": "Электроника",
-        "weight": 22,
-        "shareable": true
+        "weight": 20,
+        "shareable": true,
+        "views": 52,
+        "favoritesAdded": 1
       },
       {
         "code": "auto",
         "title": "Авто",
-        "weight": 18,
-        "shareable": true
-      },
-      {
-        "code": "real_estate",
-        "title": "Недвижимость",
-        "weight": 17,
-        "shareable": true
+        "weight": 15,
+        "shareable": true,
+        "views": 39,
+        "favoritesAdded": 1
       },
       {
         "code": "furniture",
         "title": "Мебель и интерьер",
-        "weight": 14,
-        "shareable": true
+        "weight": 10,
+        "shareable": true,
+        "views": 26,
+        "favoritesAdded": 1
       },
       {
         "code": "clothing",
         "title": "Одежда, обувь и аксессуары",
-        "weight": 10,
-        "shareable": true
+        "weight": 8,
+        "shareable": true,
+        "views": 21
       },
       {
         "code": "hobby",
         "title": "Хобби и отдых",
-        "weight": 10,
-        "shareable": true
+        "weight": 7,
+        "shareable": true,
+        "views": 18
       },
       {
         "code": "services",
         "title": "Услуги",
-        "weight": 9,
-        "shareable": true
+        "weight": 5,
+        "shareable": true,
+        "views": 13
       }
     ],
     "months": [
@@ -469,9 +480,9 @@
       "favoritesAdded": 2,
       "chatsStarted": 10,
       "listingsCreated": 7,
-      "listingsPublished": 6,
+      "listingsPublished": 10,
       "purchasesCompleted": 0,
-      "salesCompleted": 3,
+      "salesCompleted": 5,
       "activeDays": 50,
       "chatsWithPurchase": 0
     },

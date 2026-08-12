@@ -10,11 +10,14 @@ import (
 	"syscall"
 	"time"
 
+	ollamanarrative "github.com/year-recap/internal/ai/ollama"
 	"github.com/year-recap/internal/bootstrap"
 	"github.com/year-recap/internal/config"
 	"github.com/year-recap/internal/recap/application"
+	"github.com/year-recap/internal/recap/narrative"
 	"github.com/year-recap/internal/server"
 	"github.com/year-recap/internal/storage/clickhouse"
+	"github.com/year-recap/internal/storage/memory"
 )
 
 type applicationStorage interface {
@@ -45,7 +48,16 @@ func run() error {
 	}
 	defer closeStorage()
 
-	app, err := application.NewService(repo, repo, repo, repo)
+	narrativeEnricher, err := buildNarrativeEnricher(rootCtx, cfg)
+	if err != nil {
+		return fmt.Errorf("build AI narrative enricher: %w", err)
+	}
+	options := make([]application.Option, 0, 1)
+	if narrativeEnricher != nil {
+		options = append(options, application.WithNarrativeEnricher(narrativeEnricher))
+	}
+
+	app, err := application.NewService(repo, repo, repo, repo, options...)
 	if err != nil {
 		return fmt.Errorf("build application: %w", err)
 	}
@@ -69,7 +81,7 @@ func run() error {
 
 	serverErr := make(chan error, 1)
 	go func() {
-		log.Printf("starting api server on %s", cfg.HTTPAddr)
+		log.Printf("starting api server on %s (storage=%s)", cfg.HTTPAddr, cfg.StorageBackend)
 		serverErr <- httpServer.ListenAndServe()
 	}()
 
@@ -90,36 +102,98 @@ func run() error {
 }
 
 func openStorage(ctx context.Context, cfg config.Config) (applicationStorage, func(), error) {
-	connectCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
-	repo, err := clickhouse.Connect(connectCtx, cfg.ClickHouseDSN)
-	cancel()
-	if err != nil {
-		return nil, func() {}, fmt.Errorf("connect storage: %w", err)
-	}
-
-	closeStorage := func() {
-		if err := repo.Close(); err != nil {
-			log.Printf("close clickhouse: %v", err)
+	switch cfg.StorageBackend {
+	case config.StorageMemory:
+		repo, err := memory.Load(cfg.ProfilesPath, cfg.ScenariosPath)
+		if err != nil {
+			return nil, func() {}, fmt.Errorf("load in-memory demo storage: %w", err)
 		}
-	}
+		return repo, func() {}, nil
 
-	schemaCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	err = repo.EnsureSchema(schemaCtx)
-	cancel()
-	if err != nil {
-		closeStorage()
-		return nil, func() {}, fmt.Errorf("ensure clickhouse schema: %w", err)
-	}
+	case config.StorageClickHouse:
+		connectCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
+		repo, err := clickhouse.Connect(connectCtx, cfg.ClickHouseDSN)
+		cancel()
+		if err != nil {
+			return nil, func() {}, fmt.Errorf("connect storage: %w", err)
+		}
 
-	if cfg.SeedDemoData {
-		seedCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		err = bootstrap.LoadDemoData(seedCtx, repo, cfg.ProfilesPath, cfg.ScenariosPath)
+		closeStorage := func() {
+			if err := repo.Close(); err != nil {
+				log.Printf("close clickhouse: %v", err)
+			}
+		}
+
+		schemaCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err = repo.EnsureSchema(schemaCtx)
 		cancel()
 		if err != nil {
 			closeStorage()
-			return nil, func() {}, fmt.Errorf("bootstrap demo data: %w", err)
+			return nil, func() {}, fmt.Errorf("ensure clickhouse schema: %w", err)
 		}
+
+		if cfg.SeedDemoData {
+			seedCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			err = bootstrap.LoadDemoData(seedCtx, repo, cfg.ProfilesPath, cfg.ScenariosPath)
+			cancel()
+			if err != nil {
+				closeStorage()
+				return nil, func() {}, fmt.Errorf("bootstrap demo data: %w", err)
+			}
+		}
+
+		return repo, closeStorage, nil
+
+	default:
+		return nil, func() {}, fmt.Errorf("unsupported storage backend %q", cfg.StorageBackend)
+	}
+}
+
+func buildNarrativeEnricher(ctx context.Context, cfg config.Config) (narrative.Enricher, error) {
+	provider := cfg.NarrativeProvider
+	if provider == config.NarrativeOff {
+		return nil, nil
 	}
 
-	return repo, closeStorage, nil
+	generator, err := ollamanarrative.New(ollamanarrative.Config{
+		Model:     cfg.OllamaModel,
+		BaseURL:   cfg.OllamaBaseURL,
+		Timeout:   cfg.OllamaTimeout,
+		KeepAlive: cfg.OllamaKeepAlive,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	probeTimeout := 2 * time.Second
+	if cfg.OllamaTimeout < probeTimeout {
+		probeTimeout = cfg.OllamaTimeout
+	}
+	probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	probeErr := generator.Check(probeCtx)
+	cancel()
+	if probeErr != nil {
+		if provider == config.NarrativeAuto {
+			log.Printf("AI narrative disabled: local Ollama/model unavailable: %v", probeErr)
+			return nil, nil
+		}
+		return nil, fmt.Errorf("local Ollama is not ready: %w", probeErr)
+	}
+
+	limited, err := narrative.NewLimited(generator, cfg.AINarrativeMaxConcurrency)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf(
+		"AI narrative enabled (provider=ollama model=%s base_url=%s max_concurrency=%d)",
+		cfg.OllamaModel,
+		cfg.OllamaBaseURL,
+		cfg.AINarrativeMaxConcurrency,
+	)
+	return narrative.BestEffort{
+		Primary: limited,
+		OnError: func(err error) {
+			log.Printf("AI narrative fallback to deterministic copy: %v", err)
+		},
+	}, nil
 }

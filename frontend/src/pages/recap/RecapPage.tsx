@@ -16,13 +16,13 @@ export function RecapPage() {
   if (!profileCode) return <Navigate to="/" replace />;
   if (query.isPending)
     return (
-      <PageShell compactHeader fitViewport backToProfiles>
+      <PageShell compactHeader fitViewport>
         <PageLoader label="Открываем твою историю года" />
       </PageShell>
     );
   if (query.isError)
     return (
-      <PageShell compactHeader fitViewport backToProfiles>
+      <PageShell compactHeader fitViewport>
         <ErrorState
           title="Итоги не найдены"
           description="Для этого тестового профиля нет готового recap."
@@ -35,7 +35,6 @@ export function RecapPage() {
     <PageShell
       compactHeader
       fitViewport
-      backToProfiles
       actions={<span className="demo-chip">{query.data.profile.name} · {query.data.year}</span>}
     >
       <RecapPlayer recap={query.data} />

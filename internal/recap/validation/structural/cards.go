@@ -3,10 +3,14 @@ package structural
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
+	"unicode"
+	"unicode/utf8"
+
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/ruleset"
-	"strings"
 )
 
 func ValidateCards(cards []model.Card) error {
@@ -125,6 +129,62 @@ func ValidateShareCard(value model.ShareCard) error {
 	}
 	if strings.TrimSpace(value.BehaviorTitle) == "" {
 		return errors.New("behavior title is required")
+	}
+	return nil
+}
+
+const MaxNarrativeDescriptionRunes = 320
+
+// ValidateNarrativeDescription applies the storage-safe contract for copy that
+// may come from the optional AI narrative layer. The text is presentation-only,
+// but stored recaps are still treated as untrusted input on reads.
+func ValidateNarrativeDescription(value string) error {
+	if value != strings.TrimSpace(value) || value == "" {
+		return errors.New("narrative description must be non-empty and trimmed")
+	}
+	if !utf8.ValidString(value) {
+		return errors.New("narrative description must be valid UTF-8")
+	}
+	if utf8.RuneCountInString(value) > MaxNarrativeDescriptionRunes {
+		return fmt.Errorf("narrative description exceeds %d runes", MaxNarrativeDescriptionRunes)
+	}
+	for _, r := range value {
+		if unicode.IsControl(r) || unicode.Is(unicode.Bidi_Control, r) {
+			return errors.New("narrative description contains control characters")
+		}
+	}
+	return nil
+}
+
+// ValidateCardsAgainstProjection allows the optional narrative layer to replace
+// Card.Description only for the canonical AI-editable card types. SHARE and any
+// future non-editable card types must match the deterministic projection exactly.
+// Every executable/deterministic field (id, type, order, title, explanation,
+// share flag and payload) must still exactly match the rule
+// engine projection. This keeps AI copy compatible with integrity validation
+// without letting it mutate business decisions.
+func ValidateCardsAgainstProjection(actual, expected []model.Card) error {
+	if len(actual) != len(expected) {
+		return fmt.Errorf("card count %d differs from deterministic projection %d", len(actual), len(expected))
+	}
+	for index := range actual {
+		left := actual[index]
+		right := expected[index]
+
+		if model.IsNarrativeEditableCardType(left.Type) {
+			if err := ValidateNarrativeDescription(left.Description); err != nil {
+				return fmt.Errorf("card %q description: %w", left.ID, err)
+			}
+			left.Description = ""
+			right.Description = ""
+		}
+
+		if !reflect.DeepEqual(left, right) {
+			if !model.IsNarrativeEditableCardType(actual[index].Type) && actual[index].Description != expected[index].Description {
+				return fmt.Errorf("card %d (%q) is not AI-editable and its description differs from deterministic projection", index, actual[index].ID)
+			}
+			return fmt.Errorf("card %d (%q) differs from deterministic projection outside allowed narrative description", index, actual[index].ID)
+		}
 	}
 	return nil
 }

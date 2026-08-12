@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 257,
     "searches": 45,
@@ -226,7 +226,7 @@
       "payload": {
         "shareId": "d9a2f4e0-1ae7-5b46-b2b6-2ae9fc180ba2",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Искушенный наблюдатель",
         "achievementTitle": "Стратег",
         "topCategory": "Электроника"

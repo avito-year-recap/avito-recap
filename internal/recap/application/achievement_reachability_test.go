@@ -19,8 +19,8 @@ func TestAuditEveryConfiguredAchievementIsReachableThroughService(t *testing.T) 
 	}
 	witnesses := map[model.AchievementCode]model.Metrics{
 		model.AchievementFirstSellingSteps:   {ListingsCreated: 3, ListingsPublished: 2},
-		model.AchievementConsistentPublisher: {ListingsPublished: 5, SalesCompleted: 1},
-		model.AchievementSuccessfulSeller:    {ListingsPublished: 5, SalesCompleted: 5},
+		model.AchievementConsistentPublisher: {ListingsPublished: 10, SalesCompleted: 5},
+		model.AchievementSuccessfulSeller:    {ListingsPublished: 10, SalesCompleted: 7},
 		model.AchievementDealCloser:          {PurchasesCompleted: 3},
 		model.AchievementQuickDecision:       {PurchasesCompleted: 3, ChatsStarted: 5, ChatsWithPurchase: 3},
 		model.AchievementBroadInterests:      {CategoriesCount: 6},
@@ -38,6 +38,7 @@ func TestAuditEveryConfiguredAchievementIsReachableThroughService(t *testing.T) 
 		model.AchievementMasterCraft:         thematic(analytics.CategoryTools, "Инструменты"),
 		model.AchievementCaringOwner:         thematic(analytics.CategoryPets, "Товары для животных"),
 		model.AchievementLittleDiscoveries:   thematic(analytics.CategoryKids, "Детские товары"),
+		model.AchievementDecisiveStep:        thematic(analytics.CategoryRealEstate, "Недвижимость"),
 	}
 	for _, rule := range ruleset.DefaultRuleset().AchievementPolicy.Rules {
 		metrics := finalizeAuditMetrics(witnesses[rule.Code])

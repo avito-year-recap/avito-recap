@@ -15,10 +15,10 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
-    "totalEvents": 62,
+    "totalEvents": 68,
     "searches": 4,
     "totalViews": 30,
     "uniqueListings": 28,
@@ -26,9 +26,9 @@
     "favoritesAdded": 2,
     "chatsStarted": 10,
     "listingsCreated": 7,
-    "listingsPublished": 6,
+    "listingsPublished": 10,
     "purchasesCompleted": 0,
-    "salesCompleted": 3,
+    "salesCompleted": 5,
     "activeDays": 50,
     "categoriesCount": 3,
     "chatsWithPurchase": 0,
@@ -57,19 +57,19 @@
     "code": "ACTIVE_SELLER",
     "title": "Продажи в движении",
     "description": "В течение года было много публикаций и завершённых продаж.",
-    "reason": "Опубликовано объявлений: 6 (порог 5). Завершено продаж: 3 (порог 3).",
+    "reason": "Опубликовано объявлений: 10 (порог 5). Завершено продаж: 5 (порог 3).",
     "evidence": [
       {
         "metric": "listings_published",
-        "actual": 6,
+        "actual": 10,
         "threshold": 5,
-        "detail": "Опубликовано объявлений: 6 (порог 5)."
+        "detail": "Опубликовано объявлений: 10 (порог 5)."
       },
       {
         "metric": "sales_completed",
-        "actual": 3,
+        "actual": 5,
         "threshold": 3,
-        "detail": "Завершено продаж: 3 (порог 3)."
+        "detail": "Завершено продаж: 5 (порог 3)."
       }
     ]
   },
@@ -78,8 +78,8 @@
       "code": "CONSISTENT_PUBLISHER",
       "category": "SELLING",
       "title": "Маяк стабильности",
-      "description": "Объявления появлялись регулярно и поддерживали стабильный ритм продаж.",
-      "reason": "Объявлений опубликовано: 6.",
+      "description": "Высокий объём публикаций сочетался со стабильной долей продаж.",
+      "reason": "Опубликовано 10 объявлений; продажи составили 50% (5 из 10).",
       "shareable": true
     }
   ],
@@ -97,18 +97,18 @@
       "type": "YEAR_ACTIVITY",
       "position": 2,
       "title": "Год в цифрах",
-      "description": "За завершённый год система учла 62 действий.",
+      "description": "За завершённый год система учла 68 действий.",
       "explanation": "Учитывались поиски, просмотры, избранное, диалоги, создание и публикация объявлений, покупки и продажи.",
       "shareable": false,
       "payload": {
-        "totalEvents": 62,
+        "totalEvents": 68,
         "searches": 4,
         "totalViews": 30,
         "favoritesAdded": 2,
         "chatsStarted": 10,
-        "listingsPublished": 6,
+        "listingsPublished": 10,
         "purchasesCompleted": 0,
-        "salesCompleted": 3
+        "salesCompleted": 5
       }
     },
     {
@@ -143,22 +143,22 @@
       "position": 5,
       "title": "Продажи в движении",
       "description": "В течение года было много публикаций и завершённых продаж.",
-      "explanation": "Опубликовано объявлений: 6 (порог 5). Завершено продаж: 3 (порог 3).",
+      "explanation": "Опубликовано объявлений: 10 (порог 5). Завершено продаж: 5 (порог 3).",
       "shareable": false,
       "payload": {
         "code": "ACTIVE_SELLER",
         "evidence": [
           {
             "metric": "listings_published",
-            "actual": 6,
+            "actual": 10,
             "threshold": 5,
-            "detail": "Опубликовано объявлений: 6 (порог 5)."
+            "detail": "Опубликовано объявлений: 10 (порог 5)."
           },
           {
             "metric": "sales_completed",
-            "actual": 3,
+            "actual": 5,
             "threshold": 3,
-            "detail": "Завершено продаж: 3 (порог 3)."
+            "detail": "Завершено продаж: 5 (порог 3)."
           }
         ]
       }
@@ -169,7 +169,7 @@
       "position": 6,
       "title": "Ачивки года",
       "description": "Маяк стабильности",
-      "explanation": "Объявлений опубликовано: 6.",
+      "explanation": "Опубликовано 10 объявлений; продажи составили 50% (5 из 10).",
       "shareable": false,
       "payload": {
         "codes": [
@@ -205,7 +205,7 @@
       "payload": {
         "shareId": "614d8047-21cb-5faa-8abd-04d2a049e1a6",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Продажи в движении",
         "achievementTitle": "Маяк стабильности",
         "topCategory": "Мебель и интерьер"

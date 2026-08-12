@@ -35,6 +35,10 @@ func NewHandler(application transportconnect.Application, options Options) (http
 	// Production frontend uses /api as its base URL. Strip that prefix before
 	// handing the request to the generated Connect handler.
 	mux.Handle("/api"+path, http.StripPrefix("/api", handler))
+	// Explainability endpoint exposes a privacy-safe decision trace for demos and rule debugging.
+	mux.HandleFunc("/explain", explainRecap(application))
+	mux.HandleFunc("/api/explain", explainRecap(application))
+
 	// Do not let unknown API URLs fall through to the React SPA.
 	mux.Handle("/api/", http.NotFoundHandler())
 

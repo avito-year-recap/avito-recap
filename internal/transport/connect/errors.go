@@ -29,9 +29,11 @@ func transportError(err error) error {
 		errors.Is(err, application.ErrInvalidYear):
 		return connectrpc.NewError(connectrpc.CodeInvalidArgument, err)
 	case errors.Is(err, application.ErrYearNotComplete),
-		errors.Is(err, application.ErrNotEnoughActivity):
+		errors.Is(err, application.ErrNotEnoughActivity),
+		errors.Is(err, application.ErrMetricsNotFound):
 		return connectrpc.NewError(connectrpc.CodeFailedPrecondition, err)
-	case errors.Is(err, application.ErrRecapNotFound):
+	case errors.Is(err, application.ErrProfileNotFound),
+		errors.Is(err, application.ErrRecapNotFound):
 		return connectrpc.NewError(connectrpc.CodeNotFound, err)
 	case errors.Is(err, errInvalidProjection),
 		errors.Is(err, application.ErrInvalidProfile),

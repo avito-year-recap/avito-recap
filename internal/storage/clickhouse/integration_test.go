@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/application"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/testkit"
@@ -41,17 +42,22 @@ func TestRepoImplementsApplicationStorages(t *testing.T) {
 		t.Fatalf("profile mismatch: got %+v want %+v", storedProfile, profile)
 	}
 
-	metrics := testkit.Metrics()
-	if err := repo.UpsertAnnualMetrics(ctx, profile.ID, 2025, metrics); err != nil {
+	// Raw events are the source of truth for annual metrics. The old
+	// UpsertAnnualMetrics helper was intentionally removed when the adapter
+	// switched to cache-aside aggregation over events, so the integration
+	// test must exercise the same production path.
+	events := integrationEvents(profile.ID)
+	if err := repo.InsertEvents(ctx, events); err != nil {
 		t.Fatal(err)
 	}
+	expectedMetrics := analytics.AggregateEvents(events)
 	period := testkit.Period()
 	storedMetrics, err := repo.CalculateMetrics(ctx, profile.ID, period)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if storedMetrics.TotalEvents != metrics.TotalEvents || storedMetrics.TopCategoryCode != metrics.TopCategoryCode {
-		t.Fatalf("metrics mismatch: got %+v want %+v", storedMetrics, metrics)
+	if !reflect.DeepEqual(storedMetrics, expectedMetrics) {
+		t.Fatalf("metrics mismatch:\n got  %+v\n want %+v", storedMetrics, expectedMetrics)
 	}
 
 	state := model.ActionableState{FavoritesCount: 7, HasEverPublishedListing: true}
@@ -107,58 +113,45 @@ func TestRepoImplementsApplicationStorages(t *testing.T) {
 	}
 }
 
-func testDSN() string {
-	if value := os.Getenv("CLICKHOUSE_TEST_DSN"); value != "" {
-		return value
-	}
-	return "clickhouse://recap:recap@localhost:9000/recap"
-}
-
-func TestRepoSerializesConcurrentRecapCreationAcrossConnections(t *testing.T) {
+func TestServiceSerializesConcurrentRecapCreationWithinOneProcess(t *testing.T) {
 	ctx := context.Background()
-	repoA, err := storage.Connect(ctx, testDSN())
+	repo, err := storage.Connect(ctx, testDSN())
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer repoA.Close()
-	repoB, err := storage.Connect(ctx, testDSN())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer repoB.Close()
-	if err := repoA.EnsureSchema(ctx); err != nil {
+	defer repo.Close()
+	if err := repo.EnsureSchema(ctx); err != nil {
 		t.Fatal(err)
 	}
 
 	profile := testkit.Profile()
 	profile.ID = uuid.New()
 	profile.Code = "concurrent-" + profile.ID.String()
-	if err := repoA.UpsertProfiles(ctx, []model.Profile{profile}); err != nil {
+	if err := repo.UpsertProfiles(ctx, []model.Profile{profile}); err != nil {
 		t.Fatal(err)
 	}
-	if err := repoA.UpsertAnnualMetrics(ctx, profile.ID, 2025, testkit.Metrics()); err != nil {
+	if err := repo.InsertEvents(ctx, integrationEvents(profile.ID)); err != nil {
 		t.Fatal(err)
 	}
-	if err := repoA.PutActionableState(ctx, profile.ID, testkit.Clock().Add(-time.Minute), model.ActionableState{
+	if err := repo.PutActionableState(ctx, profile.ID, testkit.Clock().Add(-time.Minute), model.ActionableState{
 		FavoritesCount: 5, HasEverPublishedListing: true,
 	}); err != nil {
 		t.Fatal(err)
 	}
 
-	services := make([]*application.Service, 0, 2)
-	for _, repo := range []*storage.Repo{repoA, repoB} {
-		service, err := application.NewService(repo, repo, repo, repo, application.WithClock(testkit.Clock))
-		if err != nil {
-			t.Fatal(err)
-		}
-		services = append(services, service)
+	// singleflight is deliberately process-local and lives on Service. The
+	// ClickHouse adapter itself documents that it does not provide an atomic
+	// cross-replica uniqueness guarantee, so this integration test verifies
+	// the contract we actually support instead of asserting a stronger one.
+	service, err := application.NewService(repo, repo, repo, repo, application.WithClock(testkit.Clock))
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	const workers = 8
 	results := make(chan uuid.UUID, workers)
 	errs := make(chan error, workers)
 	for i := 0; i < workers; i++ {
-		service := services[i%len(services)]
 		go func() {
 			value, err := service.Generate(ctx, profile.ID, 2025)
 			if err != nil {
@@ -168,6 +161,7 @@ func TestRepoSerializesConcurrentRecapCreationAcrossConnections(t *testing.T) {
 			results <- value.ID
 		}()
 	}
+
 	var winner uuid.UUID
 	for i := 0; i < workers; i++ {
 		select {
@@ -181,4 +175,33 @@ func TestRepoSerializesConcurrentRecapCreationAcrossConnections(t *testing.T) {
 			}
 		}
 	}
+}
+
+func integrationEvents(profileID uuid.UUID) []model.Event {
+	times := []time.Time{
+		time.Date(2025, 1, 10, 12, 0, 0, 0, time.UTC),
+		time.Date(2025, 2, 10, 12, 0, 0, 0, time.UTC),
+		time.Date(2025, 3, 10, 12, 0, 0, 0, time.UTC),
+		time.Date(2025, 4, 10, 12, 0, 0, 0, time.UTC),
+		time.Date(2025, 5, 10, 12, 0, 0, 0, time.UTC),
+		time.Date(2025, 6, 10, 12, 0, 0, 0, time.UTC),
+	}
+
+	events := make([]model.Event, 0, len(times))
+	for _, occurredAt := range times {
+		events = append(events, model.Event{
+			ID:         uuid.New(),
+			ProfileID:  profileID,
+			Type:       model.ActivitySearch,
+			OccurredAt: occurredAt,
+		})
+	}
+	return events
+}
+
+func testDSN() string {
+	if value := os.Getenv("CLICKHOUSE_TEST_DSN"); value != "" {
+		return value
+	}
+	return "clickhouse://recap:recap@localhost:9000/recap"
 }

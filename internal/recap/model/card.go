@@ -21,6 +21,24 @@ const (
 	CardShare             CardType = "SHARE"
 )
 
+// IsNarrativeEditableCardType is the canonical AI-copy allow-list. Public
+// SHARE copy is intentionally excluded and must remain deterministic.
+func IsNarrativeEditableCardType(cardType CardType) bool {
+	switch cardType {
+	case CardIntro,
+		CardYearActivity,
+		CardTopCategory,
+		CardActiveMonth,
+		CardBehavior,
+		CardAchievement,
+		CardMissedOpportunity,
+		CardNextAction:
+		return true
+	default:
+		return false
+	}
+}
+
 // CardPayload is a sealed union: only the payload types below can be assigned.
 type CardPayload interface {
 	isCardPayload()

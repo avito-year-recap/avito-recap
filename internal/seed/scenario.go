@@ -38,13 +38,13 @@ type Activity struct {
 }
 
 type WeightedCategory struct {
-	Code               string `json:"code"`
-	Title              string `json:"title"`
-	Weight             uint32 `json:"weight"`
-	Shareable          bool   `json:"shareable"`
-	Views              uint64 `json:"views,omitempty"`
-	FavoritesAdded     uint64 `json:"favoritesAdded,omitempty"`
-	PurchasesCompleted uint64 `json:"purchasesCompleted,omitempty"`
+	Code               string  `json:"code"`
+	Title              string  `json:"title"`
+	Weight             uint32  `json:"weight"`
+	Shareable          bool    `json:"shareable"`
+	Views              *uint64 `json:"views,omitempty"`
+	FavoritesAdded     *uint64 `json:"favoritesAdded,omitempty"`
+	PurchasesCompleted *uint64 `json:"purchasesCompleted,omitempty"`
 }
 
 type WeightedMonth struct {
@@ -93,16 +93,19 @@ func MetricsFromScenario(scenario Scenario) (model.Metrics, error) {
 
 	categoryActivities := make([]model.CategoryActivity, 0, len(scenario.Categories))
 	for _, category := range scenario.Categories {
-		if category.Views == 0 && category.FavoritesAdded == 0 && category.PurchasesCompleted == 0 {
+		views := valueOrZero(category.Views)
+		favorites := valueOrZero(category.FavoritesAdded)
+		purchases := valueOrZero(category.PurchasesCompleted)
+		if views == 0 && favorites == 0 && purchases == 0 {
 			continue
 		}
 		categoryActivities = append(categoryActivities, model.CategoryActivity{
 			CategoryCode:       category.Code,
 			Category:           category.Title,
 			Shareable:          category.Shareable,
-			Views:              category.Views,
-			FavoritesAdded:     category.FavoritesAdded,
-			PurchasesCompleted: category.PurchasesCompleted,
+			Views:              views,
+			FavoritesAdded:     favorites,
+			PurchasesCompleted: purchases,
 		})
 	}
 
@@ -209,4 +212,10 @@ func weightedCount(total uint64, weight uint32) uint64 {
 		return 1
 	}
 	return uint64(value)
+}
+func valueOrZero(value *uint64) uint64 {
+	if value == nil {
+		return 0
+	}
+	return *value
 }

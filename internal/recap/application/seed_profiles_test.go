@@ -164,7 +164,7 @@ func TestSeedCatalogueCoversAllBehaviorsActionsAndCoreAchievements(t *testing.T)
 			t.Errorf("seed catalogue does not cover behavior %s", code)
 		}
 	}
-	for _, code := range []model.AchievementCode{model.AchievementSuccessfulSeller, model.AchievementConsistentPublisher, model.AchievementAttentiveResearcher, model.AchievementMasterOfFavorites, model.AchievementBroadInterests, model.AchievementAllRounder, model.AchievementFirstSellingSteps, model.AchievementDealCloser, model.AchievementQuickDecision} {
+	for _, code := range []model.AchievementCode{model.AchievementSuccessfulSeller, model.AchievementConsistentPublisher, model.AchievementAttentiveResearcher, model.AchievementMasterOfFavorites, model.AchievementBroadInterests, model.AchievementAllRounder, model.AchievementFirstSellingSteps, model.AchievementDealCloser, model.AchievementQuickDecision, model.AchievementDecisiveStep} {
 		if !achievements[code] {
 			t.Errorf("seed catalogue does not cover achievement %s", code)
 		}

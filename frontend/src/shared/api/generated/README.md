@@ -1,16 +1,15 @@
 # Generated Protobuf client
 
-This directory is generated from `proto/avito/recap/v1/recap.proto`.
+The source contract is `proto/recap/v1/recap.proto`. `buf generate` writes the
+TypeScript client descriptors to `frontend/src/gen/recap/v1` and the Go
+messages/Connect handlers to `gen/go/recap/v1`.
 
-Run:
+Run from the repository root:
 
 ```bash
-npm run proto:generate
+buf generate
 ```
 
-Do not edit generated `*_pb.ts` files manually.
-
-The generated `RecapService` descriptor can be used with the existing
-`createRecapTransport()` and ConnectRPC `createClient()` when the real backend
-is connected. The current MVP keeps using mock data, so code generation is not
-required to run the mock UI.
+Do not edit generated `*_pb.ts` or `*.pb.go` files manually. The frontend uses
+the generated `RecapService` descriptor through `createRecapTransport()` and
+calls the real Go backend; mock data remains test/demo support only.

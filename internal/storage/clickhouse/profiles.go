@@ -3,7 +3,6 @@ package clickhouse
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// Каталог тестовых профилей
 func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, code, display_name, description, avatar_url
@@ -21,11 +19,7 @@ func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query profiles: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close profiles rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 
 	var profiles []model.Profile
 	for rows.Next() {
@@ -38,7 +32,6 @@ func (r *Repo) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	return profiles, rows.Err()
 }
 
-// Профиль пользователя
 func (r *Repo) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profile, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, code, display_name, description, avatar_url
@@ -49,38 +42,7 @@ func (r *Repo) GetProfile(ctx context.Context, profileID uuid.UUID) (model.Profi
 	if err != nil {
 		return model.Profile{}, fmt.Errorf("query profile: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close profile rows: %v", err)
-		}
-	}()
-
-	if !rows.Next() {
-		return model.Profile{}, application.ErrRecapNotFound
-	}
-	var profile model.Profile
-	if err := rows.Scan(&profile.ID, &profile.Code, &profile.DisplayName, &profile.Description, &profile.AvatarURL); err != nil {
-		return model.Profile{}, fmt.Errorf("scan profile: %w", err)
-	}
-	return profile, rows.Err()
-}
-
-// Профиль по code
-func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
-	rows, err := r.conn.Query(ctx, `
-		SELECT id, code, display_name, description, avatar_url
-		FROM profiles FINAL
-		WHERE code = ?
-		LIMIT 1
-	`, code)
-	if err != nil {
-		return model.Profile{}, fmt.Errorf("query profile by code: %w", err)
-	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close profile by code rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 
 	if !rows.Next() {
 		return model.Profile{}, application.ErrProfileNotFound
@@ -92,7 +54,31 @@ func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile
 	return profile, rows.Err()
 }
 
-// Обновление профиля
+func (r *Repo) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
+	rows, err := r.conn.Query(ctx, `
+		SELECT id, code, display_name, description, avatar_url
+		FROM profiles FINAL
+		WHERE code = ?
+		LIMIT 1
+	`, code)
+	if err != nil {
+		return model.Profile{}, fmt.Errorf("query profile by code: %w", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return model.Profile{}, application.ErrProfileNotFound
+	}
+	var profile model.Profile
+	if err := rows.Scan(&profile.ID, &profile.Code, &profile.DisplayName, &profile.Description, &profile.AvatarURL); err != nil {
+		return model.Profile{}, fmt.Errorf("scan profile: %w", err)
+	}
+	return profile, rows.Err()
+}
+
+// UpsertProfiles implements bootstrap.SeedStorage. ReplacingMergeTree resolves
+// duplicates by the newest updated_at on read (FINAL), so re-seeding the same
+// catalogue is safe to run repeatedly.
 func (r *Repo) UpsertProfiles(ctx context.Context, profiles []model.Profile) error {
 	batch, err := r.conn.PrepareBatch(ctx, `
 		INSERT INTO profiles (id, code, display_name, description, avatar_url)

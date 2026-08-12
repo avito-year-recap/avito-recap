@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 145,
     "searches": 24,
@@ -126,7 +126,7 @@
       "title": "Книжный червь",
       "description": "Книги и новые истории регулярно попадали в поле внимания.",
       "reason": "Категории: Книги. Просмотров: 62. Добавлений в избранное: 9. Покупок: 3. Доля тематической активности: 74%.",
-      "shareable": false
+      "shareable": true
     }
   ],
   "cards": [
@@ -264,7 +264,7 @@
       "payload": {
         "shareId": "8b61de46-6e74-5f40-b84a-4063bd5e5bb6",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Решительный покупатель",
         "achievementTitle": "Молния",
         "topCategory": "Книги"

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 
@@ -13,9 +12,18 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// Считает метрики. Если есть и актуально (считает количество событий) - берет из кеша, иначе идет в таблицу с сырыми данными
+// CalculateMetrics is cache-aside over the raw events table, but a cache hit
+// is only trusted after confirming it is still current: annual_metrics
+// stores the event count it was computed from, and every read compares that
+// against a live count() over events before returning the cached row. Events
+// that land for a profile/year after the first computation are what this
+// catches — without it, a cache row written once would be served forever
+// even after more events arrive. The live count is a cheap query (ClickHouse
+// counts columnarly, and events is ordered by profile_id first), so this
+// stays much cheaper than re-fetching and re-aggregating every event row on
+// every read, while still being correct instead of merely fast.
 func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period model.RecapPeriod) (model.Metrics, error) {
-	liveCount, err := r.countEvents(ctx, profileID, period.Year)
+	liveCount, err := r.CountEvents(ctx, profileID, period.Year)
 	if err != nil {
 		return model.Metrics{}, fmt.Errorf("count events: %w", err)
 	}
@@ -41,7 +49,7 @@ func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period
 	return metrics, nil
 }
 
-func (r *Repo) countEvents(ctx context.Context, profileID uuid.UUID, year uint32) (uint64, error) {
+func (r *Repo) CountEvents(ctx context.Context, profileID uuid.UUID, year uint32) (uint64, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT count()
 		FROM events
@@ -50,11 +58,7 @@ func (r *Repo) countEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return 0, fmt.Errorf("query event count: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close event count rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 
 	if !rows.Next() {
 		return 0, rows.Err()
@@ -81,11 +85,7 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	if err != nil {
 		return cachedMetricsRow{}, false, fmt.Errorf("query annual metrics cache: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close annual metrics cache rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 
 	if !rows.Next() {
 		return cachedMetricsRow{}, false, rows.Err()
@@ -102,7 +102,6 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	return cachedMetricsRow{metrics: metrics, eventCount: eventCount}, true, nil
 }
 
-// Записываем кэш, если новый
 func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year uint32, metrics model.Metrics, eventCount uint64) error {
 	encoded, err := json.Marshal(metrics)
 	if err != nil {
@@ -113,7 +112,6 @@ func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year 
 	`, profileID, uint16(year), string(encoded), eventCount)
 }
 
-// Считываем метрики, если кэш пустой
 func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32) ([]model.Event, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, profile_id, event_type, occurred_at, category, ad_id, dialog_id
@@ -123,11 +121,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return nil, fmt.Errorf("query events: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close events rows: %v", err)
-		}
-	}()
+	defer rows.Close()
 
 	var events []model.Event
 	for rows.Next() {
@@ -145,7 +139,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	return events, rows.Err()
 }
 
-// Заносим готовые евенты (для авто-заполнения)
+// InsertEvents implements bootstrap.SeedStorage.
 func (r *Repo) InsertEvents(ctx context.Context, events []model.Event) error {
 	if len(events) == 0 {
 		return nil

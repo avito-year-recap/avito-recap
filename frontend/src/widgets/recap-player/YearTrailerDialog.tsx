@@ -15,12 +15,12 @@ interface TrailerScene {
 
 function buildScenes(payload: PublicSharePayload): TrailerScene[] {
   const scenes: TrailerScene[] = [
-    { kicker: `Avito · ${payload.year}`, title: "Один год. Одна история.", glyph: "✦", kind: "totem" },
-    { kicker: "Сценарий года", title: payload.behaviorTitle, glyph: "◎", kind: "behavior" },
+    { kicker: `Avito · ${payload.year}`, title: "Один год. Один визуальный код.", detail: "Собран из безопасной публичной выжимки.", glyph: "✦", kind: "totem" },
+    { kicker: "Сценарий года", title: payload.behaviorTitle, detail: "То, что лучше всего описывает твой год на площадке.", glyph: "◎", kind: "behavior" },
   ];
-  if (payload.achievementTitle) scenes.push({ kicker: "Ачивка года", title: payload.achievementTitle, glyph: "◇", kind: "achievement" });
-  if (payload.topCategory) scenes.push({ kicker: "Главный интерес", title: payload.topCategory, glyph: "⌕", kind: "interest" });
-  scenes.push({ kicker: "Финал", title: "#МойГодНаАвито", detail: "Итоги готовы — можно делиться.", glyph: "↗", kind: "final" });
+  if (payload.achievementTitle) scenes.push({ kicker: "Ачивка года", title: payload.achievementTitle, detail: "Один публичный знак из личной коллекции.", glyph: "◇", kind: "achievement" });
+  if (payload.topCategory) scenes.push({ kicker: "Главный интерес", title: payload.topCategory, detail: "Категория показана только потому, что она разрешена для SHARE.", glyph: "⌕", kind: "interest" });
+  scenes.push({ kicker: "Финал", title: "#МойГодНаАвито", detail: "Без имени, числовой статистики и внутренних идентификаторов.", glyph: "↗", kind: "final" });
   return scenes;
 }
 

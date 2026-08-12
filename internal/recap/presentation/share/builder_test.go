@@ -16,9 +16,9 @@ func TestBuildRedactsPrivateData(t *testing.T) {
 	}
 }
 
-func TestBuildDoesNotExposeThematicAchievement(t *testing.T) {
+func TestBuildExposesShareableThematicAchievement(t *testing.T) {
 	got := Build(ruleset.DefaultRuleset().SharePolicy, uuid.MustParse("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"), 2025, model.Metrics{}, model.Behavior{}, []model.Achievement{{Code: model.AchievementBookworm, Title: "Книжный червь", Shareable: true}})
-	if got.AchievementTitle != "" {
-		t.Fatalf("leaked: %+v", got)
+	if got.AchievementTitle != "Книжный червь" {
+		t.Fatalf("thematic achievement was not exposed: %+v", got)
 	}
 }

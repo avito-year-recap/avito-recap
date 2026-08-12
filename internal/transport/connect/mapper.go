@@ -359,6 +359,8 @@ func achievementCodeToProto(value model.AchievementCode) (recapv1.AchievementCod
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_CARING_OWNER, nil
 	case model.AchievementLittleDiscoveries:
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_LITTLE_DISCOVERIES, nil
+	case model.AchievementDecisiveStep:
+		return recapv1.AchievementCode_ACHIEVEMENT_CODE_DECISIVE_STEP, nil
 	default:
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_UNSPECIFIED, fmt.Errorf(
 			"%w: unknown achievement code %q",

@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 155,
     "searches": 20,
@@ -86,8 +86,8 @@
       "code": "SUCCESSFUL_SELLER",
       "category": "SELLING",
       "title": "Мастер переговоров",
-      "description": "Сделки уверенно доходили до результата.",
-      "reason": "Продаж завершено: 5.",
+      "description": "Большая часть опубликованных объявлений дошла до продажи.",
+      "reason": "Продажи составили 71% от числа опубликованных объявлений (5 из 7).",
       "shareable": true
     },
     {
@@ -185,7 +185,7 @@
       "position": 6,
       "title": "Ачивки года",
       "description": "Человек-швейцарский нож • Мастер переговоров • Молния",
-      "explanation": "Покупок: 5. Продаж: 5. Продаж завершено: 5. Покупкой завершилось 33% начатых диалогов.",
+      "explanation": "Покупок: 5. Продаж: 5. Продажи составили 71% от числа опубликованных объявлений (5 из 7). Покупкой завершилось 33% начатых диалогов.",
       "shareable": false,
       "payload": {
         "codes": [
@@ -223,7 +223,7 @@
       "payload": {
         "shareId": "ec5e8ec8-95a5-522a-b26e-71c20c79d338",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Продажи в движении",
         "achievementTitle": "Человек-швейцарский нож",
         "topCategory": "Электроника"
