@@ -22,7 +22,7 @@ func (r *Repo) GetActionableState(ctx context.Context, profileID uuid.UUID, asOf
 	if err != nil {
 		return model.ActionableState{}, fmt.Errorf("query actionable state: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return model.ActionableState{}, application.ErrRecapNotFound

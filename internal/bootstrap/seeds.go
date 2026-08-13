@@ -108,12 +108,12 @@ func LoadDemoData(ctx context.Context, storage SeedStorage, profilesPath, scenar
 			return fmt.Errorf("count existing events for %s/%d: %w", profile.Code, item.Year, err)
 		}
 		expectedEvents := uint64(len(events))
-		switch {
-		case existingEvents == 0:
+		switch existingEvents {
+		case 0:
 			if err := storage.InsertEvents(ctx, events); err != nil {
 				return fmt.Errorf("seed events for %s/%d: %w", profile.Code, item.Year, err)
 			}
-		case existingEvents == expectedEvents:
+		case expectedEvents:
 			// Already seeded with the same demo cardinality.
 		default:
 			return fmt.Errorf(

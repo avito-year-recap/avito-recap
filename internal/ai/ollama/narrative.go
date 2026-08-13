@@ -74,7 +74,7 @@ func (g *Generator) Check(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("ollama model check: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
@@ -137,7 +137,7 @@ func (g *Generator) Generate(ctx context.Context, facts narrative.Facts) (narrat
 	if err != nil {
 		return narrative.Story{}, fmt.Errorf("ollama chat request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
@@ -241,9 +241,9 @@ func narrativeSchema(cardIDs []string) map[string]any {
 
 func compactError(body []byte) string {
 	text := strings.Join(strings.Fields(string(body)), " ")
-	const max = 300
-	if len(text) > max {
-		return text[:max] + "…"
+	const maxLen = 300
+	if len(text) > maxLen {
+		return text[:maxLen] + "…"
 	}
 	return text
 }

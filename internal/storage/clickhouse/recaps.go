@@ -23,7 +23,7 @@ func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Rec
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by key: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
@@ -32,7 +32,7 @@ func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, er
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
@@ -41,7 +41,7 @@ func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by share id: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 

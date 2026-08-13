@@ -34,6 +34,8 @@ func IsNarrativeEditableCardType(cardType CardType) bool {
 		CardMissedOpportunity,
 		CardNextAction:
 		return true
+	case CardShare:
+		return false
 	default:
 		return false
 	}

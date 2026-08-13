@@ -383,7 +383,7 @@ func actionCodeToProto(value model.ActionCode) (recapv1.ActionCode, error) {
 	case model.ActionOpenTopCategory:
 		return recapv1.ActionCode_ACTION_CODE_OPEN_TOP_CATEGORY, nil
 	case model.ActionCreateFirstListing:
-		return recapv1.ActionCode_ACTION_CODE_CREATE_FIRST_LISTING, nil
+		return recapv1.ActionCode_ACTION_CODE_CREATE_FIRST_LISTING, nil //nolint:staticcheck // deprecated for new use, kept for wire compat with older integrations
 	case model.ActionCreateListing:
 		return recapv1.ActionCode_ACTION_CODE_CREATE_LISTING, nil
 	case model.ActionSaveSearch:

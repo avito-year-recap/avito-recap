@@ -58,7 +58,7 @@ func (r *Repo) CountEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return 0, fmt.Errorf("query event count: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return 0, rows.Err()
@@ -85,7 +85,7 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	if err != nil {
 		return cachedMetricsRow{}, false, fmt.Errorf("query annual metrics cache: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return cachedMetricsRow{}, false, rows.Err()
@@ -121,7 +121,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return nil, fmt.Errorf("query events: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var events []model.Event
 	for rows.Next() {
