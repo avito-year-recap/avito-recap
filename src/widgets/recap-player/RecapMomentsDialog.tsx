@@ -6,7 +6,7 @@ const labels: Record<RecapCard["type"], string> = {
   YEAR_ACTIVITY: "Год в цифрах",
   TOP_CATEGORY: "Главный интерес",
   ACTIVE_MONTH: "Месяц года",
-  BEHAVIOR: "Твой сценарий",
+  BEHAVIOR: "Твой стиль",
   ACHIEVEMENT: "Ачивки",
   MISSED_OPPORTUNITY: "Возможность",
   NEXT_ACTION: "Следующий шаг",

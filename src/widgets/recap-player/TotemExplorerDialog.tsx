@@ -68,7 +68,7 @@ export function TotemExplorerDialog({
         animate={{ opacity: 1, y: 0, scale: 1 }}
       >
         <header>
-          <div><span>Личный разбор</span><h2 id="totem-explorer-title">Как собрался твой символ?</h2><p>Каждая деталь привязана к данным recap. Этот разбор остаётся внутри личной истории и не попадает в публичный SHARE.</p></div>
+          <div><span>Твой символ года</span><h2 id="totem-explorer-title">Из чего он сложился?</h2><p>Каждая деталь связана с тем, как прошёл твой год на Авито.</p></div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Закрыть разбор символа">×</button>
         </header>
         <div className="totem-explorer-layout">
@@ -79,7 +79,6 @@ export function TotemExplorerDialog({
             onPointerLeave={reset}
           >
             <YearTotem recap={recap} stage={4} className="totem-explorer-symbol" />
-            <div className="totem-explorer-hint">двигай курсор · выбирай детали</div>
           </div>
           <div className="totem-explorer-parts" role="list" aria-label="Детали символа года">
             {items.map((item, index) => (

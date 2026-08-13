@@ -1,102 +1,48 @@
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import type { ActionCode } from "../../entities/recap/model";
 import { getActionVisual } from "../../shared/lib/visual-registry";
 import { Button } from "../../shared/ui/Button";
 import { PageShell } from "../../shared/ui/PageShell";
 import "./ActionDemoPage.css";
 
-const content: Record<ActionCode, { title: string; description: string; result: string }> = {
-  FINISH_DRAFT: {
-    title: "Черновик уже ждёт",
-    description: "В реальном продукте здесь открылось бы конкретное объявление в редакторе.",
-    result: "Можно продолжить с того места, где остановились.",
-  },
-  OPEN_FAVORITES: {
-    title: "Возвращаемся к находкам",
-    description: "В реальном продукте здесь открылся бы раздел «Избранное».",
-    result: "Все сохранённые варианты снова под рукой.",
-  },
-  IMPROVE_LISTINGS: {
-    title: "Объявление можно усилить",
-    description: "В реальном продукте здесь открылось бы активное объявление.",
-    result: "Следующий шаг — обновить карточку и вернуть к ней внимание.",
-  },
-  CONTINUE_DIALOGS: {
-    title: "Диалог продолжается",
-    description: "В реальном продукте здесь открылся бы нужный чат.",
-    result: "Контекст не теряется — пользователь продолжает сценарий сразу после recap.",
-  },
-  OPEN_TOP_CATEGORY: {
-    title: "Главный интерес рядом",
-    description: "В реальном продукте здесь открылась бы категория года.",
-    result: "Можно продолжить исследование без повторного поиска.",
-  },
-  CREATE_LISTING: {
-    title: "Готово к новой продаже",
-    description: "В реальном продукте здесь открылся бы сценарий создания объявления.",
-    result: "Recap превращается в начало следующего полезного действия.",
-  },
-  SAVE_SEARCH: {
-    title: "Поиск сохранён",
-    description: "В реальном продукте новые объявления по выбранной категории могли бы приходить автоматически.",
-    result: "Теперь не нужно повторять один и тот же поиск вручную.",
-  },
-  VIEW_SIMILAR_LISTINGS: {
-    title: "Нашли похожие варианты",
-    description: "В реальном продукте здесь появилась бы подборка по последней покупке или объявлению.",
-    result: "Следующий выбор начинается с уже понятного контекста.",
-  },
-  EXPLORE_RECOMMENDATIONS: {
-    title: "Есть идеи, куда дальше",
-    description: "В реальном продукте здесь открылась бы персональная лента рекомендаций.",
-    result: "Даже универсальный сценарий заканчивается полезным продолжением.",
-  },
+const content: Record<ActionCode, { title: string; description: string }> = {
+  FINISH_DRAFT: { title: "Черновик уже ждёт", description: "Продолжи редактирование с того места, где остановился." },
+  OPEN_FAVORITES: { title: "Возвращаемся к находкам", description: "Все сохранённые объявления снова под рукой." },
+  IMPROVE_LISTINGS: { title: "Объявление можно обновить", description: "Проверь детали и сделай объявление заметнее." },
+  CONTINUE_DIALOGS: { title: "Диалог продолжается", description: "Вернись к разговору с того же места." },
+  OPEN_TOP_CATEGORY: { title: "Главный интерес рядом", description: "Посмотри новые объявления в категории, к которой возвращался чаще всего." },
+  CREATE_FIRST_LISTING: { title: "Первое объявление", description: "Самое время опубликовать вещь, которую давно хотел продать." },
+  CREATE_LISTING: { title: "Новое объявление", description: "Продолжи год с новой публикации." },
+  SAVE_SEARCH: { title: "Поиск сохранён", description: "Новые подходящие варианты будет проще не пропустить." },
+  VIEW_SIMILAR_LISTINGS: { title: "Похожие варианты", description: "Посмотри объявления, похожие на твои находки года." },
+  EXPLORE_RECOMMENDATIONS: { title: "Что посмотреть дальше", description: "Продолжи с подборкой новых идей и находок." },
 };
 
 const actionCodes = new Set(Object.keys(content));
 
 export function ActionDemoPage() {
   const { actionCode } = useParams();
-  const [params] = useSearchParams();
   const navigate = useNavigate();
-
   if (!actionCode || !actionCodes.has(actionCode)) return <Navigate to="/404" replace />;
 
   const code = actionCode as ActionCode;
   const visual = getActionVisual(code);
   const copy = content[code];
-  const entries: Array<[string, string]> = [];
-  params.forEach((value, key) => entries.push([key, value]));
-  const targetLabel = entries.length
-    ? entries.map(([key, value]) => `${key}: ${value}`).join(" · ")
-    : "Без дополнительных параметров";
 
   return (
-    <PageShell compactHeader actions={<span className="demo-chip">Демо следующего шага</span>}>
+    <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет">
       <section className={`action-demo action-demo--${visual.tone}`}>
         <div className="action-demo__copy">
-          <span className="action-demo__eyebrow">Recap завершён — сценарий продолжается</span>
+          <span className="action-demo__eyebrow">Следующий шаг</span>
           <h1>{copy.title}</h1>
           <p>{copy.description}</p>
-          <div className="action-demo__result">
-            <span aria-hidden="true">✓</span>
-            <strong>{copy.result}</strong>
-          </div>
-          <details className="action-demo__target">
-            <summary>Технический target демо-перехода</summary>
-            <code>{targetLabel}</code>
-          </details>
           <div className="action-demo__actions">
             <Button onClick={() => navigate(-1)}>Вернуться к итогам</Button>
-            <Link to="/" className="action-demo__link">Выбрать другой профиль</Link>
+            <Link to="/profiles?return=/account" className="action-demo__link">Сменить профиль</Link>
           </div>
         </div>
         <div className="action-demo__visual" aria-hidden="true">
-          <div className="action-demo__orb">
-            <span>{visual.icon}</span>
-            <i>{visual.secondary}</i>
-          </div>
-          <p>{visual.caption}</p>
+          <div className="action-demo__orb"><span>{visual.icon}</span><i>{visual.secondary}</i></div>
         </div>
       </section>
     </PageShell>

@@ -68,7 +68,7 @@ const finalLines: Record<string, string> = {
   DECISIVE_BUYER: "Похоже, ты знаешь, чего хочешь",
   FIND_HUNTER: "Следующая находка уже где-то рядом",
   RESEARCHER: "Продолжай находить лучшее",
-  UNIVERSAL_USER: "У тебя ещё много сценариев впереди",
+  UNIVERSAL_USER: "У тебя ещё много открытий впереди",
 };
 
 export function getPersonalizedFinalLine(recap: Recap) {
@@ -110,6 +110,7 @@ export function getActionBeforeAfter(code: string) {
     FINISH_DRAFT: { before: "Черновик ждёт последнего шага", after: "Объявление готово к публикации" },
     OPEN_FAVORITES: { before: "Вспоминать, что понравилось", after: "Вернуться к сохранённым находкам" },
     CONTINUE_DIALOGS: { before: "Оставить разговор на паузе", after: "Продолжить с того же места" },
+    CREATE_FIRST_LISTING: { before: "Первое объявление ещё не опубликовано", after: "Первое объявление уже создаётся" },
     CREATE_LISTING: { before: "Идея остаётся идеей", after: "Новое объявление уже в работе" },
     IMPROVE_LISTINGS: { before: "Объявление остаётся как есть", after: "Можно усилить его прямо сейчас" },
     OPEN_TOP_CATEGORY: { before: "Начинать поиск с нуля", after: "Сразу открыть главный интерес" },
@@ -122,7 +123,7 @@ export function getActionBeforeAfter(code: string) {
 export function getProfileTeaser(profile: Recap["profile"]) {
   const first = profile.tags[0] ?? "интересы";
   const second = profile.tags[1] ?? "активность";
-  return `В этой истории особенно заметны ${first.toLowerCase()} и ${second.toLowerCase()}. Финальный сценарий откроется только внутри recap.`;
+  return `В этой истории особенно заметны ${first.toLowerCase()} и ${second.toLowerCase()}. А главное откроется в конце.`;
 }
 
 export function getRecapStorageKey(recapId: string) {
@@ -206,10 +207,30 @@ export function getTotemExplanation(recap: Recap) {
   const category = recap.cards.find((card): card is Extract<RecapCard, { type: "TOP_CATEGORY" }> => card.type === "TOP_CATEGORY");
   const month = recap.cards.find((card): card is Extract<RecapCard, { type: "ACTIVE_MONTH" }> => card.type === "ACTIVE_MONTH");
   const achievement = recap.cards.find((card): card is AchievementCard => card.type === "ACHIEVEMENT");
+  const achievementTitles = achievement?.payload.codes
+    .map((code) => recap.achievements.find((item) => item.code === code)?.title)
+    .filter((title): title is string => Boolean(title)) ?? [];
+
   return [
-    { part: "Форма", value: behavior?.title ?? "Разные сценарии", detail: behavior ? `Опирается на ${behavior.payload.code}` : "Универсальный сценарий" },
-    { part: "Цвет и объект", value: category?.payload.category ?? "Общий интерес", detail: category ? `Категория ${category.payload.categoryCode}` : "Категория не вошла в recap" },
-    { part: "Кольцо", value: month ? `Месяц ${String(month.payload.month).padStart(2, "0")}` : "Ритм года", detail: month ? "Самый активный месяц" : "Активный месяц не определён" },
-    { part: "Знаки", value: achievement?.payload.codes.length ? `${achievement.payload.codes.length} ачивки` : "Без ачивок", detail: achievement?.payload.codes.join(" · ") || "Ачивки не сформированы" },
+    {
+      part: "Форма",
+      value: behavior?.title ?? "Разные интересы",
+      detail: behavior ? "Её задаёт твой стиль на Авито" : "Она сложилась из разных интересов года",
+    },
+    {
+      part: "Цвет и объект",
+      value: category?.payload.category ?? "Общий интерес",
+      detail: category ? "Связаны с тем, чем ты интересовался чаще всего" : "Собраны из твоих интересов",
+    },
+    {
+      part: "Кольцо",
+      value: month ? `Месяц ${String(month.payload.month).padStart(2, "0")}` : "Ритм года",
+      detail: month ? "Самый активный месяц" : "Ритм сложился из активности за год",
+    },
+    {
+      part: "Знаки",
+      value: achievementTitles.length ? `${achievementTitles.length} отметки` : "Особые детали",
+      detail: achievementTitles.length ? achievementTitles.join(" · ") : "Дополняют общую картину года",
+    },
   ];
 }

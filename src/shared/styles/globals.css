@@ -1,53 +1,90 @@
+@font-face {
+  font-family: "Avito Mobile Sans";
+  src: url("/fonts/AvitoMobileSans-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avito Mobile Sans";
+  src: url("/fonts/AvitoMobileSans-Heavy.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800 950;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
+
 html {
   min-width: 320px;
   background: var(--page-bg);
 }
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
-  background:
-    radial-gradient(circle at 8% 3%, rgb(11 120 255 / 6%), transparent 26rem),
-    radial-gradient(circle at 94% 12%, rgb(140 77 255 / 6%), transparent 28rem),
-    var(--page-bg);
   color: var(--text-primary);
+  background: var(--page-bg);
 }
+
 button,
 input,
 select,
 textarea {
   font: inherit;
 }
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
 button {
   cursor: pointer;
 }
+
 img {
   display: block;
   max-width: 100%;
 }
+
 h1,
 h2,
 h3,
 p {
   margin: 0;
 }
+
+h1,
+h2,
+h3,
+strong,
+b {
+  font-family: "Avito Mobile Sans", Arial, sans-serif;
+}
+
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid rgb(11 120 255 / 35%);
+  outline: 3px solid rgb(0 153 247 / 24%);
   outline-offset: 3px;
 }
+
 #root {
   min-height: 100vh;
   min-height: 100dvh;
 }
+
+.hgi {
+  display: inline-block;
+  line-height: 1;
+  font-style: normal;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -58,6 +95,7 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
 .sr-only {
   position: absolute !important;
   width: 1px !important;

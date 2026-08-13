@@ -6,7 +6,7 @@ interface AppLogoProps {
 
 export function AppLogo({ compact = false }: AppLogoProps) {
   return (
-    <div className="app-logo" aria-label="Avito Итоги года">
+    <div className={`app-logo${compact ? " app-logo--compact" : ""}`} aria-label="Avito Итоги года">
       <span className="app-logo__mark" aria-hidden="true">
         <i className="app-logo__dot app-logo__dot--blue" />
         <i className="app-logo__dot app-logo__dot--purple" />
@@ -14,7 +14,13 @@ export function AppLogo({ compact = false }: AppLogoProps) {
         <i className="app-logo__dot app-logo__dot--red" />
       </span>
       <strong>Avito</strong>
-      {!compact && <span className="app-logo__product">Итоги</span>}
+      {!compact && (
+        <span className="app-logo__product">
+          итоги
+          <br />
+          года
+        </span>
+      )}
     </div>
   );
 }

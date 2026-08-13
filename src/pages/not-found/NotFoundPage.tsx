@@ -9,7 +9,7 @@ export function NotFoundPage() {
       <section className="async-state">
         <div className="async-state__icon">404</div>
         <h1>Такой страницы нет</h1>
-        <p>Вернитесь к выбору тестового профиля.</p>
+        <p>Вернитесь на главную или откройте итоги года.</p>
         <Button onClick={() => navigate("/")}>На главную</Button>
       </section>
     </PageShell>

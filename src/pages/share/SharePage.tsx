@@ -8,10 +8,9 @@ import { Button } from "../../shared/ui/Button";
 import { PageShell } from "../../shared/ui/PageShell";
 import { PublicYearTotem } from "../../shared/ui/YearTotem";
 import { YearTrailerDialog } from "../../widgets/recap-player/YearTrailerDialog";
-import { hasCompletionBonus } from "../../shared/lib/experience-utils";
 import "./SharePage.css";
 
-type ShareTemplate = "symbol" | "minimal" | "interest" | "bonus";
+type ShareTemplate = "symbol" | "minimal" | "interest";
 type ShareFormat = "portrait" | "square";
 type ShareTone = "soft" | "color";
 
@@ -20,7 +19,6 @@ const baseTemplateLabels: Array<{ id: ShareTemplate; label: string; hint: string
   { id: "minimal", label: "Минимализм", hint: "Типографика и ачивка" },
   { id: "interest", label: "Главный интерес", hint: "Категория в центре" },
 ];
-const bonusTemplate = { id: "bonus" as const, label: "Контур года ✦", hint: "Скрытый стиль за полный просмотр" };
 
 function SharePreview({
   payload,
@@ -43,13 +41,12 @@ function SharePreview({
     <article className={`share-preview share-preview--${template} share-preview--${format} share-preview--tone-${tone}`} aria-label={`Предпросмотр публичной карточки: ${template}`}>
       <div className="share-preview__topline"><span>Avito · Итоги {payload.year}</span><i aria-hidden="true">✦</i></div>
 
-      {(template === "symbol" || template === "bonus") && (
+      {template === "symbol" && (
         <>
           <div className="share-preview__totem">
-            {template === "bonus" && <div className="share-preview__bonus-rings" aria-hidden="true"><i /><i /><i /></div>}
             <PublicYearTotem payload={{ ...payload, achievementTitle: achievement, topCategory: category }} />
           </div>
-          <div className="share-preview__story-copy"><p>{template === "bonus" ? "История просмотрена целиком" : "Мой сценарий года"}</p><h2>{payload.behaviorTitle}</h2></div>
+          <div className="share-preview__story-copy"><p>Мой стиль года</p><h2>{payload.behaviorTitle}</h2></div>
         </>
       )}
 
@@ -114,7 +111,7 @@ function downloadShareImage(
   ctx.fillStyle = "#0f0f0f"; ctx.font = "700 28px Arial"; ctx.fillText(`Avito · ${payload.year}`, 105, 115);
 
   const compact = format === "square";
-  if (template === "symbol" || template === "bonus") {
+  if (template === "symbol") {
     ctx.save(); ctx.translate(540, compact ? 360 : 480);
     ctx.fillStyle = "rgba(255,255,255,.56)"; ctx.beginPath(); ctx.ellipse(0, 0, compact ? 240 : 295, compact ? 180 : 220, -0.2, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#8c4dff"; ctx.beginPath(); ctx.roundRect(-100, -100, 200, 200, 62); ctx.fill();
@@ -122,9 +119,9 @@ function downloadShareImage(
   }
 
   ctx.textAlign = "left";
-  const titleY = template === "symbol" || template === "bonus" ? (compact ? 610 : 820) : template === "interest" ? (compact ? 400 : 610) : (compact ? 320 : 430);
+  const titleY = template === "symbol" ? (compact ? 610 : 820) : template === "interest" ? (compact ? 400 : 610) : (compact ? 320 : 430);
   ctx.fillStyle = "#676b73"; ctx.font = "600 34px Arial";
-  ctx.fillText(template === "interest" && showCategory && payload.topCategory ? "Главный интерес года" : "Мой сценарий года", 90, titleY);
+  ctx.fillText(template === "interest" && showCategory && payload.topCategory ? "Главный интерес года" : "Мой стиль года", 90, titleY);
   ctx.fillStyle = "#0f0f0f"; ctx.font = `800 ${compact ? 74 : 88}px Arial`;
   const mainText = template === "interest" && showCategory ? (payload.topCategory ?? payload.behaviorTitle) : payload.behaviorTitle;
   const lines = wrapCanvasText(ctx, mainText, 900).slice(0, 3);
@@ -160,34 +157,32 @@ export function SharePage() {
   const query = useQuery({ queryKey: ["share", shareId], queryFn: () => getPublicShare(shareId ?? ""), enabled: Boolean(shareId) });
 
   if (!shareId) return <Navigate to="/" replace />;
-  if (query.isPending) return <PageShell compactHeader fitViewport><PageLoader label="Готовим публичную карточку" /></PageShell>;
-  if (query.isError) return <PageShell compactHeader fitViewport><ErrorState title="Публичная карточка не найдена" description="Проверьте ссылку или вернитесь к recap." onRetry={() => query.refetch()} /></PageShell>;
+  if (query.isPending) return <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет"><PageLoader label="Готовим публичную карточку" /></PageShell>;
+  if (query.isError) return <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет"><ErrorState title="Публичная карточка не найдена" description="Проверьте ссылку или вернитесь к итогам года." onRetry={() => query.refetch()} /></PageShell>;
 
   const payload = query.data;
-  const bonusUnlocked = hasCompletionBonus(payload.shareId);
-  const templateLabels = bonusUnlocked ? [...baseTemplateLabels, bonusTemplate] : baseTemplateLabels;
+  const templateLabels = baseTemplateLabels;
   const copy = async () => {
     try { await navigator.clipboard.writeText(window.location.href); } catch { /* demo fallback */ }
     setCopied(true); window.setTimeout(() => setCopied(false), 2000);
   };
   const share = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: `Мои итоги ${payload.year} на Авито`, text: `Мой сценарий года — «${payload.behaviorTitle}»`, url: window.location.href }); return; } catch { return; }
+      try { await navigator.share({ title: `Мои итоги ${payload.year} на Авито`, text: `Мой стиль года — «${payload.behaviorTitle}»`, url: window.location.href }); return; } catch { return; }
     }
     await copy();
   };
 
   return (
-    <PageShell compactHeader fitViewport actions={<span className="public-chip">Публичная версия</span>}>
+    <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет" actions={<span className="public-chip">Публичная версия</span>}>
       <section className="share-page share-page--composer">
         <div className="share-page__copy">
           <span>Перед публикацией</span><h1>Собери свою публичную карточку</h1>
-          <p>Меняется только представление. Данные остаются в безопасном SHARE payload — без имени, личной статистики и внутренних идентификаторов.</p>
+          <p>Выбери оформление и детали карточки перед публикацией.</p>
 
           <div className="share-template-picker" aria-label="Стиль публичной карточки">
             {templateLabels.map((item) => <button key={item.id} type="button" className={template === item.id ? "is-active" : ""} onClick={() => setTemplate(item.id)}><strong>{item.label}</strong><span>{item.hint}</span></button>)}
           </div>
-          {bonusUnlocked && <div className="share-bonus-note"><span>✦</span><p><b>Скрытый стиль открыт</b>Ты посмотрел recap целиком — поэтому появился дополнительный вариант оформления.</p></div>}
 
           <div className="share-editor-row" aria-label="Формат карточки">
             <span>Формат</span><button type="button" className={format === "portrait" ? "is-active" : ""} onClick={() => setFormat("portrait")}>4:5</button><button type="button" className={format === "square" ? "is-active" : ""} onClick={() => setFormat("square")}>1:1</button>
@@ -201,7 +196,6 @@ export function SharePage() {
             {payload.topCategory && <button type="button" className={showCategory ? "is-active" : ""} onClick={() => setShowCategory((value) => !value)}>⌕ Категорию</button>}
           </div>
 
-          <div className="privacy-checklist privacy-checklist--compact" aria-label="Проверка приватности"><span>✓ имя скрыто</span><span>✓ числовые метрики скрыты</span><span>✓ только разрешённые итоги</span></div>
         </div>
 
         <div className="share-wrap">

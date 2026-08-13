@@ -1,34 +1,28 @@
 :root {
-  --page-bg: #f5f6f8;
+  --page-bg: #f4f5f7;
   --surface: #fff;
-  --surface-muted: #f7f8fa;
-  --surface-blue: #f2f7ff;
-  --surface-green: #f0fbf6;
-  --surface-purple: #f7f3ff;
-  --surface-coral: #fff4f2;
+  --surface-muted: #f6f7f8;
+  --surface-blue: #f1f7ff;
+  --surface-green: #effaf5;
+  --surface-purple: #f7f2ff;
+  --surface-coral: #fff3f2;
   --text-primary: #0f0f0f;
-  --text-secondary: #676b73;
-  --text-tertiary: #969ba4;
-  --border: #e7e9ed;
-  --border-strong: #d8dbe1;
-  --blue: #0b78ff;
-  --blue-hover: #0068e6;
-  --green: #00b96b;
+  --text-secondary: #686b70;
+  --text-tertiary: #96999f;
+  --border: #e6e8eb;
+  --border-strong: #d7d9dd;
+  --blue: #0099f7;
+  --blue-hover: #0089df;
+  --green: #00bd72;
   --red: #ff4053;
-  --purple: #8c4dff;
-  --orange: #ff9f1c;
-  --shadow-card: 0 20px 60px rgb(30 38 54 / 10%);
-  --shadow-soft: 0 10px 30px rgb(30 38 54 / 7%);
+  --purple: #8d4cf3;
+  --orange: #ff9e1b;
+  --shadow-card: 0 16px 48px rgb(24 29 42 / 10%);
+  --shadow-soft: 0 8px 24px rgb(24 29 42 / 8%);
   --radius-pill: 999px;
   --content-width: 1180px;
   --story-width: 440px;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  font-family: "Avito Mobile Sans", Arial, sans-serif;
   color: var(--text-primary);
   background: var(--page-bg);
   font-synthesis: none;
