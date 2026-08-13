@@ -381,6 +381,7 @@ func actionCodeToProto(value model.ActionCode) (recapv1.ActionCode, error) {
 	case model.ActionOpenTopCategory:
 		return recapv1.ActionCode_ACTION_CODE_OPEN_TOP_CATEGORY, nil
 	case model.ActionCreateFirstListing:
+		//nolint:staticcheck // deprecated in proto but still a valid wire value for existing domain data
 		return recapv1.ActionCode_ACTION_CODE_CREATE_FIRST_LISTING, nil
 	case model.ActionCreateListing:
 		return recapv1.ActionCode_ACTION_CODE_CREATE_LISTING, nil

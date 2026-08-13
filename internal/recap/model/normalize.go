@@ -86,6 +86,10 @@ func NormalizeRecap(value Recap) Recap {
 		achievement.Title = NormalizeString(achievement.Title)
 		achievement.Description = NormalizeString(achievement.Description)
 		achievement.Reason = NormalizeString(achievement.Reason)
+		// Priority/Strength are engine-internal selection scratch values
+		// (json:"-"), so storage round-trips always come back zeroed.
+		achievement.Priority = 0
+		achievement.Strength = 0
 	}
 
 	for index := range value.Cards {

@@ -19,14 +19,18 @@ func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period
 	if err != nil {
 		return model.Metrics{}, fmt.Errorf("count events: %w", err)
 	}
-	if liveCount == 0 {
-		return model.Metrics{}, application.ErrMetricsNotFound
-	}
 
+	// Проверяем кеш до проверки liveCount==0 - UpsertAnnualMetrics может
+	// зафиксировать метрики для профиля без сырых events (например, при
+	// миграции исторических данных), и такой кеш должен читаться как обычно.
 	if cached, ok, err := r.cachedMetrics(ctx, profileID, period.Year); err != nil {
 		return model.Metrics{}, err
 	} else if ok && cached.eventCount == liveCount {
 		return cached.metrics, nil
+	}
+
+	if liveCount == 0 {
+		return model.Metrics{}, application.ErrMetricsNotFound
 	}
 
 	events, err := r.queryEvents(ctx, profileID, period.Year)
@@ -100,6 +104,18 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 		return cachedMetricsRow{}, false, fmt.Errorf("decode annual metrics cache: %w", err)
 	}
 	return cachedMetricsRow{metrics: metrics, eventCount: eventCount}, true, nil
+}
+
+// UpsertAnnualMetrics явно фиксирует метрики профиля за год, минуя агрегацию
+// сырых events. Freshness-маркер берется как текущий liveCount, поэтому
+// CalculateMetrics отдаст именно эти метрики, пока набор events профиля за
+// год не изменится.
+func (r *Repo) UpsertAnnualMetrics(ctx context.Context, profileID uuid.UUID, year uint32, metrics model.Metrics) error {
+	liveCount, err := r.countEvents(ctx, profileID, year)
+	if err != nil {
+		return fmt.Errorf("count events: %w", err)
+	}
+	return r.writeMetricsCache(ctx, profileID, year, metrics, liveCount)
 }
 
 // Записываем кэш, если новый
