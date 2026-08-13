@@ -46,7 +46,7 @@ function SharePreview({
           <div className="share-preview__totem">
             <PublicYearTotem payload={{ ...payload, achievementTitle: achievement, topCategory: category }} />
           </div>
-          <div className="share-preview__story-copy"><p>Мой сценарий года</p><h2>{payload.behaviorTitle}</h2></div>
+          <div className="share-preview__story-copy"><p>Мой стиль года</p><h2>{payload.behaviorTitle}</h2></div>
         </>
       )}
 
@@ -121,7 +121,7 @@ function downloadShareImage(
   ctx.textAlign = "left";
   const titleY = template === "symbol" ? (compact ? 610 : 820) : template === "interest" ? (compact ? 400 : 610) : (compact ? 320 : 430);
   ctx.fillStyle = "#676b73"; ctx.font = "600 34px Arial";
-  ctx.fillText(template === "interest" && showCategory && payload.topCategory ? "Главный интерес года" : "Мой сценарий года", 90, titleY);
+  ctx.fillText(template === "interest" && showCategory && payload.topCategory ? "Главный интерес года" : "Мой стиль года", 90, titleY);
   ctx.fillStyle = "#0f0f0f"; ctx.font = `800 ${compact ? 74 : 88}px Arial`;
   const mainText = template === "interest" && showCategory ? (payload.topCategory ?? payload.behaviorTitle) : payload.behaviorTitle;
   const lines = wrapCanvasText(ctx, mainText, 900).slice(0, 3);
@@ -157,8 +157,8 @@ export function SharePage() {
   const query = useQuery({ queryKey: ["share", shareId], queryFn: () => getPublicShare(shareId ?? ""), enabled: Boolean(shareId) });
 
   if (!shareId) return <Navigate to="/" replace />;
-  if (query.isPending) return <PageShell compactHeader fitViewport backToProfiles><PageLoader label="Готовим публичную карточку" /></PageShell>;
-  if (query.isError) return <PageShell compactHeader fitViewport backToProfiles><ErrorState title="Публичная карточка не найдена" description="Проверьте ссылку или вернитесь к recap." onRetry={() => query.refetch()} /></PageShell>;
+  if (query.isPending) return <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет"><PageLoader label="Готовим публичную карточку" /></PageShell>;
+  if (query.isError) return <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет"><ErrorState title="Публичная карточка не найдена" description="Проверьте ссылку или вернитесь к итогам года." onRetry={() => query.refetch()} /></PageShell>;
 
   const payload = query.data;
   const templateLabels = baseTemplateLabels;
@@ -168,17 +168,17 @@ export function SharePage() {
   };
   const share = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: `Мои итоги ${payload.year} на Авито`, text: `Мой сценарий года — «${payload.behaviorTitle}»`, url: window.location.href }); return; } catch { return; }
+      try { await navigator.share({ title: `Мои итоги ${payload.year} на Авито`, text: `Мой стиль года — «${payload.behaviorTitle}»`, url: window.location.href }); return; } catch { return; }
     }
     await copy();
   };
 
   return (
-    <PageShell compactHeader fitViewport backToProfiles actions={<span className="public-chip">Публичная версия</span>}>
+    <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет" actions={<span className="public-chip">Публичная версия</span>}>
       <section className="share-page share-page--composer">
         <div className="share-page__copy">
           <span>Перед публикацией</span><h1>Собери свою публичную карточку</h1>
-          <p>Меняется только оформление. Имя, личная статистика и внутренние данные не попадут в публичную карточку.</p>
+          <p>Выбери оформление и детали карточки перед публикацией.</p>
 
           <div className="share-template-picker" aria-label="Стиль публичной карточки">
             {templateLabels.map((item) => <button key={item.id} type="button" className={template === item.id ? "is-active" : ""} onClick={() => setTemplate(item.id)}><strong>{item.label}</strong><span>{item.hint}</span></button>)}
@@ -196,7 +196,6 @@ export function SharePage() {
             {payload.topCategory && <button type="button" className={showCategory ? "is-active" : ""} onClick={() => setShowCategory((value) => !value)}>⌕ Категорию</button>}
           </div>
 
-          <div className="privacy-checklist privacy-checklist--compact" aria-label="Проверка приватности"><span>✓ имя скрыто</span><span>✓ числовые метрики скрыты</span><span>✓ только разрешённые итоги</span></div>
         </div>
 
         <div className="share-wrap">

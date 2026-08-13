@@ -147,7 +147,8 @@
 .recap-controls {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(92px, auto) minmax(0, 1fr) minmax(92px, auto);
+  grid-template-columns: minmax(92px, 132px) minmax(92px, 132px);
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
@@ -163,14 +164,8 @@
 }
 .recap-controls > button:hover:not(:disabled) { background: #fff; border-color: var(--border-strong); }
 .recap-controls > button:disabled { opacity: .3; cursor: default; }
-.recap-controls > span {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--text-tertiary);
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 9px;
+.recap-controls--with-moments {
+  grid-template-columns: minmax(92px, 132px) minmax(0, 1fr) minmax(92px, 132px);
 }
 .recap-moments-button { justify-self: center; color: var(--purple) !important; background: var(--surface-purple) !important; border-color: rgb(140 77 255 / 16%) !important; }
 
@@ -253,8 +248,8 @@
   .recap-progress { gap: 3px; }
   .recap-player-tools button { width: 30px; height: 30px; border-radius: 10px; }
   .recap-counter { min-width: 37px; }
-  .recap-controls { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .recap-controls > span,
+  .recap-controls,
+  .recap-controls--with-moments { grid-template-columns: 1fr 1fr; gap: 6px; }
   .recap-moments-button { display: none; }
   .recap-controls > button { width: 100%; min-height: 35px; }
   .moments-backdrop { padding: 0; place-items: stretch; }
@@ -275,9 +270,38 @@
   .recap-stage { gap: 4px; }
   .recap-player-tools button { width: 29px; height: 29px; }
   .recap-controls > button { min-height: 31px; }
-  .recap-controls > span { font-size: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .recap-progress button.is-cinematic > span { animation: none; }
+}
+
+/* Stage 3: calmer story controls — labels are easier to understand than media-player glyphs. */
+.recap-player-tools button {
+  width: auto;
+  min-width: 42px;
+  padding: 0 9px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.recap-controls > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.recap-controls > button i {
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .recap-player-tools button {
+    width: auto;
+    min-width: 38px;
+    height: 30px;
+    padding-inline: 7px;
+    font-size: 8px;
+  }
 }

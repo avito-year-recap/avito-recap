@@ -6,16 +6,16 @@ import { PageShell } from "../../shared/ui/PageShell";
 import "./ActionDemoPage.css";
 
 const content: Record<ActionCode, { title: string; description: string }> = {
-  FINISH_DRAFT: { title: "Черновик уже ждёт", description: "Здесь пользователь продолжил бы редактировать своё объявление." },
-  OPEN_FAVORITES: { title: "Возвращаемся к находкам", description: "Здесь открылся бы раздел с сохранёнными объявлениями." },
-  IMPROVE_LISTINGS: { title: "Объявление можно обновить", description: "Здесь открылось бы активное объявление пользователя." },
-  CONTINUE_DIALOGS: { title: "Диалог продолжается", description: "Здесь пользователь вернулся бы в нужный чат." },
-  OPEN_TOP_CATEGORY: { title: "Главный интерес рядом", description: "Здесь открылась бы категория, которая чаще всего интересовала пользователя." },
-  CREATE_FIRST_LISTING: { title: "Первое объявление", description: "Здесь начался бы сценарий создания объявления." },
-  CREATE_LISTING: { title: "Новое объявление", description: "Здесь начался бы сценарий создания нового объявления." },
-  SAVE_SEARCH: { title: "Поиск сохранён", description: "Здесь пользователь сохранил бы поиск и мог получать новые варианты автоматически." },
-  VIEW_SIMILAR_LISTINGS: { title: "Похожие варианты", description: "Здесь открылась бы подборка похожих объявлений." },
-  EXPLORE_RECOMMENDATIONS: { title: "Что посмотреть дальше", description: "Здесь открылась бы подборка рекомендаций." },
+  FINISH_DRAFT: { title: "Черновик уже ждёт", description: "Продолжи редактирование с того места, где остановился." },
+  OPEN_FAVORITES: { title: "Возвращаемся к находкам", description: "Все сохранённые объявления снова под рукой." },
+  IMPROVE_LISTINGS: { title: "Объявление можно обновить", description: "Проверь детали и сделай объявление заметнее." },
+  CONTINUE_DIALOGS: { title: "Диалог продолжается", description: "Вернись к разговору с того же места." },
+  OPEN_TOP_CATEGORY: { title: "Главный интерес рядом", description: "Посмотри новые объявления в категории, к которой возвращался чаще всего." },
+  CREATE_FIRST_LISTING: { title: "Первое объявление", description: "Самое время опубликовать вещь, которую давно хотел продать." },
+  CREATE_LISTING: { title: "Новое объявление", description: "Продолжи год с новой публикации." },
+  SAVE_SEARCH: { title: "Поиск сохранён", description: "Новые подходящие варианты будет проще не пропустить." },
+  VIEW_SIMILAR_LISTINGS: { title: "Похожие варианты", description: "Посмотри объявления, похожие на твои находки года." },
+  EXPLORE_RECOMMENDATIONS: { title: "Что посмотреть дальше", description: "Продолжи с подборкой новых идей и находок." },
 };
 
 const actionCodes = new Set(Object.keys(content));
@@ -30,7 +30,7 @@ export function ActionDemoPage() {
   const copy = content[code];
 
   return (
-    <PageShell compactHeader fitViewport backToProfiles>
+    <PageShell compactHeader fitViewport backTo="/account" backLabel="В кабинет">
       <section className={`action-demo action-demo--${visual.tone}`}>
         <div className="action-demo__copy">
           <span className="action-demo__eyebrow">Следующий шаг</span>
@@ -38,7 +38,7 @@ export function ActionDemoPage() {
           <p>{copy.description}</p>
           <div className="action-demo__actions">
             <Button onClick={() => navigate(-1)}>Вернуться к итогам</Button>
-            <Link to="/" className="action-demo__link">Выбрать другой профиль</Link>
+            <Link to="/profiles?return=/account" className="action-demo__link">Сменить профиль</Link>
           </div>
         </div>
         <div className="action-demo__visual" aria-hidden="true">

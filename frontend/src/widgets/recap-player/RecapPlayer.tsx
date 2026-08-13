@@ -222,13 +222,13 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
           <div className="recap-topline__meta">
             <div className="recap-player-tools" aria-label="Режим просмотра">
               <button type="button" className={cinematic ? "is-active" : ""} onClick={() => setCinematic((value) => !value)} aria-label={cinematic ? "Поставить автоисторию на паузу" : "Запустить автоисторию"} title="Автоистория">
-                {cinematic ? "Ⅱ" : "▶"}
+                {cinematic ? "Пауза" : "Авто"}
               </button>
               <button type="button" className={soundEnabled ? "is-active" : ""} onClick={toggleSound} aria-label={soundEnabled ? "Выключить звуки" : "Включить звуки"} title="Звуки">
-                {soundEnabled ? "♪" : "♩"}
+                {soundEnabled ? "Звук вкл" : "Звук"}
               </button>
               {wasCompleted && publicPayload && (
-                <button type="button" onClick={() => { setCinematic(false); setTrailerOpen(true); }} aria-label="Открыть трейлер года" title="Трейлер года">◇</button>
+                <button type="button" onClick={() => { setCinematic(false); setTrailerOpen(true); }} aria-label="Открыть трейлер года" title="Трейлер года">Трейлер</button>
               )}
             </div>
             <div className="recap-counter" aria-hidden="true"><b>{String(activeIndex + 1).padStart(2, "0")}</b><span>/</span><span>{String(cards.length).padStart(2, "0")}</span></div>
@@ -269,19 +269,17 @@ export function RecapPlayer({ recap }: { recap: Recap }) {
             <motion.div className="resume-card" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
               <span>Продолжить историю?</span>
               <strong>Ты остановился на экране {resumeIndex + 1} из {cards.length}</strong>
-              <div><button type="button" onClick={restart}>С начала</button><button type="button" onClick={resume}>Продолжить →</button></div>
+              <div><button type="button" onClick={restart}>С начала</button><button type="button" onClick={resume}>Продолжить</button></div>
             </motion.div>
           )}
         </div>
 
-        <div className="recap-controls" aria-label="Навигация по истории">
-          <button type="button" onClick={previous} disabled={activeIndex === 0}><span aria-hidden="true">←</span> Назад</button>
-          {wasCompleted ? (
-            <button className="recap-moments-button" type="button" onClick={() => { setCinematic(false); setMomentsOpen(true); }}><span aria-hidden="true">✦</span> Моменты года</button>
-          ) : (
-            <span>{cinematic ? "История идёт сама · P — пауза" : "Листай, свайпай или используй ← →"}</span>
+        <div className={`recap-controls${wasCompleted ? " recap-controls--with-moments" : ""}`} aria-label="Навигация по истории">
+          <button type="button" onClick={previous} disabled={activeIndex === 0}><i className="hgi hgi-stroke hgi-arrow-left-01" aria-hidden="true" /> Назад</button>
+          {wasCompleted && (
+            <button className="recap-moments-button" type="button" onClick={() => { setCinematic(false); setMomentsOpen(true); }}>Моменты года</button>
           )}
-          <button type="button" onClick={next} disabled={activeIndex === cards.length - 1}>Далее <span aria-hidden="true">→</span></button>
+          <button type="button" onClick={next} disabled={activeIndex === cards.length - 1}>Далее <i className="hgi hgi-stroke hgi-arrow-right-01" aria-hidden="true" /></button>
         </div>
      </section>
 

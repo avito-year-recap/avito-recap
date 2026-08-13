@@ -6,7 +6,7 @@ import "./RecapPlayer.css";
 function getSheetTitle(card: RecapCard) {
   switch (card.type) {
     case "BEHAVIOR":
-      return "Почему именно такой сценарий?";
+      return "Откуда взялся этот итог?";
     case "ACHIEVEMENT":
       return "За что получены ачивки?";
     case "NEXT_ACTION":
@@ -86,7 +86,7 @@ export function ExplanationDialog({
       >
         <div className="explanation-dialog__header">
           <div>
-            <span>Прозрачный recap</span>
+            <span>Подробнее</span>
             <h2 id="explanation-title">{getSheetTitle(card)}</h2>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Закрыть">
@@ -97,41 +97,21 @@ export function ExplanationDialog({
         {card.explanation && <p className="explanation-dialog__lead">{card.explanation}</p>}
 
         {card.type === "BEHAVIOR" && (
-          <>
-            {card.payload.evidence.length ? (
-              <div className="evidence-list">
-                {card.payload.evidence.map((item) => (
-                  <article key={item.metric}>
-                    <div>
-                      <strong>{item.label}</strong>
-                      <span>+{item.points} баллов</span>
-                    </div>
-                    <dl>
-                      <div>
-                        <dt>Факт</dt>
-                        <dd>{item.actualValue.toLocaleString("ru-RU")}</dd>
-                      </div>
-                      <div>
-                        <dt>Порог правила</dt>
-                        <dd>
-                          {item.comparison === "GTE" ? "≥" : "≤"} {item.threshold.toLocaleString("ru-RU")}
-                        </dd>
-                      </div>
-                    </dl>
-                    <p>{item.explanation}</p>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <p className="evidence-empty">
-                Для универсального сценария evidence отсутствует: специализированные правила не сработали.
-              </p>
-            )}
-            <div className="score-row">
-              <span>Итоговый score</span>
-              <strong>{card.payload.score}</strong>
+          card.payload.evidence.length ? (
+            <div className="evidence-list">
+              {card.payload.evidence.map((item) => (
+                <article key={item.metric}>
+                  <div>
+                    <strong>{item.label}</strong>
+                    <span>{item.actualValue.toLocaleString("ru-RU")}</span>
+                  </div>
+                  <p>{item.explanation}</p>
+                </article>
+              ))}
             </div>
-          </>
+          ) : (
+            <p className="evidence-empty">Этот итог сложился из твоей активности за год.</p>
+          )
         )}
 
         {card.type === "ACHIEVEMENT" && (

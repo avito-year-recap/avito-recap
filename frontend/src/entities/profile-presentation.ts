@@ -30,6 +30,18 @@ const presentationByProfileCode: Record<string, ProfilePresentation> = {
   },
 };
 
+
+const descriptionOverrides: Record<string, string> = {
+  "category-browser": "Смотрит разные категории и не ограничивается одним интересом",
+  "private-style-hunter": "Следит за модой и красотой и часто сохраняет понравившиеся находки",
+  "pet-threshold-buyer": "Покупает товары для питомца и быстро решается на подходящие варианты",
+  "listing-restart": "Создавала объявления и готова вернуться к первой публикации",
+};
+
+export function getProfileDisplayDescription(profileCode: string, description: string): string {
+  return descriptionOverrides[profileCode] ?? description;
+}
+
 /**
  * UI-only metadata. It is intentionally not part of the Protobuf contract:
  * the backend profile contains only name/description/avatarUrl/profileCode.
