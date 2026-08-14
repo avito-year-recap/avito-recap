@@ -15,24 +15,40 @@ func achievementDefinitionFor(code model.AchievementCode) (achievementDefinition
 func achievementDefinitions() map[model.AchievementCode]achievementDefinition {
 	definitions := map[model.AchievementCode]achievementDefinition{
 		model.AchievementSuccessfulSeller: standardAchievement(
-			func(m model.Metrics, _ ruleset.Ruleset) bool { return m.SalesCompleted >= 5 },
+			func(m model.Metrics, r ruleset.Ruleset) bool {
+				t := r.AchievementThresholds
+				return m.ListingsPublished >= t.SuccessfulSellerMinPublished &&
+					sellerSaleRate(m) >= t.SuccessfulSellerMinSaleRate
+			},
 			func(m model.Metrics) model.Achievement {
+				rate := sellerSaleRate(m)
 				return model.Achievement{
 					Code: model.AchievementSuccessfulSeller, Title: "Мастер переговоров",
-					Description: "Сделки уверенно доходили до результата.",
-					Reason:      fmt.Sprintf("Продаж завершено: %d.", m.SalesCompleted), Shareable: true,
+					Description: "Большая часть опубликованных объявлений дошла до продажи.",
+					Reason: fmt.Sprintf(
+						"Продажи составили %.0f%% от числа опубликованных объявлений (%d из %d).",
+						rate*100, cappedSalesForRate(m), m.ListingsPublished,
+					),
+					Shareable: true,
 				}
 			},
 		),
 		model.AchievementConsistentPublisher: standardAchievement(
-			func(m model.Metrics, _ ruleset.Ruleset) bool {
-				return m.ListingsPublished >= 5 && m.SalesCompleted >= 1
+			func(m model.Metrics, r ruleset.Ruleset) bool {
+				t := r.AchievementThresholds
+				return m.ListingsPublished >= t.ConsistentPublisherMinPublished &&
+					sellerSaleRate(m) >= t.ConsistentPublisherMinSaleRate
 			},
 			func(m model.Metrics) model.Achievement {
+				rate := sellerSaleRate(m)
 				return model.Achievement{
 					Code: model.AchievementConsistentPublisher, Title: "Маяк стабильности",
-					Description: "Объявления появлялись регулярно и поддерживали стабильный ритм продаж.",
-					Reason:      fmt.Sprintf("Объявлений опубликовано: %d.", m.ListingsPublished), Shareable: true,
+					Description: "Высокий объём публикаций сочетался со стабильной долей продаж.",
+					Reason: fmt.Sprintf(
+						"Опубликовано %d объявлений; продажи составили %.0f%% (%d из %d).",
+						m.ListingsPublished, rate*100, cappedSalesForRate(m), m.ListingsPublished,
+					),
+					Shareable: true,
 				}
 			},
 		),
@@ -138,11 +154,28 @@ func achievementDefinitions() map[model.AchievementCode]achievementDefinition {
 			}
 			return model.Achievement{
 				Code: code, Title: theme.Title, Description: theme.Description,
-				Reason: thematicReason(evidence), Strength: evidence.Signal, Shareable: false,
+				Reason: thematicReason(evidence), Strength: evidence.Signal, Shareable: true,
 			}, true
 		}}
 	}
 	return definitions
+}
+
+func sellerSaleRate(m model.Metrics) float64 {
+	if m.ListingsPublished == 0 {
+		return 0
+	}
+	return float64(cappedSalesForRate(m)) / float64(m.ListingsPublished)
+}
+
+// A sale completed this year can theoretically refer to an older listing. For
+// this annual recap ratio we cap the numerator at this year's publications so
+// the displayed conversion remains a meaningful percentage in [0, 100].
+func cappedSalesForRate(m model.Metrics) uint64 {
+	if m.SalesCompleted > m.ListingsPublished {
+		return m.ListingsPublished
+	}
+	return m.SalesCompleted
 }
 
 func standardAchievement(match func(model.Metrics, ruleset.Ruleset) bool, build func(model.Metrics) model.Achievement) achievementDefinition {

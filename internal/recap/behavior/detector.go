@@ -11,6 +11,7 @@ type behaviorCandidate struct {
 	behavior model.Behavior
 	eligible bool
 	priority uint32
+	checks   []model.RuleCheck
 }
 
 type behaviorRule struct {

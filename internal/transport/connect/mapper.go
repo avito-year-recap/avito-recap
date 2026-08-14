@@ -359,6 +359,8 @@ func achievementCodeToProto(value model.AchievementCode) (recapv1.AchievementCod
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_CARING_OWNER, nil
 	case model.AchievementLittleDiscoveries:
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_LITTLE_DISCOVERIES, nil
+	case model.AchievementDecisiveStep:
+		return recapv1.AchievementCode_ACHIEVEMENT_CODE_DECISIVE_STEP, nil
 	default:
 		return recapv1.AchievementCode_ACHIEVEMENT_CODE_UNSPECIFIED, fmt.Errorf(
 			"%w: unknown achievement code %q",
@@ -381,8 +383,7 @@ func actionCodeToProto(value model.ActionCode) (recapv1.ActionCode, error) {
 	case model.ActionOpenTopCategory:
 		return recapv1.ActionCode_ACTION_CODE_OPEN_TOP_CATEGORY, nil
 	case model.ActionCreateFirstListing:
-		//nolint:staticcheck // deprecated in proto but still a valid wire value for existing domain data
-		return recapv1.ActionCode_ACTION_CODE_CREATE_FIRST_LISTING, nil
+		return recapv1.ActionCode_ACTION_CODE_CREATE_FIRST_LISTING, nil //nolint:staticcheck // deprecated for new use, kept for wire compat with older integrations
 	case model.ActionCreateListing:
 		return recapv1.ActionCode_ACTION_CODE_CREATE_LISTING, nil
 	case model.ActionSaveSearch:

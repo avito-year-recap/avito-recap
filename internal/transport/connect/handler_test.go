@@ -52,6 +52,21 @@ func (f *fakeApplication) Generate(
 	return f.recap, f.err
 }
 
+func (f *fakeApplication) ExplainRecap(
+	_ context.Context,
+	profileID uuid.UUID,
+	year uint32,
+) (model.RecapExplanation, error) {
+	f.receivedProfileID = profileID
+	f.receivedYear = year
+	return model.RecapExplanation{
+		ProfileCode: f.recap.Profile.Code,
+		Year:        f.recap.Year,
+		Behavior:    f.recap.Behavior,
+		NextAction:  model.NextActionExplanation{Code: f.recap.NextAction.Code, Reason: f.recap.NextAction.Reason},
+	}, f.err
+}
+
 func (f *fakeApplication) Get(_ context.Context, recapID uuid.UUID) (model.Recap, error) {
 	f.receivedRecapID = recapID
 	return f.recap, f.err

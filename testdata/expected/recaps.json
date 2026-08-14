@@ -1,7 +1,7 @@
 [
   {
     "profileCode": "active-buyer",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "FIND_HUNTER",
     "expectedAchievements": [
       "ATTENTIVE_RESEARCHER",
@@ -24,7 +24,7 @@
   },
   {
     "profileCode": "active-seller",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
       "SUCCESSFUL_SELLER"
@@ -46,14 +46,15 @@
   },
   {
     "profileCode": "researcher",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "RESEARCHER",
     "expectedAchievements": [
-      "BROAD_INTERESTS"
+      "BROAD_INTERESTS",
+      "DECISIVE_STEP"
     ],
     "expectedNextAction": "SAVE_SEARCH",
-    "expectedTopCategoryCode": "electronics",
-    "expectedTopCategoryTitle": "Электроника",
+    "expectedTopCategoryCode": "real_estate",
+    "expectedTopCategoryTitle": "Недвижимость",
     "expectedActiveMonth": 12,
     "requiredCards": [
       "INTRO",
@@ -69,7 +70,7 @@
   },
   {
     "profileCode": "universal-user",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [
       "FIRST_SELLING_STEPS"
@@ -91,7 +92,7 @@
   },
   {
     "profileCode": "draft-seller",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "STARTING_SELLER",
     "expectedAchievements": [
       "FIRST_SELLING_STEPS"
@@ -114,7 +115,7 @@
   },
   {
     "profileCode": "decisive-buyer",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "DECISIVE_BUYER",
     "expectedAchievements": [
       "QUICK_DECISION"
@@ -136,7 +137,7 @@
   },
   {
     "profileCode": "seller-buyer-hybrid",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
       "ALL_ROUNDER",
@@ -160,7 +161,7 @@
   },
   {
     "profileCode": "returning-publisher",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "ACTIVE_SELLER",
     "expectedAchievements": [
       "CONSISTENT_PUBLISHER"
@@ -182,7 +183,7 @@
   },
   {
     "profileCode": "category-browser",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [],
     "expectedNextAction": "OPEN_TOP_CATEGORY",
@@ -201,7 +202,7 @@
   },
   {
     "profileCode": "recommendation-newcomer",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [],
     "expectedNextAction": "EXPLORE_RECOMMENDATIONS",
@@ -219,7 +220,7 @@
   },
   {
     "profileCode": "steady-buyer",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "UNIVERSAL_USER",
     "expectedAchievements": [
       "DEAL_CLOSER"
@@ -241,7 +242,7 @@
   },
   {
     "profileCode": "book-collector",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "DECISIVE_BUYER",
     "expectedAchievements": [
       "QUICK_DECISION",
@@ -264,7 +265,7 @@
   },
   {
     "profileCode": "private-style-hunter",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "FIND_HUNTER",
     "expectedAchievements": [
       "MASTER_OF_FAVORITES",
@@ -287,7 +288,7 @@
   },
   {
     "profileCode": "maker-with-draft",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "STARTING_SELLER",
     "expectedAchievements": [
       "FIRST_SELLING_STEPS",
@@ -311,7 +312,7 @@
   },
   {
     "profileCode": "pet-threshold-buyer",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "DECISIVE_BUYER",
     "expectedAchievements": [
       "QUICK_DECISION",
@@ -334,7 +335,7 @@
   },
   {
     "profileCode": "music-traveler",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "FIND_HUNTER",
     "expectedAchievements": [
       "DEAL_CLOSER",
@@ -358,7 +359,7 @@
   },
   {
     "profileCode": "listing-restart",
-    "expectedRulesVersion": "3.5.0",
+    "expectedRulesVersion": "3.6.0",
     "expectedBehavior": "STARTING_SELLER",
     "expectedAchievements": [
       "FIRST_SELLING_STEPS"

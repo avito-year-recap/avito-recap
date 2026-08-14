@@ -227,6 +227,7 @@ const (
 	AchievementCode_ACHIEVEMENT_CODE_MASTER_CRAFT           AchievementCode = 18
 	AchievementCode_ACHIEVEMENT_CODE_CARING_OWNER           AchievementCode = 19
 	AchievementCode_ACHIEVEMENT_CODE_LITTLE_DISCOVERIES     AchievementCode = 20
+	AchievementCode_ACHIEVEMENT_CODE_DECISIVE_STEP          AchievementCode = 21
 )
 
 // Enum value maps for AchievementCode.
@@ -253,6 +254,7 @@ var (
 		18: "ACHIEVEMENT_CODE_MASTER_CRAFT",
 		19: "ACHIEVEMENT_CODE_CARING_OWNER",
 		20: "ACHIEVEMENT_CODE_LITTLE_DISCOVERIES",
+		21: "ACHIEVEMENT_CODE_DECISIVE_STEP",
 	}
 	AchievementCode_value = map[string]int32{
 		"ACHIEVEMENT_CODE_UNSPECIFIED":            0,
@@ -276,6 +278,7 @@ var (
 		"ACHIEVEMENT_CODE_MASTER_CRAFT":           18,
 		"ACHIEVEMENT_CODE_CARING_OWNER":           19,
 		"ACHIEVEMENT_CODE_LITTLE_DISCOVERIES":     20,
+		"ACHIEVEMENT_CODE_DECISIVE_STEP":          21,
 	}
 )
 
@@ -2373,218 +2376,112 @@ func (x *PublicShare) GetTopCategory() string {
 var File_recap_v1_recap_proto protoreflect.FileDescriptor
 
 const file_recap_v1_recap_proto_rawDesc = "" +
-	"\n" +
-	"\x14recap/v1/recap.proto\x12\brecap.v1\"\x15\n" +
-	"\x13ListProfilesRequest\"E\n" +
-	"\x14ListProfilesResponse\x12-\n" +
-	"\bprofiles\x18\x01 \x03(\v2\x11.recap.v1.ProfileR\bprofiles\"M\n" +
-	"\x14GenerateRecapRequest\x12!\n" +
-	"\fprofile_code\x18\x01 \x01(\tR\vprofileCode\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\"H\n" +
-	"\x0fGetRecapRequest\x12!\n" +
-	"\fprofile_code\x18\x01 \x01(\tR\vprofileCode\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\"2\n" +
-	"\x15GetPublicShareRequest\x12\x19\n" +
-	"\bshare_id\x18\x01 \x01(\tR\ashareId\"c\n" +
-	"\rRecapResponse\x12+\n" +
-	"\aprofile\x18\x01 \x01(\v2\x11.recap.v1.ProfileR\aprofile\x12%\n" +
-	"\x05recap\x18\x02 \x01(\v2\x0f.recap.v1.RecapR\x05recap\"E\n" +
-	"\x16GetPublicShareResponse\x12+\n" +
-	"\x05share\x18\x01 \x01(\v2\x15.recap.v1.PublicShareR\x05share\"\x81\x01\n" +
-	"\aProfile\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1d\n" +
-	"\n" +
-	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\x12!\n" +
-	"\fprofile_code\x18\x04 \x01(\tR\vprofileCode\"\xeb\x01\n" +
-	"\x05Recap\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\x12!\n" +
-	"\frule_version\x18\x03 \x01(\tR\vruleVersion\x12)\n" +
-	"\x05cards\x18\x04 \x03(\v2\x13.recap.v1.RecapCardR\x05cards\x129\n" +
-	"\fachievements\x18\x05 \x03(\v2\x15.recap.v1.AchievementR\fachievements\x125\n" +
-	"\vnext_action\x18\x06 \x01(\v2\x14.recap.v1.NextActionR\n" +
-	"nextAction\"\x9e\x06\n" +
-	"\tRecapCard\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x12.recap.v1.CardTypeR\x04type\x12\x1a\n" +
-	"\bposition\x18\x03 \x01(\rR\bposition\x12\x14\n" +
-	"\x05title\x18\x04 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\x12 \n" +
-	"\vexplanation\x18\x06 \x01(\tR\vexplanation\x12\x1c\n" +
-	"\tshareable\x18\a \x01(\bR\tshareable\x12.\n" +
-	"\x05intro\x18\n" +
-	" \x01(\v2\x16.recap.v1.IntroPayloadH\x00R\x05intro\x12D\n" +
-	"\ryear_activity\x18\v \x01(\v2\x1d.recap.v1.YearActivityPayloadH\x00R\fyearActivity\x12A\n" +
-	"\ftop_category\x18\f \x01(\v2\x1c.recap.v1.TopCategoryPayloadH\x00R\vtopCategory\x12A\n" +
-	"\factive_month\x18\r \x01(\v2\x1c.recap.v1.ActiveMonthPayloadH\x00R\vactiveMonth\x127\n" +
-	"\bbehavior\x18\x0e \x01(\v2\x19.recap.v1.BehaviorPayloadH\x00R\bbehavior\x12@\n" +
-	"\vachievement\x18\x0f \x01(\v2\x1c.recap.v1.AchievementPayloadH\x00R\vachievement\x12S\n" +
-	"\x12missed_opportunity\x18\x10 \x01(\v2\".recap.v1.MissedOpportunityPayloadH\x00R\x11missedOpportunity\x12>\n" +
-	"\vnext_action\x18\x11 \x01(\v2\x1b.recap.v1.NextActionPayloadH\x00R\n" +
-	"nextAction\x12.\n" +
-	"\x05share\x18\x12 \x01(\v2\x16.recap.v1.SharePayloadH\x00R\x05shareB\t\n" +
-	"\apayload\"\x0e\n" +
-	"\fIntroPayload\"\xcc\x02\n" +
-	"\x13YearActivityPayload\x12!\n" +
-	"\ftotal_events\x18\x01 \x01(\x04R\vtotalEvents\x12\x1a\n" +
-	"\bsearches\x18\x02 \x01(\x04R\bsearches\x12\x1f\n" +
-	"\vtotal_views\x18\x03 \x01(\x04R\n" +
-	"totalViews\x12'\n" +
-	"\x0ffavorites_added\x18\x04 \x01(\x04R\x0efavoritesAdded\x12#\n" +
-	"\rchats_started\x18\x05 \x01(\x04R\fchatsStarted\x12-\n" +
-	"\x12listings_published\x18\x06 \x01(\x04R\x11listingsPublished\x12/\n" +
-	"\x13purchases_completed\x18\a \x01(\x04R\x12purchasesCompleted\x12'\n" +
-	"\x0fsales_completed\x18\b \x01(\x04R\x0esalesCompleted\"|\n" +
-	"\x12TopCategoryPayload\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\x12\x1a\n" +
-	"\bcategory\x18\x02 \x01(\tR\bcategory\x12%\n" +
-	"\x0ecategory_views\x18\x03 \x01(\x04R\rcategoryViews\"*\n" +
-	"\x12ActiveMonthPayload\x12\x14\n" +
-	"\x05month\x18\x01 \x01(\rR\x05month\"\xf9\x01\n" +
-	"\x10BehaviorEvidence\x12\x16\n" +
-	"\x06metric\x18\x01 \x01(\tR\x06metric\x12\x14\n" +
-	"\x05label\x18\x02 \x01(\tR\x05label\x12!\n" +
-	"\factual_value\x18\x03 \x01(\x01R\vactualValue\x12\x1c\n" +
-	"\tthreshold\x18\x04 \x01(\x01R\tthreshold\x12<\n" +
-	"\n" +
-	"comparison\x18\x05 \x01(\x0e2\x1c.recap.v1.EvidenceComparisonR\n" +
-	"comparison\x12\x16\n" +
-	"\x06points\x18\x06 \x01(\x05R\x06points\x12 \n" +
-	"\vexplanation\x18\a \x01(\tR\vexplanation\"\x8b\x01\n" +
-	"\x0fBehaviorPayload\x12*\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x16.recap.v1.BehaviorCodeR\x04code\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\x05R\x05score\x126\n" +
-	"\bevidence\x18\x03 \x03(\v2\x1a.recap.v1.BehaviorEvidenceR\bevidence\"E\n" +
-	"\x12AchievementPayload\x12/\n" +
-	"\x05codes\x18\x01 \x03(\x0e2\x19.recap.v1.AchievementCodeR\x05codes\"\x88\x01\n" +
-	"\vAchievement\x12-\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x19.recap.v1.AchievementCodeR\x04code\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x1c\n" +
-	"\tshareable\x18\x04 \x01(\bR\tshareable\".\n" +
-	"\rListingTarget\x12\x1d\n" +
-	"\n" +
-	"listing_id\x18\x01 \x01(\tR\tlistingId\"+\n" +
-	"\fDialogTarget\x12\x1b\n" +
-	"\tdialog_id\x18\x01 \x01(\tR\bdialogId\"5\n" +
-	"\x0eCategoryTarget\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"3\n" +
-	"\fSearchTarget\x12#\n" +
-	"\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"!\n" +
-	"\vRouteTarget\x12\x12\n" +
-	"\x04path\x18\x01 \x01(\tR\x04path\"\x98\x02\n" +
-	"\fActionTarget\x123\n" +
-	"\alisting\x18\x01 \x01(\v2\x17.recap.v1.ListingTargetH\x00R\alisting\x120\n" +
-	"\x06dialog\x18\x02 \x01(\v2\x16.recap.v1.DialogTargetH\x00R\x06dialog\x126\n" +
-	"\bcategory\x18\x03 \x01(\v2\x18.recap.v1.CategoryTargetH\x00R\bcategory\x120\n" +
-	"\x06search\x18\x04 \x01(\v2\x16.recap.v1.SearchTargetH\x00R\x06search\x12-\n" +
-	"\x05route\x18\x05 \x01(\v2\x15.recap.v1.RouteTargetH\x00R\x05routeB\b\n" +
-	"\x06target\"t\n" +
-	"\x18MissedOpportunityPayload\x12(\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n" +
-	"\x06target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"m\n" +
-	"\x11NextActionPayload\x12(\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n" +
-	"\x06target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\xe1\x01\n" +
-	"\n" +
-	"NextAction\x12(\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12 \n" +
-	"\vexplanation\x18\x04 \x01(\tR\vexplanation\x12\x1f\n" +
-	"\vbutton_text\x18\x05 \x01(\tR\n" +
-	"buttonText\x12.\n" +
-	"\x06target\x18\x06 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"\xe5\x01\n" +
-	"\fSharePayload\x12\x19\n" +
-	"\bshare_id\x18\x01 \x01(\tR\ashareId\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\x12%\n" +
-	"\x0ebehavior_title\x18\x03 \x01(\tR\rbehaviorTitle\x120\n" +
-	"\x11achievement_title\x18\x04 \x01(\tH\x00R\x10achievementTitle\x88\x01\x01\x12&\n" +
-	"\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01B\x14\n" +
-	"\x12_achievement_titleB\x0f\n" +
-	"\r_top_category\"\xe4\x01\n" +
-	"\vPublicShare\x12\x19\n" +
-	"\bshare_id\x18\x01 \x01(\tR\ashareId\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\rR\x04year\x12%\n" +
-	"\x0ebehavior_title\x18\x03 \x01(\tR\rbehaviorTitle\x120\n" +
-	"\x11achievement_title\x18\x04 \x01(\tH\x00R\x10achievementTitle\x88\x01\x01\x12&\n" +
-	"\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01B\x14\n" +
-	"\x12_achievement_titleB\x0f\n" +
-	"\r_top_category*\x94\x02\n" +
-	"\bCardType\x12\x19\n" +
-	"\x15CARD_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fCARD_TYPE_INTRO\x10\x01\x12\x1b\n" +
-	"\x17CARD_TYPE_YEAR_ACTIVITY\x10\x02\x12\x1a\n" +
-	"\x16CARD_TYPE_TOP_CATEGORY\x10\x03\x12\x1a\n" +
-	"\x16CARD_TYPE_ACTIVE_MONTH\x10\x04\x12\x16\n" +
-	"\x12CARD_TYPE_BEHAVIOR\x10\x05\x12\x19\n" +
-	"\x15CARD_TYPE_ACHIEVEMENT\x10\x06\x12 \n" +
-	"\x1cCARD_TYPE_MISSED_OPPORTUNITY\x10\a\x12\x19\n" +
-	"\x15CARD_TYPE_NEXT_ACTION\x10\b\x12\x13\n" +
-	"\x0fCARD_TYPE_SHARE\x10\t*\xf2\x01\n" +
-	"\fBehaviorCode\x12\x1d\n" +
-	"\x19BEHAVIOR_CODE_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bBEHAVIOR_CODE_ACTIVE_SELLER\x10\x01\x12!\n" +
-	"\x1dBEHAVIOR_CODE_STARTING_SELLER\x10\x02\x12 \n" +
-	"\x1cBEHAVIOR_CODE_DECISIVE_BUYER\x10\x03\x12\x1d\n" +
-	"\x19BEHAVIOR_CODE_FIND_HUNTER\x10\x04\x12\x1c\n" +
-	"\x18BEHAVIOR_CODE_RESEARCHER\x10\x05\x12 \n" +
-	"\x1cBEHAVIOR_CODE_UNIVERSAL_USER\x10\x06*s\n" +
-	"\x12EvidenceComparison\x12#\n" +
-	"\x1fEVIDENCE_COMPARISON_UNSPECIFIED\x10\x00\x12\x1b\n" +
-	"\x17EVIDENCE_COMPARISON_GTE\x10\x01\x12\x1b\n" +
-	"\x17EVIDENCE_COMPARISON_LTE\x10\x02*\xa5\x06\n" +
-	"\x0fAchievementCode\x12 \n" +
-	"\x1cACHIEVEMENT_CODE_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"ACHIEVEMENT_CODE_SUCCESSFUL_SELLER\x10\x01\x12)\n" +
-	"%ACHIEVEMENT_CODE_CONSISTENT_PUBLISHER\x10\x02\x12)\n" +
-	"%ACHIEVEMENT_CODE_ATTENTIVE_RESEARCHER\x10\x03\x12(\n" +
-	"$ACHIEVEMENT_CODE_MASTER_OF_FAVORITES\x10\x04\x12$\n" +
-	" ACHIEVEMENT_CODE_BROAD_INTERESTS\x10\x05\x12 \n" +
-	"\x1cACHIEVEMENT_CODE_ALL_ROUNDER\x10\x06\x12(\n" +
-	"$ACHIEVEMENT_CODE_FIRST_SELLING_STEPS\x10\a\x12 \n" +
-	"\x1cACHIEVEMENT_CODE_DEAL_CLOSER\x10\b\x12#\n" +
-	"\x1fACHIEVEMENT_CODE_QUICK_DECISION\x10\t\x12\x1f\n" +
-	"\x1bACHIEVEMENT_CODE_STYLE_ICON\x10\n" +
-	"\x12$\n" +
-	" ACHIEVEMENT_CODE_FASHIONABLE_MAN\x10\v\x12\x1d\n" +
-	"\x19ACHIEVEMENT_CODE_TRAVELER\x10\f\x12!\n" +
-	"\x1dACHIEVEMENT_CODE_FOR_THE_SOUL\x10\r\x12\x1d\n" +
-	"\x19ACHIEVEMENT_CODE_BOOKWORM\x10\x0e\x12'\n" +
-	"#ACHIEVEMENT_CODE_BEAUTY_CONNOISSEUR\x10\x0f\x12+\n" +
-	"'ACHIEVEMENT_CODE_IN_THE_RHYTHM_OF_MUSIC\x10\x10\x12\"\n" +
-	"\x1eACHIEVEMENT_CODE_WORLD_OF_PLAY\x10\x11\x12!\n" +
-	"\x1dACHIEVEMENT_CODE_MASTER_CRAFT\x10\x12\x12!\n" +
-	"\x1dACHIEVEMENT_CODE_CARING_OWNER\x10\x13\x12'\n" +
-	"#ACHIEVEMENT_CODE_LITTLE_DISCOVERIES\x10\x14*\x90\x02\n" +
-	"\x13AchievementCategory\x12$\n" +
-	" ACHIEVEMENT_CATEGORY_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cACHIEVEMENT_CATEGORY_SELLING\x10\x01\x12\x1f\n" +
-	"\x1bACHIEVEMENT_CATEGORY_BUYING\x10\x02\x12\"\n" +
-	"\x1eACHIEVEMENT_CATEGORY_DISCOVERY\x10\x03\x12#\n" +
-	"\x1fACHIEVEMENT_CATEGORY_COLLECTION\x10\x04\x12$\n" +
-	" ACHIEVEMENT_CATEGORY_VERSATILITY\x10\x05\x12!\n" +
-	"\x1dACHIEVEMENT_CATEGORY_INTEREST\x10\x06*\x85\x03\n" +
-	"\n" +
-	"ActionCode\x12\x1b\n" +
-	"\x17ACTION_CODE_UNSPECIFIED\x10\x00\x12\x1c\n" +
-	"\x18ACTION_CODE_FINISH_DRAFT\x10\x01\x12\x1e\n" +
-	"\x1aACTION_CODE_OPEN_FAVORITES\x10\x02\x12 \n" +
-	"\x1cACTION_CODE_IMPROVE_LISTINGS\x10\x03\x12 \n" +
-	"\x1cACTION_CODE_CONTINUE_DIALOGS\x10\x04\x12!\n" +
-	"\x1dACTION_CODE_OPEN_TOP_CATEGORY\x10\x05\x12\x1e\n" +
-	"\x1aACTION_CODE_CREATE_LISTING\x10\x06\x12\x1b\n" +
-	"\x17ACTION_CODE_SAVE_SEARCH\x10\a\x12%\n" +
-	"!ACTION_CODE_VIEW_SIMILAR_LISTINGS\x10\b\x12'\n" +
-	"#ACTION_CODE_EXPLORE_RECOMMENDATIONS\x10\t\x12(\n" +
-	" ACTION_CODE_CREATE_FIRST_LISTING\x10\n" +
-	"\x1a\x02\b\x012\xbc\x02\n" +
-	"\fRecapService\x12M\n" +
-	"\fListProfiles\x12\x1d.recap.v1.ListProfilesRequest\x1a\x1e.recap.v1.ListProfilesResponse\x12H\n" +
-	"\rGenerateRecap\x12\x1e.recap.v1.GenerateRecapRequest\x1a\x17.recap.v1.RecapResponse\x12>\n" +
-	"\bGetRecap\x12\x19.recap.v1.GetRecapRequest\x1a\x17.recap.v1.RecapResponse\x12S\n" +
-	"\x0eGetPublicShare\x12\x1f.recap.v1.GetPublicShareRequest\x1a .recap.v1.GetPublicShareResponseB/Z-github.com/year-recap/gen/go/recap/v1;recapv1b\x06proto3"
+	"\n\x14recap/v1/recap.proto\x12\brecap.v1\"\x15\n\x13ListProfilesRequest\"E\n\x14ListP" +
+	"rofilesResponse\x12-\n\bprofiles\x18\x01 \x03(\v2\x11.recap.v1.ProfileR\bprofiles\"M" +
+	"\n\x14GenerateRecapRequest\x12!\n\fprofile_code\x18\x01 \x01(\tR\vprofileCode\x12\x12\n\x04yea" +
+	"r\x18\x02 \x01(\rR\x04year\"H\n\x0fGetRecapRequest\x12!\n\fprofile_code\x18\x01 \x01(\tR\vprofileC" +
+	"ode\x12\x12\n\x04year\x18\x02 \x01(\rR\x04year\"2\n\x15GetPublicShareRequest\x12\x19\n\bshare_id\x18\x01 \x01" +
+	"(\tR\ashareId\"c\n\rRecapResponse\x12+\n\aprofile\x18\x01 \x01(\v2\x11.recap.v1.Profile" +
+	"R\aprofile\x12%\n\x05recap\x18\x02 \x01(\v2\x0f.recap.v1.RecapR\x05recap\"E\n\x16GetPublicSha" +
+	"reResponse\x12+\n\x05share\x18\x01 \x01(\v2\x15.recap.v1.PublicShareR\x05share\"\x81\x01\n\aProf" +
+	"ile\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x12 \n\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1d\n\nava" +
+	"tar_url\x18\x03 \x01(\tR\tavatarUrl\x12!\n\fprofile_code\x18\x04 \x01(\tR\vprofileCode\"\xeb\x01\n\x05" +
+	"Recap\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n\x04year\x18\x02 \x01(\rR\x04year\x12!\n\frule_version\x18\x03 \x01(\tR" +
+	"\vruleVersion\x12)\n\x05cards\x18\x04 \x03(\v2\x13.recap.v1.RecapCardR\x05cards\x129\n\fachie" +
+	"vements\x18\x05 \x03(\v2\x15.recap.v1.AchievementR\fachievements\x125\n\vnext_actio" +
+	"n\x18\x06 \x01(\v2\x14.recap.v1.NextActionR\nnextAction\"\x9e\x06\n\tRecapCard\x12\x0e\n\x02id\x18\x01 " +
+	"\x01(\tR\x02id\x12&\n\x04type\x18\x02 \x01(\x0e2\x12.recap.v1.CardTypeR\x04type\x12\x1a\n\bposition\x18\x03 \x01(" +
+	"\rR\bposition\x12\x14\n\x05title\x18\x04 \x01(\tR\x05title\x12 \n\vdescription\x18\x05 \x01(\tR\vdescript" +
+	"ion\x12 \n\vexplanation\x18\x06 \x01(\tR\vexplanation\x12\x1c\n\tshareable\x18\a \x01(\bR\tsharea" +
+	"ble\x12.\n\x05intro\x18\n \x01(\v2\x16.recap.v1.IntroPayloadH\x00R\x05intro\x12D\n\ryear_acti" +
+	"vity\x18\v \x01(\v2\x1d.recap.v1.YearActivityPayloadH\x00R\fyearActivity\x12A\n\ftop" +
+	"_category\x18\f \x01(\v2\x1c.recap.v1.TopCategoryPayloadH\x00R\vtopCategory\x12A\n\f" +
+	"active_month\x18\r \x01(\v2\x1c.recap.v1.ActiveMonthPayloadH\x00R\vactiveMonth\x12" +
+	"7\n\bbehavior\x18\x0e \x01(\v2\x19.recap.v1.BehaviorPayloadH\x00R\bbehavior\x12@\n\vachi" +
+	"evement\x18\x0f \x01(\v2\x1c.recap.v1.AchievementPayloadH\x00R\vachievement\x12S\n\x12mi" +
+	"ssed_opportunity\x18\x10 \x01(\v2\".recap.v1.MissedOpportunityPayloadH\x00R\x11mi" +
+	"ssedOpportunity\x12>\n\vnext_action\x18\x11 \x01(\v2\x1b.recap.v1.NextActionPayloa" +
+	"dH\x00R\nnextAction\x12.\n\x05share\x18\x12 \x01(\v2\x16.recap.v1.SharePayloadH\x00R\x05shareB" +
+	"\t\n\apayload\"\x0e\n\fIntroPayload\"\xcc\x02\n\x13YearActivityPayload\x12!\n\ftotal_even" +
+	"ts\x18\x01 \x01(\x04R\vtotalEvents\x12\x1a\n\bsearches\x18\x02 \x01(\x04R\bsearches\x12\x1f\n\vtotal_views" +
+	"\x18\x03 \x01(\x04R\ntotalViews\x12'\n\x0ffavorites_added\x18\x04 \x01(\x04R\x0efavoritesAdded\x12#\n\rc" +
+	"hats_started\x18\x05 \x01(\x04R\fchatsStarted\x12-\n\x12listings_published\x18\x06 \x01(\x04R\x11li" +
+	"stingsPublished\x12/\n\x13purchases_completed\x18\a \x01(\x04R\x12purchasesCompleted" +
+	"\x12'\n\x0fsales_completed\x18\b \x01(\x04R\x0esalesCompleted\"|\n\x12TopCategoryPayload\x12" +
+	"#\n\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\x12\x1a\n\bcategory\x18\x02 \x01(\tR\bcategory" +
+	"\x12%\n\x0ecategory_views\x18\x03 \x01(\x04R\rcategoryViews\"*\n\x12ActiveMonthPayload\x12\x14\n" +
+	"\x05month\x18\x01 \x01(\rR\x05month\"\xf9\x01\n\x10BehaviorEvidence\x12\x16\n\x06metric\x18\x01 \x01(\tR\x06metric" +
+	"\x12\x14\n\x05label\x18\x02 \x01(\tR\x05label\x12!\n\factual_value\x18\x03 \x01(\x01R\vactualValue\x12\x1c\n\tthr" +
+	"eshold\x18\x04 \x01(\x01R\tthreshold\x12<\n\ncomparison\x18\x05 \x01(\x0e2\x1c.recap.v1.EvidenceC" +
+	"omparisonR\ncomparison\x12\x16\n\x06points\x18\x06 \x01(\x05R\x06points\x12 \n\vexplanation\x18\a \x01" +
+	"(\tR\vexplanation\"\x8b\x01\n\x0fBehaviorPayload\x12*\n\x04code\x18\x01 \x01(\x0e2\x16.recap.v1.Beh" +
+	"aviorCodeR\x04code\x12\x14\n\x05score\x18\x02 \x01(\x05R\x05score\x126\n\bevidence\x18\x03 \x03(\v2\x1a.recap." +
+	"v1.BehaviorEvidenceR\bevidence\"E\n\x12AchievementPayload\x12/\n\x05codes\x18\x01 \x03" +
+	"(\x0e2\x19.recap.v1.AchievementCodeR\x05codes\"\x88\x01\n\vAchievement\x12-\n\x04code\x18\x01 \x01" +
+	"(\x0e2\x19.recap.v1.AchievementCodeR\x04code\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n\x06rea" +
+	"son\x18\x03 \x01(\tR\x06reason\x12\x1c\n\tshareable\x18\x04 \x01(\bR\tshareable\".\n\rListingTarget" +
+	"\x12\x1d\n\nlisting_id\x18\x01 \x01(\tR\tlistingId\"+\n\fDialogTarget\x12\x1b\n\tdialog_id\x18\x01 \x01" +
+	"(\tR\bdialogId\"5\n\x0eCategoryTarget\x12#\n\rcategory_code\x18\x01 \x01(\tR\fcategoryC" +
+	"ode\"3\n\fSearchTarget\x12#\n\rcategory_code\x18\x01 \x01(\tR\fcategoryCode\"!\n\vRout" +
+	"eTarget\x12\x12\n\x04path\x18\x01 \x01(\tR\x04path\"\x98\x02\n\fActionTarget\x123\n\alisting\x18\x01 \x01(\v2\x17." +
+	"recap.v1.ListingTargetH\x00R\alisting\x120\n\x06dialog\x18\x02 \x01(\v2\x16.recap.v1.Dia" +
+	"logTargetH\x00R\x06dialog\x126\n\bcategory\x18\x03 \x01(\v2\x18.recap.v1.CategoryTargetH" +
+	"\x00R\bcategory\x120\n\x06search\x18\x04 \x01(\v2\x16.recap.v1.SearchTargetH\x00R\x06search\x12-\n" +
+	"\x05route\x18\x05 \x01(\v2\x15.recap.v1.RouteTargetH\x00R\x05routeB\b\n\x06target\"t\n\x18Missed" +
+	"OpportunityPayload\x12(\n\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n\x06" +
+	"target\x18\x02 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"m\n\x11NextActionPayloa" +
+	"d\x12(\n\x04code\x18\x01 \x01(\x0e2\x14.recap.v1.ActionCodeR\x04code\x12.\n\x06target\x18\x02 \x01(\v2\x16.re" +
+	"cap.v1.ActionTargetR\x06target\"\xe1\x01\n\nNextAction\x12(\n\x04code\x18\x01 \x01(\x0e2\x14.recap" +
+	".v1.ActionCodeR\x04code\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12 \n\vdescription\x18\x03 \x01(\tR" +
+	"\vdescription\x12 \n\vexplanation\x18\x04 \x01(\tR\vexplanation\x12\x1f\n\vbutton_text\x18\x05 " +
+	"\x01(\tR\nbuttonText\x12.\n\x06target\x18\x06 \x01(\v2\x16.recap.v1.ActionTargetR\x06target\"" +
+	"\xe5\x01\n\fSharePayload\x12\x19\n\bshare_id\x18\x01 \x01(\tR\ashareId\x12\x12\n\x04year\x18\x02 \x01(\rR\x04year\x12" +
+	"%\n\x0ebehavior_title\x18\x03 \x01(\tR\rbehaviorTitle\x120\n\x11achievement_title\x18\x04 \x01(" +
+	"\tH\x00R\x10achievementTitle\x88\x01\x01\x12&\n\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01" +
+	"B\x14\n\x12_achievement_titleB\x0f\n\r_top_category\"\xe4\x01\n\vPublicShare\x12\x19\n\bshare" +
+	"_id\x18\x01 \x01(\tR\ashareId\x12\x12\n\x04year\x18\x02 \x01(\rR\x04year\x12%\n\x0ebehavior_title\x18\x03 \x01(\tR\r" +
+	"behaviorTitle\x120\n\x11achievement_title\x18\x04 \x01(\tH\x00R\x10achievementTitle\x88\x01\x01\x12" +
+	"&\n\ftop_category\x18\x05 \x01(\tH\x01R\vtopCategory\x88\x01\x01B\x14\n\x12_achievement_titleB\x0f\n" +
+	"\r_top_category*\x94\x02\n\bCardType\x12\x19\n\x15CARD_TYPE_UNSPECIFIED\x10\x00\x12\x13\n\x0fCARD_T" +
+	"YPE_INTRO\x10\x01\x12\x1b\n\x17CARD_TYPE_YEAR_ACTIVITY\x10\x02\x12\x1a\n\x16CARD_TYPE_TOP_CATEGO" +
+	"RY\x10\x03\x12\x1a\n\x16CARD_TYPE_ACTIVE_MONTH\x10\x04\x12\x16\n\x12CARD_TYPE_BEHAVIOR\x10\x05\x12\x19\n\x15CARD" +
+	"_TYPE_ACHIEVEMENT\x10\x06\x12 \n\x1cCARD_TYPE_MISSED_OPPORTUNITY\x10\a\x12\x19\n\x15CARD_TY" +
+	"PE_NEXT_ACTION\x10\b\x12\x13\n\x0fCARD_TYPE_SHARE\x10\t*\xf2\x01\n\fBehaviorCode\x12\x1d\n\x19BEHAVI" +
+	"OR_CODE_UNSPECIFIED\x10\x00\x12\x1f\n\x1bBEHAVIOR_CODE_ACTIVE_SELLER\x10\x01\x12!\n\x1dBEHAVI" +
+	"OR_CODE_STARTING_SELLER\x10\x02\x12 \n\x1cBEHAVIOR_CODE_DECISIVE_BUYER\x10\x03\x12\x1d\n\x19B" +
+	"EHAVIOR_CODE_FIND_HUNTER\x10\x04\x12\x1c\n\x18BEHAVIOR_CODE_RESEARCHER\x10\x05\x12 \n\x1cBEHA" +
+	"VIOR_CODE_UNIVERSAL_USER\x10\x06*s\n\x12EvidenceComparison\x12#\n\x1fEVIDENCE_COM" +
+	"PARISON_UNSPECIFIED\x10\x00\x12\x1b\n\x17EVIDENCE_COMPARISON_GTE\x10\x01\x12\x1b\n\x17EVIDENCE_C" +
+	"OMPARISON_LTE\x10\x02*\xc9\x06\n\x0fAchievementCode\x12 \n\x1cACHIEVEMENT_CODE_UNSPECIF" +
+	"IED\x10\x00\x12&\n\"ACHIEVEMENT_CODE_SUCCESSFUL_SELLER\x10\x01\x12)\n%ACHIEVEMENT_COD" +
+	"E_CONSISTENT_PUBLISHER\x10\x02\x12)\n%ACHIEVEMENT_CODE_ATTENTIVE_RESEARCHE" +
+	"R\x10\x03\x12(\n$ACHIEVEMENT_CODE_MASTER_OF_FAVORITES\x10\x04\x12$\n ACHIEVEMENT_COD" +
+	"E_BROAD_INTERESTS\x10\x05\x12 \n\x1cACHIEVEMENT_CODE_ALL_ROUNDER\x10\x06\x12(\n$ACHIEVE" +
+	"MENT_CODE_FIRST_SELLING_STEPS\x10\a\x12 \n\x1cACHIEVEMENT_CODE_DEAL_CLOSER\x10" +
+	"\b\x12#\n\x1fACHIEVEMENT_CODE_QUICK_DECISION\x10\t\x12\x1f\n\x1bACHIEVEMENT_CODE_STYLE" +
+	"_ICON\x10\n\x12$\n ACHIEVEMENT_CODE_FASHIONABLE_MAN\x10\v\x12\x1d\n\x19ACHIEVEMENT_COD" +
+	"E_TRAVELER\x10\f\x12!\n\x1dACHIEVEMENT_CODE_FOR_THE_SOUL\x10\r\x12\x1d\n\x19ACHIEVEMENT_C" +
+	"ODE_BOOKWORM\x10\x0e\x12'\n#ACHIEVEMENT_CODE_BEAUTY_CONNOISSEUR\x10\x0f\x12+\n'ACHIE" +
+	"VEMENT_CODE_IN_THE_RHYTHM_OF_MUSIC\x10\x10\x12\"\n\x1eACHIEVEMENT_CODE_WORLD_O" +
+	"F_PLAY\x10\x11\x12!\n\x1dACHIEVEMENT_CODE_MASTER_CRAFT\x10\x12\x12!\n\x1dACHIEVEMENT_CODE_" +
+	"CARING_OWNER\x10\x13\x12'\n#ACHIEVEMENT_CODE_LITTLE_DISCOVERIES\x10\x14\x12\"\n\x1eACHIE" +
+	"VEMENT_CODE_DECISIVE_STEP\x10\x15*\x90\x02\n\x13AchievementCategory\x12$\n ACHIEVEME" +
+	"NT_CATEGORY_UNSPECIFIED\x10\x00\x12 \n\x1cACHIEVEMENT_CATEGORY_SELLING\x10\x01\x12\x1f\n\x1bA" +
+	"CHIEVEMENT_CATEGORY_BUYING\x10\x02\x12\"\n\x1eACHIEVEMENT_CATEGORY_DISCOVERY\x10\x03" +
+	"\x12#\n\x1fACHIEVEMENT_CATEGORY_COLLECTION\x10\x04\x12$\n ACHIEVEMENT_CATEGORY_VE" +
+	"RSATILITY\x10\x05\x12!\n\x1dACHIEVEMENT_CATEGORY_INTEREST\x10\x06*\x85\x03\n\nActionCode\x12\x1b\n" +
+	"\x17ACTION_CODE_UNSPECIFIED\x10\x00\x12\x1c\n\x18ACTION_CODE_FINISH_DRAFT\x10\x01\x12\x1e\n\x1aACTI" +
+	"ON_CODE_OPEN_FAVORITES\x10\x02\x12 \n\x1cACTION_CODE_IMPROVE_LISTINGS\x10\x03\x12 \n\x1cAC" +
+	"TION_CODE_CONTINUE_DIALOGS\x10\x04\x12!\n\x1dACTION_CODE_OPEN_TOP_CATEGORY\x10\x05\x12" +
+	"\x1e\n\x1aACTION_CODE_CREATE_LISTING\x10\x06\x12\x1b\n\x17ACTION_CODE_SAVE_SEARCH\x10\a\x12%\n!" +
+	"ACTION_CODE_VIEW_SIMILAR_LISTINGS\x10\b\x12'\n#ACTION_CODE_EXPLORE_RECOM" +
+	"MENDATIONS\x10\t\x12(\n ACTION_CODE_CREATE_FIRST_LISTING\x10\n\x1a\x02\b\x012\xbc\x02\n\fRecap" +
+	"Service\x12M\n\fListProfiles\x12\x1d.recap.v1.ListProfilesRequest\x1a\x1e.recap.v" +
+	"1.ListProfilesResponse\x12H\n\rGenerateRecap\x12\x1e.recap.v1.GenerateRecap" +
+	"Request\x1a\x17.recap.v1.RecapResponse\x12>\n\bGetRecap\x12\x19.recap.v1.GetRecap" +
+	"Request\x1a\x17.recap.v1.RecapResponse\x12S\n\x0eGetPublicShare\x12\x1f.recap.v1.Ge" +
+	"tPublicShareRequest\x1a .recap.v1.GetPublicShareResponseB/Z-github." +
+	"com/year-recap/gen/go/recap/v1;recapv1b\x06proto3"
 
 var (
 	file_recap_v1_recap_proto_rawDescOnce sync.Once

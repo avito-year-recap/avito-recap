@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 
@@ -13,24 +12,29 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// Считает метрики. Если есть и актуально (считает количество событий) - берет из кеша, иначе идет в таблицу с сырыми данными
+// CalculateMetrics is cache-aside over the raw events table, but a cache hit
+// is only trusted after confirming it is still current: annual_metrics
+// stores the event count it was computed from, and every read compares that
+// against a live count() over events before returning the cached row. Events
+// that land for a profile/year after the first computation are what this
+// catches — without it, a cache row written once would be served forever
+// even after more events arrive. The live count is a cheap query (ClickHouse
+// counts columnarly, and events is ordered by profile_id first), so this
+// stays much cheaper than re-fetching and re-aggregating every event row on
+// every read, while still being correct instead of merely fast.
 func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period model.RecapPeriod) (model.Metrics, error) {
-	liveCount, err := r.countEvents(ctx, profileID, period.Year)
+	liveCount, err := r.CountEvents(ctx, profileID, period.Year)
 	if err != nil {
 		return model.Metrics{}, fmt.Errorf("count events: %w", err)
 	}
+	if liveCount == 0 {
+		return model.Metrics{}, application.ErrMetricsNotFound
+	}
 
-	// Проверяем кеш до проверки liveCount==0 - UpsertAnnualMetrics может
-	// зафиксировать метрики для профиля без сырых events (например, при
-	// миграции исторических данных), и такой кеш должен читаться как обычно.
 	if cached, ok, err := r.cachedMetrics(ctx, profileID, period.Year); err != nil {
 		return model.Metrics{}, err
 	} else if ok && cached.eventCount == liveCount {
 		return cached.metrics, nil
-	}
-
-	if liveCount == 0 {
-		return model.Metrics{}, application.ErrMetricsNotFound
 	}
 
 	events, err := r.queryEvents(ctx, profileID, period.Year)
@@ -45,7 +49,7 @@ func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period
 	return metrics, nil
 }
 
-func (r *Repo) countEvents(ctx context.Context, profileID uuid.UUID, year uint32) (uint64, error) {
+func (r *Repo) CountEvents(ctx context.Context, profileID uuid.UUID, year uint32) (uint64, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT count()
 		FROM events
@@ -54,11 +58,7 @@ func (r *Repo) countEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return 0, fmt.Errorf("query event count: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close event count rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return 0, rows.Err()
@@ -85,11 +85,7 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	if err != nil {
 		return cachedMetricsRow{}, false, fmt.Errorf("query annual metrics cache: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close annual metrics cache rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return cachedMetricsRow{}, false, rows.Err()
@@ -106,19 +102,6 @@ func (r *Repo) cachedMetrics(ctx context.Context, profileID uuid.UUID, year uint
 	return cachedMetricsRow{metrics: metrics, eventCount: eventCount}, true, nil
 }
 
-// UpsertAnnualMetrics явно фиксирует метрики профиля за год, минуя агрегацию
-// сырых events. Freshness-маркер берется как текущий liveCount, поэтому
-// CalculateMetrics отдаст именно эти метрики, пока набор events профиля за
-// год не изменится.
-func (r *Repo) UpsertAnnualMetrics(ctx context.Context, profileID uuid.UUID, year uint32, metrics model.Metrics) error {
-	liveCount, err := r.countEvents(ctx, profileID, year)
-	if err != nil {
-		return fmt.Errorf("count events: %w", err)
-	}
-	return r.writeMetricsCache(ctx, profileID, year, metrics, liveCount)
-}
-
-// Записываем кэш, если новый
 func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year uint32, metrics model.Metrics, eventCount uint64) error {
 	encoded, err := json.Marshal(metrics)
 	if err != nil {
@@ -129,7 +112,6 @@ func (r *Repo) writeMetricsCache(ctx context.Context, profileID uuid.UUID, year 
 	`, profileID, uint16(year), string(encoded), eventCount)
 }
 
-// Считываем метрики, если кэш пустой
 func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32) ([]model.Event, error) {
 	rows, err := r.conn.Query(ctx, `
 		SELECT id, profile_id, event_type, occurred_at, category, ad_id, dialog_id
@@ -139,11 +121,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	if err != nil {
 		return nil, fmt.Errorf("query events: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close events rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 
 	var events []model.Event
 	for rows.Next() {
@@ -161,7 +139,7 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	return events, rows.Err()
 }
 
-// Заносим готовые евенты (для авто-заполнения)
+// InsertEvents implements bootstrap.SeedStorage.
 func (r *Repo) InsertEvents(ctx context.Context, events []model.Event) error {
 	if len(events) == 0 {
 		return nil

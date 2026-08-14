@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 81,
     "searches": 10,
@@ -177,7 +177,7 @@
       "payload": {
         "shareId": "3a3c6ffe-22b6-5cf0-a4de-05eb06fe1d19",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Разные сценарии",
         "achievementTitle": "Сделка состоялась",
         "topCategory": "Электроника"

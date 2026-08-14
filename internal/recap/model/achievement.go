@@ -34,6 +34,7 @@ const (
 	AchievementMasterCraft         AchievementCode = "MASTER_CRAFT"
 	AchievementCaringOwner         AchievementCode = "CARING_OWNER"
 	AchievementLittleDiscoveries   AchievementCode = "LITTLE_DISCOVERIES"
+	AchievementDecisiveStep        AchievementCode = "DECISIVE_STEP"
 )
 
 const (

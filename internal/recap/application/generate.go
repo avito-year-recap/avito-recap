@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/analytics"
@@ -22,12 +23,37 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 	}
 	key := s.engine.RecapKey(profileID, year)
 
+	// Fast path: most repeated reads avoid singleflight bookkeeping entirely.
 	if existing, err := s.recaps.GetRecapByKey(ctx, key); err == nil {
 		return s.validateStoredByKey(existing, key)
 	} else if !errors.Is(err, ErrRecapNotFound) {
 		return model.Recap{}, fmt.Errorf("get recap by idempotency key: %w", err)
 	}
 
+	// Slow path: concurrent requests for the same profile/year/ruleset share one
+	// expensive generation (metrics + rules + optional AI). Followers wait for
+	// the leader instead of issuing duplicate work or duplicate AI requests.
+	return s.generateFlights.Do(ctx, key, func(sharedCtx context.Context) (model.Recap, error) {
+		// Re-check after entering the flight: another generation may have completed
+		// between the fast-path lookup and this call.
+		if existing, err := s.recaps.GetRecapByKey(sharedCtx, key); err == nil {
+			return s.validateStoredByKey(existing, key)
+		} else if !errors.Is(err, ErrRecapNotFound) {
+			return model.Recap{}, fmt.Errorf("get recap by idempotency key after singleflight: %w", err)
+		}
+
+		return s.generateOnce(sharedCtx, profileID, year, period, now, key)
+	})
+}
+
+func (s *Service) generateOnce(
+	ctx context.Context,
+	profileID uuid.UUID,
+	year uint32,
+	period model.RecapPeriod,
+	now time.Time,
+	key model.RecapKey,
+) (model.Recap, error) {
 	profile, err := s.profiles.GetProfile(ctx, profileID)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("get profile: %w", err)
@@ -73,8 +99,16 @@ func (s *Service) Generate(ctx context.Context, profileID uuid.UUID, year uint32
 		return model.Recap{}, err
 	}
 
-	// Persistence remains the concurrency/idempotency boundary. Business
-	// derivation is already complete before the storage call.
+	if s.narrative != nil {
+		candidate, err = s.narrative.Enrich(ctx, candidate)
+		if err != nil {
+			return model.Recap{}, err
+		}
+	}
+
+	// singleflight only removes duplicate work inside one application instance.
+	// The current ClickHouse adapter is intentionally single-writer; a multi-replica
+	// production deployment needs a distributed lock or atomic uniqueness elsewhere.
 	stored, err := s.recaps.CreateRecapIfAbsent(ctx, key, candidate)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("create recap if absent: %w", err)

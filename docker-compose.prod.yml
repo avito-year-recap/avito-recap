@@ -16,6 +16,11 @@ services:
       PROFILES_PATH: "seeds/profiles.json"
       SCENARIOS_PATH: "seeds/scenarios.json"
       CORS_ALLOWED_ORIGINS: "http://176.12.77.144"
+      AI_NARRATIVE_PROVIDER: "${AI_NARRATIVE_PROVIDER:-auto}"
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-qwen3:4b}"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      AI_NARRATIVE_TIMEOUT: "120s"
+      AI_NARRATIVE_MAX_CONCURRENCY: "1"
     depends_on:
       clickhouse:
         condition: service_healthy
@@ -60,8 +65,31 @@ services:
     networks:
       - recap
 
+  # Хост ограничен 4 ГБ RAM / 2 vCPU. Замер на проде: qwen3:4b под Ollama
+  # держит пик ~2.6 ГБ RSS и почти полностью занимает оба ядра во время
+  # генерации. Лимиты ниже не дают ему задушить ClickHouse/api по памяти
+  # и оставляют второе ядро остальным сервисам - ценой более медленной
+  # генерации. При нехватке памяти контейнер убьётся по OOM и поднимется
+  # заново по restart-политике; приложение при этом падает на детерминиро-
+  # ванный текст рекапа (AI - best-effort, не обязателен для ответа).
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    mem_limit: 3g
+    mem_reservation: 2.5g
+    cpus: "1"
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    volumes:
+      - ollama_data:/root/.ollama
+    logging: *default-logging
+    networks:
+      - recap
+
 volumes:
   clickhouse_data:
+  ollama_data:
 
 networks:
   recap:

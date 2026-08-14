@@ -72,8 +72,8 @@ func TestIntegrityRejectsFutureDatedStoredRecap(t *testing.T) {
 
 func TestIntegrityRejectsStoredAchievementsFromSameCategory(t *testing.T) {
 	value := testkit.Recap()
-	first := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{SalesCompleted: 5})
-	second := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{ListingsPublished: 5, SalesCompleted: 1})
+	first := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{ListingsPublished: 10, SalesCompleted: 7})
+	second := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{ListingsPublished: 10, SalesCompleted: 5})
 	if len(first) == 0 || len(second) == 0 {
 		t.Fatal("seller achievement fixtures are empty")
 	}
@@ -95,7 +95,7 @@ func TestIntegrityRejectsLowerGradeWhenHigherGradeWasEarned(t *testing.T) {
 	value.Metrics = analytics.EnrichMetrics(value.Metrics)
 	value.Behavior = behavior.Detect(ruleset.DefaultRuleset(), value.Metrics)
 	expected := achievement.Build(ruleset.DefaultRuleset(), value.Metrics)
-	lower := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{SalesCompleted: 1})
+	lower := achievement.Build(ruleset.DefaultRuleset(), model.Metrics{ListingsPublished: 10, SalesCompleted: 5})
 	if len(expected) == 0 || len(lower) == 0 {
 		t.Fatal("achievement fixtures are empty")
 	}

@@ -63,6 +63,10 @@ func thematicAchievements() map[model.AchievementCode]thematicAchievement {
 			Title: "Для маленьких открытий", Description: "Детские товары сопровождали новые идеи, игры и открытия.",
 			CategoryCodes: []string{analytics.CategoryKids},
 		},
+		model.AchievementDecisiveStep: {
+			Title: "Решительный шаг", Description: "Недвижимость стала заметным направлением года — ты изучал варианты и приближался к важному решению.",
+			CategoryCodes: []string{analytics.CategoryRealEstate},
+		},
 	}
 }
 

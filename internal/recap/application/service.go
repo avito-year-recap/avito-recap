@@ -11,6 +11,7 @@ import (
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/engine"
 	"github.com/year-recap/internal/recap/model"
+	"github.com/year-recap/internal/recap/narrative"
 	"github.com/year-recap/internal/recap/ruleset"
 	"github.com/year-recap/internal/recap/validation/structural"
 )
@@ -18,20 +19,23 @@ import (
 type IDGenerator func() (uuid.UUID, error)
 
 type Service struct {
-	profiles     ProfileStorage
-	analytics    AnalyticsStorage
-	actionStates ActionStateStorage
-	recaps       RecapStorage
-	engine       *engine.Engine
+	profiles        ProfileStorage
+	analytics       AnalyticsStorage
+	actionStates    ActionStateStorage
+	recaps          RecapStorage
+	engine          *engine.Engine
+	narrative       narrative.Enricher
+	generateFlights generationFlightGroup
 
 	now   func() time.Time
 	newID IDGenerator
 }
 
 type serviceConfig struct {
-	rules ruleset.Ruleset
-	now   func() time.Time
-	newID IDGenerator
+	rules     ruleset.Ruleset
+	narrative narrative.Enricher
+	now       func() time.Time
+	newID     IDGenerator
 }
 
 type Option func(*serviceConfig)
@@ -68,7 +72,7 @@ func NewService(
 	}
 	return &Service{
 		profiles: profiles, analytics: analytics, actionStates: actionStates, recaps: recaps,
-		engine: core, now: config.now, newID: config.newID,
+		engine: core, narrative: config.narrative, now: config.now, newID: config.newID,
 	}, nil
 }
 
@@ -147,6 +151,10 @@ func WithIDGenerator(generator IDGenerator) Option {
 
 func WithRuleset(configured ruleset.Ruleset) Option {
 	return func(config *serviceConfig) { config.rules = configured }
+}
+
+func WithNarrativeEnricher(enricher narrative.Enricher) Option {
+	return func(config *serviceConfig) { config.narrative = enricher }
 }
 
 func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {

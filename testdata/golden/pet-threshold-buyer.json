@@ -15,8 +15,8 @@
     "endAt": "2026-01-01T00:00:00Z",
     "final": true
   },
-  "rulesVersion": "3.5.0",
-  "rulesDigest": "2d652209f813cb011504c606247fbcabcba2f3d79ca7f12fbf1930e901e270df",
+  "rulesVersion": "3.6.0",
+  "rulesDigest": "e4deed63cce0abfd9736fabebcb79965058ce6bcc8bd02bf15539be064d9342a",
   "metrics": {
     "totalEvents": 135,
     "searches": 20,
@@ -118,7 +118,7 @@
       "title": "Заботливый хозяин",
       "description": "Товары для животных стали заметной частью твоих выборов.",
       "reason": "Категории: Товары для животных. Просмотров: 59. Добавлений в избранное: 5. Покупок: 3. Доля тематической активности: 75%.",
-      "shareable": false
+      "shareable": true
     }
   ],
   "cards": [
@@ -256,7 +256,7 @@
       "payload": {
         "shareId": "a122b62a-f648-57e7-9dc8-6b0c26cd531d",
         "year": 2025,
-        "privacyVersion": "privacy-v2",
+        "privacyVersion": "privacy-v3",
         "behaviorTitle": "Решительный покупатель",
         "achievementTitle": "Молния"
       }

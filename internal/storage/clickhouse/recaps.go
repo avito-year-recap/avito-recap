@@ -33,25 +33,16 @@ func (r *Repo) GetRecapByKey(ctx context.Context, key model.RecapKey) (model.Rec
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by key: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap by key rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
-// Поиск по id
 func (r *Repo) GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, error) {
 	rows, err := r.conn.Query(ctx, `SELECT recap FROM recaps WHERE id = ? LIMIT 1`, recapID)
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 
@@ -61,11 +52,7 @@ func (r *Repo) GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.
 	if err != nil {
 		return model.Recap{}, fmt.Errorf("query recap by share id: %w", err)
 	}
-	defer func() {
-		if err := rows.Close(); err != nil {
-			log.Printf("close recap by share id rows: %v", err)
-		}
-	}()
+	defer func() { _ = rows.Close() }()
 	return scanOneRecap(rows, application.ErrRecapNotFound)
 }
 

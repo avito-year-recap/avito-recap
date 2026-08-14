@@ -18,8 +18,8 @@ func TestAuditEveryConfiguredAchievementIsReachable(t *testing.T) {
 	}
 	witnesses := map[model.AchievementCode]model.Metrics{
 		model.AchievementFirstSellingSteps:   {ListingsCreated: 3, ListingsPublished: 2},
-		model.AchievementConsistentPublisher: {ListingsPublished: 5, SalesCompleted: 1},
-		model.AchievementSuccessfulSeller:    {ListingsPublished: 5, SalesCompleted: 5},
+		model.AchievementConsistentPublisher: {ListingsPublished: 10, SalesCompleted: 5},
+		model.AchievementSuccessfulSeller:    {ListingsPublished: 10, SalesCompleted: 7},
 		model.AchievementDealCloser:          {PurchasesCompleted: 3},
 		model.AchievementQuickDecision:       {PurchasesCompleted: 3, ChatsStarted: 5, ChatsWithPurchase: 3},
 		model.AchievementBroadInterests:      {CategoriesCount: 6},
@@ -37,6 +37,7 @@ func TestAuditEveryConfiguredAchievementIsReachable(t *testing.T) {
 		model.AchievementMasterCraft:         thematic(analytics.CategoryTools, "Инструменты"),
 		model.AchievementCaringOwner:         thematic(analytics.CategoryPets, "Товары для животных"),
 		model.AchievementLittleDiscoveries:   thematic(analytics.CategoryKids, "Детские товары"),
+		model.AchievementDecisiveStep:        thematic(analytics.CategoryRealEstate, "Недвижимость"),
 	}
 	configured := ruleset.DefaultRuleset().AchievementPolicy.Rules
 	if len(witnesses) != len(configured) {
@@ -58,29 +59,28 @@ func TestAuditEveryConfiguredAchievementIsReachable(t *testing.T) {
 }
 
 func TestAuditPortfolioBoundaryRules(t *testing.T) {
-	t.Run("seller dominant always includes seller achievement", func(t *testing.T) {
-		for sales := uint64(1); sales <= 20; sales++ {
-			for purchases := uint64(0); purchases < sales; purchases++ {
-				result := buildAchievements(model.Metrics{SalesCompleted: sales, PurchasesCompleted: purchases})
-				foundSeller := false
-				for _, item := range result {
-					if item.Category == model.AchievementCategorySelling {
-						foundSeller = true
-						break
-					}
-				}
-				if !foundSeller {
-					t.Fatalf("sales=%d purchases=%d produced no selling achievement: %+v", sales, purchases, result)
-				}
-			}
+	t.Run("seller percentage thresholds are inclusive at configured boundaries", func(t *testing.T) {
+		result := buildAchievements(model.Metrics{ListingsPublished: 10, SalesCompleted: 7})
+		if item, ok := findAchievement(result, model.AchievementSuccessfulSeller); !ok {
+			t.Fatalf("70%% seller conversion should earn SUCCESSFUL_SELLER: %+v", result)
+		} else if item.Reason == "" {
+			t.Fatal("successful seller reason should explain the percentage")
+		}
+
+		result = buildAchievements(model.Metrics{ListingsPublished: 10, SalesCompleted: 5})
+		if _, ok := findAchievement(result, model.AchievementConsistentPublisher); !ok {
+			t.Fatalf("10 publications with 50%% conversion should earn CONSISTENT_PUBLISHER: %+v", result)
+		}
+
+		result = buildAchievements(model.Metrics{ListingsPublished: 10, SalesCompleted: 4})
+		if _, ok := findAchievement(result, model.AchievementConsistentPublisher); ok {
+			t.Fatalf("40%% conversion must not earn CONSISTENT_PUBLISHER: %+v", result)
 		}
 	})
-	t.Run("seller only gets exactly one", func(t *testing.T) {
-		for sales := uint64(1); sales <= 20; sales++ {
-			result := buildAchievements(model.Metrics{SalesCompleted: sales, ListingsPublished: 20})
-			if len(result) != 1 || result[0].Category != model.AchievementCategorySelling {
-				t.Fatalf("sales=%d: got %+v", sales, result)
-			}
+	t.Run("master of negotiations is percentage based", func(t *testing.T) {
+		result := buildAchievements(model.Metrics{ListingsPublished: 1, SalesCompleted: 1})
+		if _, ok := findAchievement(result, model.AchievementSuccessfulSeller); !ok {
+			t.Fatalf("100%% seller conversion should earn SUCCESSFUL_SELLER: %+v", result)
 		}
 	})
 	t.Run("buyer only can get three purchase-backed themes", func(t *testing.T) {

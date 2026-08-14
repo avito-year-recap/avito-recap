@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: avito-recap-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: STORAGE_BACKEND
+        value: memory
+      - key: AI_NARRATIVE_PROVIDER
+        value: off

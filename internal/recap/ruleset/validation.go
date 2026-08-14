@@ -38,11 +38,14 @@ func (r Ruleset) Validate() error {
 		return fmt.Errorf("%w: rate thresholds must be in (0,1]", ErrInvalidRuleset)
 	}
 	a := r.AchievementThresholds
-	if a.BalancedMinPurchases == 0 || a.BalancedMinSales == 0 ||
+	if a.SuccessfulSellerMinPublished == 0 || a.ConsistentPublisherMinPublished == 0 ||
+		a.BalancedMinPurchases == 0 || a.BalancedMinSales == 0 ||
 		a.ThematicMinViews == 0 || a.ThematicMinFavorites == 0 || a.ThematicMinPurchases == 0 {
 		return fmt.Errorf("%w: achievement count thresholds must be positive", ErrInvalidRuleset)
 	}
-	if a.BalancedMaxDifferenceRate < 0 || a.BalancedMaxDifferenceRate > 1 ||
+	if a.SuccessfulSellerMinSaleRate <= 0 || a.SuccessfulSellerMinSaleRate > 1 ||
+		a.ConsistentPublisherMinSaleRate <= 0 || a.ConsistentPublisherMinSaleRate > 1 ||
+		a.BalancedMaxDifferenceRate < 0 || a.BalancedMaxDifferenceRate > 1 ||
 		a.ThematicMinDominanceRate <= 0 || a.ThematicMinDominanceRate > 1 {
 		return fmt.Errorf("%w: achievement rate thresholds are outside valid ranges", ErrInvalidRuleset)
 	}

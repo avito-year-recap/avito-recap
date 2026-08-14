@@ -55,8 +55,8 @@ func (e *Engine) ValidateStored(value model.Recap, now time.Time) (model.Recap, 
 	if !reflect.DeepEqual(value.NextAction, expected.NextAction) {
 		return model.Recap{}, fmt.Errorf("%w: stored next action differs from engine result", structural.ErrInvalidRecap)
 	}
-	if !reflect.DeepEqual(value.Cards, expected.Cards) {
-		return model.Recap{}, fmt.Errorf("%w: stored cards differ from deterministic projection", structural.ErrInvalidRecap)
+	if err := structural.ValidateCardsAgainstProjection(value.Cards, expected.Cards); err != nil {
+		return model.Recap{}, fmt.Errorf("%w: stored cards differ from deterministic projection: %w", structural.ErrInvalidRecap, err)
 	}
 	return value, nil
 }

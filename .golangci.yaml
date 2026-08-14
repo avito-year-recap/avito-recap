@@ -32,4 +32,4 @@ linters:
 
   exclusions:
     paths:
-      - frontend/
+      - frontend/node_modules

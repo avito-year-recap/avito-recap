@@ -29,6 +29,34 @@ func TestValidGeneratedRecapPassesIntegrityChecks(t *testing.T) {
 	}
 }
 
+func TestEngineAllowsNarrativeDescriptionButRejectsOtherCardMutation(t *testing.T) {
+	core := testEngine(t)
+
+	value := testkit.Recap()
+	value.Cards[0].Description = "Персональная история собрана из безопасных агрегированных фактов."
+	if _, err := core.ValidateStored(value, testkit.Clock()); err != nil {
+		t.Fatalf("narrative-only description change was rejected: %v", err)
+	}
+
+	forged := value
+	forged.Cards = append([]model.Card(nil), value.Cards...)
+	forged.Cards[0].Title = "Подменённый заголовок"
+	if _, err := core.ValidateStored(forged, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
+		t.Fatalf("non-description card mutation error = %v", err)
+	}
+
+	shareForged := value
+	shareForged.Cards = append([]model.Card(nil), value.Cards...)
+	shareIndex := len(shareForged.Cards) - 1
+	if shareForged.Cards[shareIndex].Type != model.CardShare {
+		t.Fatalf("last fixture card = %s, want SHARE", shareForged.Cards[shareIndex].Type)
+	}
+	shareForged.Cards[shareIndex].Description = "ИИ не должен менять публичную SHARE-карточку."
+	if _, err := core.ValidateStored(shareForged, testkit.Clock()); !errors.Is(err, structural.ErrInvalidRecap) {
+		t.Fatalf("SHARE narrative mutation error = %v", err)
+	}
+}
+
 func TestEngineDetectsForgedDerivedData(t *testing.T) {
 	value := testkit.Recap()
 	value.Behavior.Title = "Подменено"
@@ -64,8 +92,8 @@ func TestEngineRejectsFutureDatedStoredRecap(t *testing.T) {
 func TestEngineRejectsStoredAchievementsFromSameCategory(t *testing.T) {
 	value := testkit.Recap()
 	configured := ruleset.DefaultRuleset()
-	first := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 5, SalesCompleted: 5, MostActiveMonth: 1}))
-	second := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 6, ListingsPublished: 5, SalesCompleted: 1, MostActiveMonth: 1}))
+	first := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 17, ListingsPublished: 10, SalesCompleted: 7, MostActiveMonth: 1}))
+	second := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 15, ListingsPublished: 10, SalesCompleted: 5, MostActiveMonth: 1}))
 	if len(first) == 0 || len(second) == 0 {
 		t.Fatal("seller achievement fixtures are empty")
 	}
@@ -86,7 +114,7 @@ func TestEngineRejectsLowerGradeWhenHigherGradeWasEarned(t *testing.T) {
 	value.Metrics = analytics.EnrichMetrics(value.Metrics)
 	configured := ruleset.DefaultRuleset()
 	expected := achievement.Build(configured, value.Metrics)
-	lower := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 5, SalesCompleted: 1, MostActiveMonth: 1}))
+	lower := achievement.Build(configured, analytics.EnrichMetrics(model.Metrics{TotalEvents: 15, ListingsPublished: 10, SalesCompleted: 5, MostActiveMonth: 1}))
 	if len(expected) == 0 || len(lower) == 0 {
 		t.Fatal("achievement fixtures are empty")
 	}
