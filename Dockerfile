@@ -1,10 +1,3 @@
-
-# syntax=docker/dockerfile:1
-
-# Build the React application first.
-# The resulting dist/ directory is copied into the final Go image,
-# so production needs only one web service.
-
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /src/frontend
@@ -32,10 +25,34 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -o /out/api \
     ./cmd/api
 
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath \
+    -o /out/eventgen \
+    ./cmd/eventgen
+
+
+FROM alpine:3.20 AS eventgen
+
+RUN apk add --no-cache ca-certificates \
+    && addgroup -S app \
+    && adduser -S -G app app
+
+WORKDIR /app
+
+COPY --from=backend-builder /out/eventgen /usr/local/bin/eventgen
+COPY --from=backend-builder /src/seeds ./seeds
+
+ENV PROFILES_PATH=/app/seeds/profiles.json \
+    SCENARIOS_PATH=/app/seeds/scenarios.json
+
+USER app
+
+CMD ["/usr/local/bin/eventgen"]
+
 
 # Small runtime image: one process serves both React and the Go API.
 
-FROM alpine:3.20
+FROM alpine:3.20 AS api
 
 RUN apk add --no-cache ca-certificates \
     && addgroup -S app \
