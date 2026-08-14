@@ -65,13 +65,6 @@ services:
     networks:
       - recap
 
-  # Хост ограничен 4 ГБ RAM / 2 vCPU. Замер на проде: qwen3:4b под Ollama
-  # держит пик ~2.6 ГБ RSS и почти полностью занимает оба ядра во время
-  # генерации. Лимиты ниже не дают ему задушить ClickHouse/api по памяти
-  # и оставляют второе ядро остальным сервисам - ценой более медленной
-  # генерации. При нехватке памяти контейнер убьётся по OOM и поднимется
-  # заново по restart-политике; приложение при этом падает на детерминиро-
-  # ванный текст рекапа (AI - best-effort, не обязателен для ответа).
   ollama:
     image: ollama/ollama:latest
     restart: unless-stopped
@@ -83,6 +76,65 @@ services:
       OLLAMA_MAX_LOADED_MODELS: "1"
     volumes:
       - ollama_data:/root/.ollama
+    logging: *default-logging
+    networks:
+      - recap
+
+  kafka:
+    image: apache/kafka:3.9.2
+    profiles: ["events-gen"]
+    mem_limit: 1g
+    mem_reservation: 768m
+    cpus: "0.5"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "CONTROLLER://:29093,PLAINTEXT://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    logging: *default-logging
+    networks:
+      - recap
+
+  clickhouse-kafka-init:
+    image: clickhouse/clickhouse-server:24.8-alpine
+    profiles: ["events-gen"]
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./clickhouse/kafka:/sql:ro
+    entrypoint:
+      - sh
+      - -c
+      - "clickhouse-client --host clickhouse --user recap --password recap --multiquery < /sql/010_events_kafka.sql"
+    networks:
+      - recap
+
+  eventgen:
+    image: ${EVENTGEN_IMAGE:-ghcr.io/avito-year-recap/avito-recap-eventgen:latest}
+    profiles: ["events-gen"]
+    environment:
+      EVENTGEN_KAFKA_BROKERS: "kafka:9092"
+      EVENTGEN_KAFKA_TOPIC: "events"
+    depends_on:
+      kafka:
+        condition: service_healthy
     logging: *default-logging
     networks:
       - recap
