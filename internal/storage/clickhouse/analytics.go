@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -12,16 +13,6 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// CalculateMetrics is cache-aside over the raw events table, but a cache hit
-// is only trusted after confirming it is still current: annual_metrics
-// stores the event count it was computed from, and every read compares that
-// against a live count() over events before returning the cached row. Events
-// that land for a profile/year after the first computation are what this
-// catches — without it, a cache row written once would be served forever
-// even after more events arrive. The live count is a cheap query (ClickHouse
-// counts columnarly, and events is ordered by profile_id first), so this
-// stays much cheaper than re-fetching and re-aggregating every event row on
-// every read, while still being correct instead of merely fast.
 func (r *Repo) CalculateMetrics(ctx context.Context, profileID uuid.UUID, period model.RecapPeriod) (model.Metrics, error) {
 	liveCount, err := r.CountEvents(ctx, profileID, period.Year)
 	if err != nil {
@@ -120,6 +111,33 @@ func (r *Repo) queryEvents(ctx context.Context, profileID uuid.UUID, year uint32
 	`, profileID, uint16(year))
 	if err != nil {
 		return nil, fmt.Errorf("query events: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var events []model.Event
+	for rows.Next() {
+		var event model.Event
+		var eventType string
+		if err := rows.Scan(
+			&event.ID, &event.ProfileID, &eventType, &event.OccurredAt,
+			&event.Category, &event.AdID, &event.DialogID,
+		); err != nil {
+			return nil, fmt.Errorf("scan event: %w", err)
+		}
+		event.Type = model.ActivityType(eventType)
+		events = append(events, event)
+	}
+	return events, rows.Err()
+}
+
+func (r *Repo) QueryEventsByRange(ctx context.Context, profileID uuid.UUID, start, end time.Time) ([]model.Event, error) {
+	rows, err := r.conn.Query(ctx, `
+		SELECT id, profile_id, event_type, occurred_at, category, ad_id, dialog_id
+		FROM events
+		WHERE profile_id = ? AND occurred_at >= ? AND occurred_at < ?
+	`, profileID, start.UTC(), end.UTC())
+	if err != nil {
+		return nil, fmt.Errorf("query events by range: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
 

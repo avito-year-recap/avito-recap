@@ -48,13 +48,20 @@ func run() error {
 	}
 	defer closeStorage()
 
-	narrativeEnricher, err := buildNarrativeEnricher(rootCtx, cfg)
+	aiGenerator, err := buildAIGenerator(rootCtx, cfg)
 	if err != nil {
-		return fmt.Errorf("build AI narrative enricher: %w", err)
+		return fmt.Errorf("build AI generator: %w", err)
 	}
-	options := make([]application.Option, 0, 1)
-	if narrativeEnricher != nil {
-		options = append(options, application.WithNarrativeEnricher(narrativeEnricher))
+
+	options := make([]application.Option, 0, 3)
+	if aiGenerator != nil {
+		options = append(options,
+			application.WithNarrativeEnricher(buildNarrativeEnricher(aiGenerator, cfg)),
+			application.WithInsightGenerator(ollamanarrative.InsightGenerator{Generator: aiGenerator}),
+		)
+	}
+	if eventStorage, ok := repo.(application.EventRangeStorage); ok {
+		options = append(options, application.WithEventRangeStorage(eventStorage))
 	}
 
 	app, err := application.NewService(repo, repo, repo, repo, options...)
@@ -149,7 +156,7 @@ func openStorage(ctx context.Context, cfg config.Config) (applicationStorage, fu
 	}
 }
 
-func buildNarrativeEnricher(ctx context.Context, cfg config.Config) (narrative.Enricher, error) {
+func buildAIGenerator(ctx context.Context, cfg config.Config) (*ollamanarrative.Generator, error) {
 	provider := cfg.NarrativeProvider
 	if provider == config.NarrativeOff {
 		return nil, nil
@@ -174,26 +181,31 @@ func buildNarrativeEnricher(ctx context.Context, cfg config.Config) (narrative.E
 	cancel()
 	if probeErr != nil {
 		if provider == config.NarrativeAuto {
-			log.Printf("AI narrative disabled: local Ollama/model unavailable: %v", probeErr)
+			log.Printf("AI disabled: local Ollama/model unavailable: %v", probeErr)
 			return nil, nil
 		}
 		return nil, fmt.Errorf("local Ollama is not ready: %w", probeErr)
 	}
 
-	limited, err := narrative.NewLimited(generator, cfg.AINarrativeMaxConcurrency)
-	if err != nil {
-		return nil, err
-	}
 	log.Printf(
-		"AI narrative enabled (provider=ollama model=%s base_url=%s max_concurrency=%d)",
+		"AI enabled (provider=ollama model=%s base_url=%s max_concurrency=%d)",
 		cfg.OllamaModel,
 		cfg.OllamaBaseURL,
 		cfg.AINarrativeMaxConcurrency,
 	)
+	return generator, nil
+}
+
+func buildNarrativeEnricher(generator *ollamanarrative.Generator, cfg config.Config) narrative.Enricher {
+	limited, err := narrative.NewLimited(generator, cfg.AINarrativeMaxConcurrency)
+	if err != nil {
+		log.Printf("AI narrative disabled: %v", err)
+		return nil
+	}
 	return narrative.BestEffort{
 		Primary: limited,
 		OnError: func(err error) {
 			log.Printf("AI narrative fallback to deterministic copy: %v", err)
 		},
-	}, nil
+	}
 }

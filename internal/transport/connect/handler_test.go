@@ -5,11 +5,13 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	connectrpc "connectrpc.com/connect"
 	"github.com/google/uuid"
 	recapv1 "github.com/year-recap/gen/go/recap/v1"
 	"github.com/year-recap/internal/recap/application"
+	"github.com/year-recap/internal/recap/insight"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/testkit"
 )
@@ -78,6 +80,15 @@ func (f *fakeApplication) GetShareCard(
 ) (model.ShareCard, error) {
 	f.receivedShareID = shareID
 	return f.share, f.err
+}
+
+func (f *fakeApplication) AnalyzeBehavior(
+	_ context.Context,
+	profileID uuid.UUID,
+	_, _ time.Time,
+) (insight.Result, error) {
+	f.receivedProfileID = profileID
+	return insight.Result{}, f.err
 }
 
 func TestNewHandlerRequiresApplication(t *testing.T) {

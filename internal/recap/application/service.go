@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/year-recap/internal/recap/analytics"
 	"github.com/year-recap/internal/recap/engine"
+	"github.com/year-recap/internal/recap/insight"
 	"github.com/year-recap/internal/recap/model"
 	"github.com/year-recap/internal/recap/narrative"
 	"github.com/year-recap/internal/recap/ruleset"
@@ -23,8 +24,10 @@ type Service struct {
 	analytics       AnalyticsStorage
 	actionStates    ActionStateStorage
 	recaps          RecapStorage
+	events          EventRangeStorage
 	engine          *engine.Engine
 	narrative       narrative.Enricher
+	insight         insight.Generator
 	generateFlights generationFlightGroup
 
 	now   func() time.Time
@@ -34,6 +37,8 @@ type Service struct {
 type serviceConfig struct {
 	rules     ruleset.Ruleset
 	narrative narrative.Enricher
+	events    EventRangeStorage
+	insight   insight.Generator
 	now       func() time.Time
 	newID     IDGenerator
 }
@@ -72,7 +77,8 @@ func NewService(
 	}
 	return &Service{
 		profiles: profiles, analytics: analytics, actionStates: actionStates, recaps: recaps,
-		engine: core, narrative: config.narrative, now: config.now, newID: config.newID,
+		events: config.events, engine: core, narrative: config.narrative, insight: config.insight,
+		now: config.now, newID: config.newID,
 	}, nil
 }
 
@@ -91,9 +97,6 @@ func (s *Service) ListProfiles(ctx context.Context) ([]model.Profile, error) {
 	return profiles, nil
 }
 
-// GetProfileByCode resolves the transport-facing profile code to the internal
-// profile record. The wire contract only ever addresses profiles by code —
-// the UUID stays an internal storage/idempotency detail.
 func (s *Service) GetProfileByCode(ctx context.Context, code string) (model.Profile, error) {
 	code = strings.TrimSpace(code)
 	if code == "" {
@@ -131,6 +134,12 @@ var (
 	ErrInvalidMetrics         = structural.ErrInvalidMetrics
 	ErrInvalidActionableState = structural.ErrInvalidActionableState
 	ErrInvalidRecap           = structural.ErrInvalidRecap
+
+	ErrInvalidPeriod         = errors.New("invalid analysis period")
+	ErrPeriodTooLong         = errors.New("analysis period exceeds the maximum supported range")
+	ErrEventRangeUnsupported = errors.New("this storage backend cannot analyze an arbitrary date range")
+	ErrInsightUnavailable    = errors.New("behavior insight generator is not configured")
+	ErrNoActivityInPeriod    = errors.New("no events found for profile in the requested period")
 )
 
 func WithClock(clock func() time.Time) Option {
@@ -155,6 +164,14 @@ func WithRuleset(configured ruleset.Ruleset) Option {
 
 func WithNarrativeEnricher(enricher narrative.Enricher) Option {
 	return func(config *serviceConfig) { config.narrative = enricher }
+}
+
+func WithEventRangeStorage(storage EventRangeStorage) Option {
+	return func(config *serviceConfig) { config.events = storage }
+}
+
+func WithInsightGenerator(generator insight.Generator) Option {
+	return func(config *serviceConfig) { config.insight = generator }
 }
 
 func (s *Service) generateNonNilID(kind string) (uuid.UUID, error) {

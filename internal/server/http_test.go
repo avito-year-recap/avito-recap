@@ -257,6 +257,71 @@ func TestHTTPHandlerExplainRecapValidatesQuery(t *testing.T) {
 	}
 }
 
+func TestHTTPHandlerBehaviorInsightRejectsWrongMethod(t *testing.T) {
+	httpServer := newTestServer(t)
+	response, err := httpServer.Client().Get(httpServer.URL + "/api/behavior-insight")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeResponseBody(t, response)
+	if response.StatusCode != http.StatusMethodNotAllowed {
+		t.Fatalf("status = %d, want %d", response.StatusCode, http.StatusMethodNotAllowed)
+	}
+}
+
+func TestHTTPHandlerBehaviorInsightValidatesBody(t *testing.T) {
+	httpServer := newTestServer(t)
+	response, err := httpServer.Client().Post(
+		httpServer.URL+"/api/behavior-insight",
+		"application/json",
+		strings.NewReader(`{"startAt":"2026-01-01T00:00:00Z","endAt":"2026-02-01T00:00:00Z"}`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeResponseBody(t, response)
+	if response.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", response.StatusCode, http.StatusBadRequest)
+	}
+}
+
+func TestHTTPHandlerBehaviorInsightUnknownProfile(t *testing.T) {
+	httpServer := newTestServer(t)
+	response, err := httpServer.Client().Post(
+		httpServer.URL+"/api/behavior-insight",
+		"application/json",
+		strings.NewReader(`{"profileCode":"does-not-exist","startAt":"2026-01-01T00:00:00Z","endAt":"2026-02-01T00:00:00Z"}`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeResponseBody(t, response)
+	if response.StatusCode != http.StatusNotFound {
+		t.Fatalf("status = %d, want %d", response.StatusCode, http.StatusNotFound)
+	}
+}
+
+// TestHTTPHandlerBehaviorInsightReportsUnsupportedBackend documents that the
+// endpoint is wired up end to end, but newTestServer's storage/AI are the
+// same optional deps as production's in-memory demo backend: no raw events,
+// no AI generator. That combination must surface as a clear 503, not a panic
+// or a fabricated 200.
+func TestHTTPHandlerBehaviorInsightReportsUnsupportedBackend(t *testing.T) {
+	httpServer := newTestServer(t)
+	response, err := httpServer.Client().Post(
+		httpServer.URL+"/api/behavior-insight",
+		"application/json",
+		strings.NewReader(`{"profileCode":"`+testkit.Profile().Code+`","startAt":"2026-01-01T00:00:00Z","endAt":"2026-02-01T00:00:00Z"}`),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeResponseBody(t, response)
+	if response.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want %d", response.StatusCode, http.StatusServiceUnavailable)
+	}
+}
+
 func TestHTTPHandlerHealthCORSAndAvatars(t *testing.T) {
 	httpServer := newTestServer(t)
 

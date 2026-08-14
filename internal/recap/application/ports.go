@@ -30,3 +30,7 @@ type RecapStorage interface {
 	GetRecap(ctx context.Context, recapID uuid.UUID) (model.Recap, error)
 	GetRecapByShareID(ctx context.Context, shareID uuid.UUID) (model.Recap, error)
 }
+
+type EventRangeStorage interface {
+	QueryEventsByRange(ctx context.Context, profileID uuid.UUID, start, end time.Time) ([]model.Event, error)
+}

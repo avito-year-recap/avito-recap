@@ -38,6 +38,10 @@ func NewHandler(application transportconnect.Application, options Options) (http
 	// Explainability endpoint exposes a privacy-safe decision trace for demos and rule debugging.
 	mux.HandleFunc("/explain", explainRecap(application))
 	mux.HandleFunc("/api/explain", explainRecap(application))
+	// Behavior-insight endpoint runs an on-demand AI read of a profile's events over an
+	// arbitrary period and returns it together with the facts it was grounded in.
+	mux.HandleFunc("/behavior-insight", behaviorInsight(application))
+	mux.HandleFunc("/api/behavior-insight", behaviorInsight(application))
 
 	// Do not let unknown API URLs fall through to the React SPA.
 	mux.Handle("/api/", http.NotFoundHandler())

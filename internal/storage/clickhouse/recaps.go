@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
@@ -15,11 +14,6 @@ import (
 	"github.com/year-recap/internal/recap/model"
 )
 
-// createRecapMu serializes CreateRecapIfAbsent's check-then-insert across all
-// Repo instances in the process. ClickHouse's MergeTree engines give no way to
-// enforce "insert if absent" atomically at the storage layer, so without this
-// lock concurrent callers racing on the same key each see "not found" and
-// insert their own row.
 var createRecapMu sync.Mutex
 
 // Поиск по ключу из нескольких колонок

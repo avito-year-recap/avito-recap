@@ -37,6 +37,33 @@ func (s *AnalyticsStorage) CalculateMetrics(context.Context, uuid.UUID, model.Re
 	return s.Metrics, nil
 }
 
+type EventRangeStorage struct {
+	Events []model.Event
+	Err    error
+}
+
+func (s *EventRangeStorage) QueryEventsByRange(
+	_ context.Context,
+	profileID uuid.UUID,
+	start, end time.Time,
+) ([]model.Event, error) {
+	if s.Err != nil {
+		return nil, s.Err
+	}
+	var matched []model.Event
+	for _, event := range s.Events {
+		if event.ProfileID != profileID {
+			continue
+		}
+		occurredAt := event.OccurredAt
+		if occurredAt.Before(start) || !occurredAt.Before(end) {
+			continue
+		}
+		matched = append(matched, event)
+	}
+	return matched, nil
+}
+
 type ActionStateStorage struct{ State model.ActionableState }
 
 func (s *ActionStateStorage) GetActionableState(_ context.Context, _ uuid.UUID, asOf time.Time) (model.ActionableState, error) {
