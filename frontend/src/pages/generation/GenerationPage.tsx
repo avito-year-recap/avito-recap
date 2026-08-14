@@ -13,7 +13,7 @@ export function GenerationPage() {
   const { profileCode } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [minimumLoadingTimePassed, setMinimumLoadingTimePassed] = useState(false);
+  const [loadingReadyProfileCode, setLoadingReadyProfileCode] = useState<string | null>(null);
   const mutation = useMutation({
     mutationFn: generateRecap,
     onSuccess: (recap) =>
@@ -21,10 +21,18 @@ export function GenerationPage() {
   });
 
   useEffect(() => {
-    setMinimumLoadingTimePassed(false);
-    const timer = window.setTimeout(() => setMinimumLoadingTimePassed(true), MIN_LOADING_TIME_MS);
+    if (!profileCode) return;
+
+    const timer = window.setTimeout(
+      () => setLoadingReadyProfileCode(profileCode),
+      MIN_LOADING_TIME_MS,
+    );
+
     return () => window.clearTimeout(timer);
   }, [profileCode]);
+
+  const minimumLoadingTimePassed =
+    Boolean(profileCode) && loadingReadyProfileCode === profileCode;
 
   useEffect(() => {
     if (!profileCode || mutation.isPending || mutation.isSuccess) return;
