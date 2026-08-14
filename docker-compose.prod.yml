@@ -71,7 +71,7 @@ services:
     restart: unless-stopped
     mem_limit: 3g
     mem_reservation: 2.5g
-    cpus: "1"
+    cpus: "1.5"
     environment:
       OLLAMA_NUM_PARALLEL: "1"
       OLLAMA_MAX_LOADED_MODELS: "1"
