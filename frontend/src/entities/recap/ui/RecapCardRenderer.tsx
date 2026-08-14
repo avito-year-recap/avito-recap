@@ -364,6 +364,9 @@ export function RecapCardRenderer({
   recap: Recap;
   onAction: () => void;
   onTrailer: () => void;
+  onExplain?: (card: RecapCard) => void;
+  onExploreTotem?: () => void;
+  soundEnabled?: boolean;
 }) {
   switch (card.type) {
     case "INTRO": return <Intro card={card} recap={recap} />;

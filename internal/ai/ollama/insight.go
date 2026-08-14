@@ -16,7 +16,7 @@ import (
 type InsightGenerator struct{ *Generator }
 
 func (g InsightGenerator) Generate(ctx context.Context, facts insight.Facts) (insight.Card, error) {
-	return g.Generator.GenerateInsight(ctx, facts)
+	return g.GenerateInsight(ctx, facts)
 }
 
 func (g *Generator) GenerateInsight(ctx context.Context, facts insight.Facts) (insight.Card, error) {
